@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel Administratora{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2 class="text-center">Panel Administratora</h2>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <a href="{{ path('admin_cars') }}" class="btn btn-primary w-100">🚗 Zarządzanie samochodami</a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path('admin_users') }}" class="btn btn-secondary w-100">👤 Zarządzanie użytkownikami</a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path('admin_reservations') }}" class="btn btn-warning w-100">📅 Zarządzanie rezerwacjami</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

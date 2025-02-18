@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Szczegóły rezerwacji{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card shadow p-4">
+            <h1 class="text-center">📋 Szczegóły rezerwacji</h1>
+            <hr>
+
+            <p><strong>🚗 Samochód:</strong> {{ reservation.car.brand }} {{ reservation.car.model }}</p>
+            <p><strong>👤 Najemca:</strong> {{ reservation.user.email }}</p>
+            <p><strong>📅 Data rozpoczęcia:</strong> {{ reservation.startDate|date('Y-m-d') }}</p>
+            <p><strong>📅 Data zakończenia:</strong> {{ reservation.endDate|date('Y-m-d') }}</p>
+
+            {% if reservation.phoneNumber %}
+                <p><strong>📞 Numer telefonu:</strong> {{ reservation.phoneNumber }}</p>
+            {% endif %}
+
+            {% if reservation.rentalLocation %}
+                <p><strong>📍 Preferowana lokalizacja wynajmu:</strong> {{ reservation.rentalLocation }}</p>
+            {% endif %}
+
+            {% if reservation.comments %}
+                <p><strong>📝 Komentarz:</strong> {{ reservation.comments }}</p>
+            {% endif %}
+
+            <p><strong>📌 Status:</strong>
+                {% if reservation.status == 'pending' %}
+                    <span class="badge bg-warning">⏳ Oczekuje</span>
+                {% elseif reservation.status == 'accepted' %}
+                    <span class="badge bg-success">✅ Zaakceptowana</span>
+                {% else %}
+                    <span class="badge bg-danger">❌ Odrzucona</span>
+                {% endif %}
+            </p>
+
+            <!-- Przyciski pobierania faktury i umowy -->
+            <div class="mt-3">
+                <a href="{{ path('app_generate_contract', {'id': reservation.id}) }}" class="btn btn-primary">
+                    📜 Pobierz fakturę
+                </a>
+                <a href="{{ path('app_generate_rental_agreement', {'id': reservation.id}) }}" class="btn btn-secondary">
+                    📄 Pobierz umowę najmu
+                </a>
+            </div>
+
+            <!-- Opcje akceptacji/odrzucenia rezerwacji -->
+            {% if reservation.car.owner == app.user %}
+                <div class="mt-4">
+                    {% if reservation.status == 'pending' %}
+                        <form method="post" action="{{ path('app_accept_reservation', {'id': reservation.id}) }}" style="display:inline;">
+                            <button class="btn btn-success">✔ Akceptuj</button>
+                        </form>
+                        <form method="post" action="{{ path('app_reject_reservation', {'id': reservation.id}) }}" style="display:inline;">
+                            <button class="btn btn-danger">✖ Odrzuć</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <a href="{{ path('app_reservations') }}" class="btn btn-secondary">Powrót</a>
+
+
+        </div>
+    </div>
+{% endblock %}

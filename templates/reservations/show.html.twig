@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Szczegóły rezerwacji{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Szczegóły rezerwacji</h1>
+
+        <p><strong>Najemca:</strong> {{ reservation.user.fullName }} ({{ reservation.user.email }})</p>
+        <p><strong>Samochód:</strong> {{ reservation.car.brand }} {{ reservation.car.model }} ({{ reservation.car.year }})</p>
+        <p><strong>Numer rejestracyjny:</strong> {{ reservation.car.registrationNumber }}</p>
+        <p><strong>Okres wynajmu:</strong> {{ reservation.startDate|date('Y-m-d') }} - {{ reservation.endDate|date('Y-m-d') }}</p>
+
+        <hr>
+
+        <a href="{{ path('app_generate_contract', { id: reservation.id }) }}" class="btn btn-success">
+            Pobierz fakturę
+        </a>
+
+        {% if app.user == reservation.car.owner %}
+            <a href="{{ path('app_generate_rental_agreement', { id: reservation.id }) }}" class="btn btn-primary">
+                Drukuj umowę najmu
+            </a>
+        {% endif %}
+
+        <a href="{{ path('app_reservations') }}" class="btn btn-secondary">Wróć do rezerwacji</a>
+    </div>
+{% endblock %}

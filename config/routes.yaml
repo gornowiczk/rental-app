@@ -1,0 +1,70 @@
+controllers:
+    resource: ../src/Controller/
+    type: attribute
+    
+app_home:
+    path: /
+    controller: App\Controller\HomeController::index
+    methods: GET
+
+app_login:
+    path: /login
+    controller: App\Controller\SecurityController::login
+    methods: [GET, POST]
+
+app_register:
+    path: /register
+    controller: App\Controller\SecurityController::register
+    methods: [GET, POST]
+
+app_logout:
+    path: /logout
+    controller: App\Controller\SecurityController::logout
+
+app_list_cars:
+    path: /cars/all
+    controller: App\Controller\CarController::list
+    methods: GET
+
+app_my_cars:
+    path: /cars/my
+    controller: App\Controller\CarController::myCars
+    methods: GET
+
+app_add_car:
+    path: /cars/add
+    controller: App\Controller\CarController::addCar
+    methods: [GET, POST]
+
+app_car_details:
+    path: /cars/{id}
+    controller: App\Controller\CarController::details
+    requirements:
+        id: \d+
+    methods: GET
+
+app_edit_car:
+    path: /cars/edit/{id}
+    controller: App\Controller\CarController::editCar
+    requirements:
+        id: \d+
+    methods: [GET, POST]
+
+app_delete_car:
+    path: /cars/delete/{id}
+    controller: App\Controller\CarController::deleteCar
+    requirements:
+        id: \d+
+    methods: POST
+
+app_reservations:
+    path: /reservations
+    controller: App\Controller\ReservationController::index
+
+app_reservation_history:
+    path: /reservations/history
+    controller: App\Controller\ReservationController::reservationHistory
+
+app_user_profile:
+    path: /user/profile
+    controller: App\Controller\UserController::profile

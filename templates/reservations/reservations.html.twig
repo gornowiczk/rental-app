@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rezerwacje{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card shadow p-4">
+            <h2 class="text-center">📋 Moje rezerwacje</h2>
+
+            <table class="table table-striped mt-3">
+                <thead class="table-dark">
+                <tr>
+                    <th>🚗 Samochód</th>
+                    <th>📅 Początek</th>
+                    <th>📅 Koniec</th>
+                    <th>📌 Status</th>
+                    <th>🔍 Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reservation in myReservations %}
+                    <tr>
+                        <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
+                        <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
+                        <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
+                        <td>
+                            {% if reservation.status == 'pending' %}
+                                <span class="badge bg-warning">⏳ Oczekuje</span>
+                            {% elseif reservation.status == 'accepted' %}
+                                <span class="badge bg-success">✅ Zaakceptowana</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Odrzucona</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_reservation_details', {'id': reservation.id}) }}" class="btn btn-info btn-sm">🔍 Szczegóły</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h2 class="text-center mt-5">🚗 Rezerwacje moich samochodów</h2>
+
+            <table class="table table-striped mt-3">
+                <thead class="table-dark">
+                <tr>
+                    <th>🚗 Samochód</th>
+                    <th>👤 Najemca</th>
+                    <th>📅 Początek</th>
+                    <th>📅 Koniec</th>
+                    <th>📌 Status</th>
+                    <th>🔍 Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reservation in carReservations %}
+                    <tr>
+                        <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
+                        <td>{{ reservation.user.fullName }}</td>
+                        <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
+                        <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
+                        <td>
+                            {% if reservation.status == 'pending' %}
+                                <span class="badge bg-warning">⏳ Oczekuje</span>
+                            {% elseif reservation.status == 'accepted' %}
+                                <span class="badge bg-success">✅ Zaakceptowana</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Odrzucona</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_reservation_details', {'id': reservation.id}) }}" class="btn btn-info btn-sm">🔍 Szczegóły</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

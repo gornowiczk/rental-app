@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="text-center">Zaloguj się</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                {% if error %}
+                    <div class="alert alert-danger">Nieprawidłowe dane logowania</div>
+                {% endif %}
+
+                <form method="post" class="mt-3">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" name="_username" id="email" class="form-control" value="{{ last_username }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Hasło:</label>
+                        <input type="password" name="_password" id="password" class="form-control" required>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="_remember_me" class="form-check-input">
+                        <label class="form-check-label">Zapamiętaj mnie</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Zaloguj</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Szczegóły samochodu{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-3">Szczegóły samochodu</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Marka:</strong> {{ car.brand }}</p>
+                <p><strong>Model:</strong> {{ car.model }}</p>
+                <p><strong>Rok produkcji:</strong> {{ car.year }}</p>
+                <p><strong>Numer rejestracyjny:</strong> {{ car.registrationNumber }}</p>
+                <p><strong>Cena za dzień:</strong> {{ car.pricePerDay }} zł</p>
+                <p><strong>Lokalizacja:</strong> {{ car.location }}</p>
+                <p><strong>Dostępność:</strong>
+                    {% if car.isAvailable %}
+                        <span class="badge bg-success">Dostępny</span>
+                    {% else %}
+                        <span class="badge bg-danger">Niedostępny</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                {% if car.mainImage %}
+                    <p><strong>Zdjęcie główne:</strong></p>
+                    <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" alt="Zdjęcie samochodu" class="img-fluid rounded shadow">
+                {% endif %}
+
+                {% if car.gallery %}
+                    <p><strong>Galeria zdjęć:</strong></p>
+                    <div class="gallery d-flex flex-wrap">
+                        {% for image in car.gallery %}
+                            <img src="{{ asset('uploads/cars/' ~ image) }}" alt="Zdjęcie samochodu" class="img-thumbnail me-2">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr>
+
+        {% if car.owner == app.user %}
+            <h2 class="mt-4">Kalendarz rezerwacji</h2>
+            <div id="owner-calendar" class="calendar-container"></div>
+        {% else %}
+            <button id="showCalendarBtn" class="btn btn-success mt-3">Zarezerwuj</button>
+            <div id="calendar-section" class="mt-3" style="display: none;">
+                <h2>Wybierz daty rezerwacji</h2>
+                <div id="rental-calendar" class="calendar-container"></div>
+                <button id="confirmReservationBtn" class="btn btn-primary mt-2">Potwierdź rezerwację</button>
+            </div>
+        {% endif %}
+
+        <a href="{{ path('app_list_cars', {'filter': 'all'}) }}" class="btn btn-secondary">Powrót</a>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var showCalendarBtn = document.getElementById('showCalendarBtn');
+            var calendarSection = document.getElementById('calendar-section');
+            var confirmReservationBtn = document.getElementById('confirmReservationBtn');
+            var selectedStartDate = null;
+            var selectedEndDate = null;
+
+            if (showCalendarBtn) {
+                showCalendarBtn.addEventListener('click', function() {
+                    calendarSection.style.display = 'block';
+                });
+            }
+
+            function renderCalendar(calendarId, eventsUrl, selectable = false) {
+                return new FullCalendar.Calendar(document.getElementById(calendarId), {
+                    initialView: 'dayGridMonth',
+                    selectable: selectable,
+                    height: 400,
+                    locale: 'pl',
+                    select: function(info) {
+                        if (selectable) {
+                            selectedStartDate = info.startStr;
+                            selectedEndDate = info.endStr;
+                            alert('Wybrano daty: ' + selectedStartDate + ' - ' + selectedEndDate);
+                        }
+                    },
+                    events: eventsUrl,
+                    eventColor: "red"
+                });
+            }
+
+            if (document.getElementById('rental-calendar')) {
+                var rentalCalendar = renderCalendar('rental-calendar', "{{ path('app_car_availability', {'id': car.id}) }}", true);
+                rentalCalendar.render();
+            }
+
+            if (document.getElementById('owner-calendar')) {
+                var ownerCalendar = renderCalendar('owner-calendar', "{{ path('app_car_availability', {'id': car.id}) }}");
+                ownerCalendar.render();
+            }
+
+            if (confirmReservationBtn) {
+                confirmReservationBtn.addEventListener('click', function() {
+                    if (!selectedStartDate || !selectedEndDate) {
+                        alert('Proszę wybrać zakres dat.');
+                        return;
+                    }
+                    window.location.href = "{{ path('app_confirm_reservation', {'id': car.id}) }}?start_date=" + selectedStartDate + "&end_date=" + selectedEndDate;
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .calendar-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .img-thumbnail {
+            max-width: 100px;
+            margin-bottom: 5px;
+        }
+    </style>
+{% endblock %}

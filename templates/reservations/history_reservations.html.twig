@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historia rezerwacji{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card shadow p-4">
+            <h2 class="text-center">📜 Historia rezerwacji</h2>
+            <hr>
+
+            {% if reservations is empty %}
+                <p class="text-muted text-center">Brak historii rezerwacji.</p>
+            {% else %}
+                <table class="table table-striped mt-3">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>🚗 Samochód</th>
+                        <th>📅 Początek</th>
+                        <th>📅 Koniec</th>
+                        <th>📌 Status</th>
+                        <th>🔍 Szczegóły</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for reservation in reservations %}
+                        <tr>
+                            <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
+                            <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
+                            <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
+                            <td>
+                                {% if reservation.status == 'accepted' %}
+                                    <span class="badge bg-success">✅ Zaakceptowana</span>
+                                {% elseif reservation.status == 'pending' %}
+                                    <span class="badge bg-warning">⏳ Oczekuje</span>
+                                {% else %}
+                                    <span class="badge bg-danger">❌ Odrzucona</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_reservation_details', {'id': reservation.id}) }}" class="btn btn-info btn-sm">🔍 Szczegóły</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            <a href="{{ path('app_list_cars') }}" class="btn btn-secondary mt-3">🏠 Powrót do strony głównej</a>
+        </div>
+    </div>
+{% endblock %}

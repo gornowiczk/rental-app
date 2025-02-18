@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zarządzanie Użytkownikami{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2>Zarządzanie Użytkownikami</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Imię i nazwisko</th>
+                <th>Email</th>
+                <th>Rola</th>
+                <th>Akcje</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.fullName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.roles|join(', ') }}</td>
+                    <td>
+                        <form method="post" action="{{ path('admin_delete_user', {'id': user.id}) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

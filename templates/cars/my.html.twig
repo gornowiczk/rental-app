@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moje Samochody{% endblock %}
+
+{% block body %}
+    <h1>Moje samochody</h1>
+
+    {% if cars is empty %}
+        <p>Nie dodałeś jeszcze żadnych samochodów.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>Rok</th>
+                    <th>Numer rejestracyjny</th>
+                    <th>Cena za dzień</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for car in cars %}
+                    <tr>
+                        <td>{{ car.brand }}</td>
+                        <td>{{ car.model }}</td>
+                        <td>{{ car.year }}</td>
+                        <td>{{ car.plateNumber }}</td>
+                        <td>{{ car.pricePerDay }} zł</td>
+                        <td>
+                            <a href="{{ path('app_car_details', {'id': car.id}) }}">Szczegóły</a>
+                            <form action="{{ path('app_delete_car', {'id': car.id}) }}" method="post" style="display:inline;">
+                                <button type="submit">Usuń</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

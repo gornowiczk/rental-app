@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nowa Rezerwacja{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2 class="text-center">Nowa Rezerwacja</h2>
+
+        {# Wysyłamy formularz metodą POST #}
+        <form method="POST" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
+
+            {# Przekazujemy daty rezerwacji jako ukryte pola #}
+            <input type="hidden" name="start_date" value="{{ startDate }}">
+            <input type="hidden" name="end_date" value="{{ endDate }}">
+
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Numer telefonu</label>
+                <input type="text" name="phoneNumber" id="phoneNumber" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="comments" class="form-label">Dodatkowe uwagi</label>
+                <textarea name="comments" id="comments" class="form-control"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Zarezerwuj</button>
+            <a href="{{ app.request.headers.get('referer') }}" class="btn btn-secondary">Powrót</a>
+        </form>
+    </div>
+{% endblock %}

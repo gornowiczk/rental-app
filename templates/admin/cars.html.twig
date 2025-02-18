@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zarządzanie Samochodami{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2>Zarządzanie Samochodami</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Rok</th>
+                <th>Akcje</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for car in cars %}
+                <tr>
+                    <td>{{ car.brand }}</td>
+                    <td>{{ car.model }}</td>
+                    <td>{{ car.year }}</td>
+                    <td>
+                        <form method="post" action="{{ path('admin_delete_car', {'id': car.id}) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Potwierdzenie rezerwacji{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2 class="text-center">Potwierdzenie rezerwacji</h2>
+        <p><strong>Samochód:</strong> {{ car.brand }} {{ car.model }} ({{ car.year }})</p>
+        <p><strong>Numer rejestracyjny:</strong> {{ car.registrationNumber }}</p>
+
+        <!-- Kalendarz do wyboru dat -->
+        <div id="rental-calendar" style="max-width: 600px; margin: auto;"></div>
+
+        <form id="reservation-form" method="post" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
+            <input type="hidden" name="start_date" id="start_date">
+            <input type="hidden" name="end_date" id="end_date">
+
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Numer telefonu:</label>
+                <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="rentalLocation" class="form-label">Preferowana lokalizacja odbioru:</label>
+                <input type="text" class="form-control" name="rentalLocation" required>
+            </div>
+
+
+            <div class="mb-3">
+                <label for="comments" class="form-label">Dodatkowe uwagi (opcjonalnie):</label>
+                <textarea id="comments" name="comments" class="form-control" rows="3"></textarea>
+            </div>
+
+
+
+            <button type="submit" class="btn btn-success w-100">Zarezerwuj</button>
+        </form>
+
+        <a href="{{ path('app_list_cars') }}" class="btn btn-secondary mt-3 w-100">Powrót</a>
+    </div>
+
+    <!-- JavaScript obsługujący kalendarz -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var today = new Date().toISOString().split("T")[0]; // Dzisiejsza data w formacie YYYY-MM-DD
+
+            var rentalCalendar = new FullCalendar.Calendar(document.getElementById('rental-calendar'), {
+                initialView: 'dayGridMonth',
+                selectable: true,
+                validRange: {
+                    start: today // ❌ BLOKUJE PRZESZŁE DATY
+                },
+                select: function (info) {
+                    document.getElementById('start_date').value = info.startStr;
+                    document.getElementById('end_date').value = info.endStr;
+                    alert('Wybrano daty: ' + info.startStr + ' - ' + info.endStr);
+                },
+                events: "{{ path('app_car_availability', {'id': car.id}) }}", // Pobiera zajęte terminy
+                eventColor: "red"
+            });
+
+            rentalCalendar.render();
+        });
+    </script>
+{% endblock %}

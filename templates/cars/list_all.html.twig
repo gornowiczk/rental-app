@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista dostępnych samochodów{% endblock %}
+
+{% block body %}
+    <h1>Lista dostępnych samochodów</h1>
+
+    <form method="get">
+        <label for="brand">Marka:</label>
+        <input type="text" name="brand" value="{{ filters.brand }}">
+
+        <label for="model">Model:</label>
+        <input type="text" name="model" value="{{ filters.model }}">
+
+        <label for="yearFrom">Rok (od):</label>
+        <input type="number" name="yearFrom" value="{{ filters.yearFrom }}">
+
+        <label for="yearTo">Rok (do):</label>
+        <input type="number" name="yearTo" value="{{ filters.yearTo }}">
+
+        <label for="priceMin">Cena za dzień (od):</label>
+        <input type="number" name="priceMin" value="{{ filters.priceMin }}">
+
+        <label for="priceMax">Cena za dzień (do):</label>
+        <input type="number" name="priceMax" value="{{ filters.priceMax }}">
+
+        <label for="location">Lokalizacja:</label>
+        <input type="text" name="location" value="{{ filters.location }}">
+
+        <label for="isAvailable">Dostępność:</label>
+        <select name="isAvailable">
+            <option value="" {% if filters.isAvailable is empty %}selected{% endif %}>Wszystkie</option>
+            <option value="1" {% if filters.isAvailable == '1' %}selected{% endif %}>Dostępne</option>
+            <option value="0" {% if filters.isAvailable == '0' %}selected{% endif %}>Niedostępne</option>
+        </select>
+
+        <button type="submit">Filtruj</button>
+    </form>
+
+    <h2>SORTOWANIE</h2>
+
+    <button onclick="window.location.href='{{ path('app_list_cars', { 'sortBy': 'pricePerDay', 'order': 'ASC' }) }}'">Cena rosnąco</button>
+    <button onclick="window.location.href='{{ path('app_list_cars', { 'sortBy': 'pricePerDay', 'order': 'DESC' }) }}'">Cena malejąco</button>
+    <button onclick="window.location.href='{{ path('app_list_cars', { 'sortBy': 'year', 'order': 'ASC' }) }}'">Rok rosnąco</button>
+    <button onclick="window.location.href='{{ path('app_list_cars', { 'sortBy': 'year', 'order': 'DESC' }) }}'">Rok malejąco</button>
+
+    <h2>Lista dostępnych samochodów</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Rok</th>
+            <th>Numer rejestracyjny</th>
+            <th>Cena za dzień</th>
+            <th>Akcje</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for car in cars %}
+            <tr>
+                <td>{{ car.brand }}</td>
+                <td>{{ car.model }}</td>
+                <td>{{ car.year }}</td>
+                <td>{{ car.plateNumber }}</td>
+                <td>{{ car.pricePerDay }} zł</td>
+                <td><a href="{{ path('app_car_details', { 'id': car.id }) }}">Szczegóły</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

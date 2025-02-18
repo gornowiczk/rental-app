@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Umowa Najmu Samochodu</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; }
+        h1 { text-align: center; }
+        .section { margin-bottom: 20px; }
+        .signature { margin-top: 50px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<h1>Umowa Najmu Samochodu</h1>
+
+<div class="section">
+    <p><strong>Data zawarcia umowy:</strong> {{ reservation.startDate|date('d-m-Y') }}</p>
+    <p><strong>Najemca:</strong> {{ reservation.user.fullName }}</p>
+    <p><strong>Email:</strong> {{ reservation.user.email }}</p>
+</div>
+
+<div class="section">
+    <p><strong>Właściciel samochodu:</strong> {{ reservation.car.owner.fullName }}</p>
+    <p><strong>Marka:</strong> {{ reservation.car.brand }}</p>
+    <p><strong>Model:</strong> {{ reservation.car.model }}</p>
+    <p><strong>Rok produkcji:</strong> {{ reservation.car.year }}</p>
+    <p><strong>Numer rejestracyjny:</strong> {{ reservation.car.registrationNumber }}</p>
+    <p><strong>Cena za dzień:</strong> {{ reservation.car.pricePerDay }} zł</p>
+</div>
+
+<div class="section">
+    <p>Najemca zobowiązuje się do przestrzegania warunków umowy i zwrotu pojazdu w nienaruszonym stanie.</p>
+</div>
+
+<div class="signature">
+    <p>__________________________</p>
+    <p>Podpis Najemcy</p>
+</div>
+
+</body>
+</html>

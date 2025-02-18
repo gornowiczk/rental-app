@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodaj nowy samochód{% endblock %}
+
+{% block body %}
+    <h1>Dodaj nowy samochód</h1>
+
+    {% for error in form.vars.errors %}
+        <div class="alert alert-danger">
+            {{ error.message }}
+        </div>
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+    <div class="form-group">
+        {{ form_label(form.brand) }}
+        {{ form_widget(form.brand, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.brand) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.model) }}
+        {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.model) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.year) }}
+        {{ form_widget(form.year, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.year) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.registrationNumber) }}
+        {{ form_widget(form.registrationNumber, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.registrationNumber) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.pricePerDay) }}
+        {{ form_widget(form.pricePerDay, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.pricePerDay) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.location) }}
+        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.location) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.isAvailable) }}
+        {{ form_widget(form.isAvailable, {'attr': {'class': 'form-check'}}) }}
+        {{ form_errors(form.isAvailable) }}
+    </div>
+
+    <div class="form-group">
+        <label>Zdjęcie główne samochodu (opcjonalne)</label>
+        {{ form_widget(form.mainImage, {'attr': {'class': 'form-control-file'}}) }}
+        {{ form_errors(form.mainImage) }}
+    </div>
+
+    <div class="form-group">
+        <label>Galeria zdjęć (opcjonalna, można wybrać wiele plików)</label>
+        {{ form_widget(form.gallery, {'attr': {'class': 'form-control-file', 'multiple': 'multiple'}}) }}
+        {{ form_errors(form.gallery) }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Dodaj samochód</button>
+
+    {{ form_end(form) }}
+
+{% endblock %}

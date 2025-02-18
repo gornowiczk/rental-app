@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Witamy w Wynajmie Aut{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="text-center">
+            <h1 class="display-4">🚗 Wynajmij auto w kilka chwil!</h1>
+            <p class="lead">Najlepsze oferty wynajmu samochodów w Twojej okolicy.</p>
+            <a href="{{ path('app_list_cars') }}" class="btn btn-primary btn-lg">Przeglądaj samochody</a>
+        </div>
+
+        <hr class="my-4">
+
+        <h2 class="text-center">Polecane samochody</h2>
+
+        <div class="row">
+            {% for car in cars %}
+                <div class="col-md-4">
+                    <div class="card shadow-lg">
+                        <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" class="card-img-top" alt="{{ car.brand }}">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ car.brand }} {{ car.model }}</h5>
+                            <p class="card-text">Cena: <strong>{{ car.pricePerDay }} zł/dzień</strong></p>
+                            <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-info">Szczegóły</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Brak samochodów do wyświetlenia.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

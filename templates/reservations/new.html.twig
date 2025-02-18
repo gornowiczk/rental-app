@@ -1,0 +1,13 @@
+{# templates/reservations/new.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Nowa Rezerwacja{% endblock %}
+
+{% block body %}
+    <h2>Nowa Rezerwacja</h2>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">Zarezerwuj</button>
+    {{ form_end(form) }}
+{% endblock %}

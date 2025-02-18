@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista dostępnych samochodów{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center">Lista dostępnych samochodów</h1>
+
+        <!-- Formularz filtrów -->
+        <form method="GET" action="{{ path('app_list_cars') }}" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-2"><input type="text" name="brand" class="form-control" placeholder="Marka"></div>
+                <div class="col-md-2"><input type="text" name="model" class="form-control" placeholder="Model"></div>
+                <div class="col-md-2"><input type="number" name="yearFrom" class="form-control" placeholder="Rok od"></div>
+                <div class="col-md-2"><input type="number" name="yearTo" class="form-control" placeholder="Rok do"></div>
+                <div class="col-md-2"><input type="number" name="priceMin" class="form-control" placeholder="Cena min."></div>
+                <div class="col-md-2"><input type="number" name="priceMax" class="form-control" placeholder="Cena max."></div>
+                <div class="col-md-2"><input type="text" name="location" class="form-control" placeholder="Lokalizacja"></div>
+                <div class="col-md-2">
+                    <select name="isAvailable" class="form-control">
+                        <option value="">Dostępność</option>
+                        <option value="1">Dostępny</option>
+                        <option value="0">Niedostępny</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtruj</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('app_list_cars') }}" class="btn btn-secondary w-100">Wyczyść filtry</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabela z listą samochodów -->
+        <table class="table table-striped text-center">
+            <thead>
+            <tr>
+                <th>Zdjęcie</th>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Rok</th>
+                <th>Cena za dzień</th>
+                <th>Lokalizacja</th>
+                <th>Dostępność</th>
+                <th>Akcje</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for car in cars %}
+                <tr {% if car.owner == app.user %}class="table-warning"{% endif %}>
+                    <td>
+                        {% if car.mainImage %}
+                            <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" class="img-thumbnail" width="80" alt="Zdjęcie {{ car.brand }}">
+                        {% else %}
+                            <span class="text-muted">Brak zdjęcia</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ car.brand }}</td>
+                    <td>{{ car.model }}</td>
+                    <td>{{ car.year }}</td>
+                    <td>{{ car.pricePerDay }} zł</td>
+                    <td>{{ car.location }}</td>
+                    <td>
+                        {% if car.isAvailable %}
+                            <span class="badge bg-success">Dostępny</span>
+                        {% else %}
+                            <span class="badge bg-danger">Niedostępny</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-info btn-sm">Szczegóły</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Brak dostępnych samochodów.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

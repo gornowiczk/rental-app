@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Witaj w Systemie Wynajmu!{% endblock %}
+
+{% block body %}
+    <div class="container text-center mt-5">
+        <h1 class="mb-4">Witaj w Systemie Wynajmu Samochodów 🚗</h1>
+
+        <p>Najlepsze miejsce do wynajmu i rezerwacji samochodów.</p>
+        <a href="{{ path('app_list_cars') }}" class="btn btn-primary btn-lg mt-3">Zobacz Samochody</a>
+
+        <hr>
+
+        <p class="text-muted">Twój kontroler: <code>AuthController.php</code></p>
+        <p class="text-muted">Twoja ścieżka widoku: <code>auth/index.html.twig</code></p>
+    </div>
+{% endblock %}

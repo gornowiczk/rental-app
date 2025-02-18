@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodaj Samochód{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="text-center">Dodaj nowy samochód</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                {% for message in app.flashes('danger') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+
+                {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.brand) }}
+                    {{ form_widget(form.brand, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.brand) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.model) }}
+                    {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.model) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.year) }}
+                    {{ form_widget(form.year, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.year) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.registrationNumber) }}
+                    {{ form_widget(form.registrationNumber, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.registrationNumber) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.pricePerDay) }}
+                    {{ form_widget(form.pricePerDay, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.pricePerDay) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.location) }}
+                    {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.location) }}
+                </div>
+
+                <div class="mb-3 form-check">
+                    {{ form_widget(form.isAvailable, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.isAvailable, {'attr': {'class': 'form-check-label'}}) }}
+                    {{ form_errors(form.isAvailable) }}
+                </div>
+
+                <div class="mb-3">
+                    <label>Zdjęcie główne samochodu (opcjonalne)</label>
+                    {{ form_widget(form.mainImage, {'attr': {'class': 'form-control-file'}}) }}
+                    {{ form_errors(form.mainImage) }}
+                </div>
+
+                <div class="mb-3">
+                    <label>Galeria zdjęć (opcjonalna, można wybrać wiele plików)</label>
+                    {{ form_widget(form.gallery, {'attr': {'class': 'form-control-file', 'multiple': 'multiple'}}) }}
+                    {{ form_errors(form.gallery) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Dodaj samochód</button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

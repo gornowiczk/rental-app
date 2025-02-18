@@ -1,0 +1,15 @@
+parameters:
+    upload_directory: '%kernel.project_dir%/public/uploads/cars'
+
+
+services:
+    # default configuration for services in this file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $uploadDirectory: '%upload_directory%'
+
+    App\:
+        resource: '../src/'
+        exclude: '../src/{DependencyInjection,Entity,Kernel.php,Tests}'
