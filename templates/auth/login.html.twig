@@ -1,36 +1,112 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Logowanie{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="text-center">Zaloguj się</h1>
+<style>
+    .auth-container {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                {% if error %}
-                    <div class="alert alert-danger">Nieprawidłowe dane logowania</div>
-                {% endif %}
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        border-radius: 1.2rem;
+        background: #fff;
+        box-shadow: 0 20px 50px rgba(15,23,42,.12);
+        padding: 2rem 1.6rem;
+    }
 
-                <form method="post" class="mt-3">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" name="_username" id="email" class="form-control" value="{{ last_username }}" required>
-                    </div>
+    .auth-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
 
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Hasło:</label>
-                        <input type="password" name="_password" id="password" class="form-control" required>
-                    </div>
+    .auth-subtitle {
+        font-size: .9rem;
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
 
-                    <div class="form-check mb-3">
-                        <input type="checkbox" name="_remember_me" class="form-check-input">
-                        <label class="form-check-label">Zapamiętaj mnie</label>
-                    </div>
+    .auth-input {
+        border-radius: .8rem;
+        padding: .6rem .75rem;
+    }
 
-                    <button type="submit" class="btn btn-primary w-100">Zaloguj</button>
-                </form>
-            </div>
+    .auth-btn {
+        border-radius: .9rem;
+        font-weight: 700;
+        padding: .6rem;
+    }
+
+    .auth-footer {
+        font-size: .85rem;
+        color: #64748b;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .auth-footer a {
+        font-weight: 600;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+
+        <div class="mb-3">
+            <div class="auth-title">🔐 Logowanie</div>
+            <div class="auth-subtitle">Zaloguj się, aby zarządzać rezerwacjami i autami</div>
         </div>
+
+        {% if error %}
+            <div class="alert alert-danger small">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="alert alert-info small">
+                Jesteś zalogowany jako {{ app.user.userIdentifier }}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email"
+                       name="_username"
+                       class="form-control auth-input"
+                       value="{{ last_username }}"
+                       required autofocus>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Hasło</label>
+                <input type="password"
+                       name="_password"
+                       class="form-control auth-input"
+                       required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button class="btn btn-primary w-100 auth-btn">
+                Zaloguj się
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Nie masz konta?
+            <a href="{{ path('app_register') }}">Zarejestruj się</a>
+        </div>
+       <a href="{{ path('app_forgot_password_request') }}">
+	    Nie pamiętasz hasła?
+	</a>
+
     </div>
+</div>
 {% endblock %}

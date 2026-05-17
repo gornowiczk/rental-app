@@ -1,23 +1,12 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Edytuj Samochód{% endblock %}
+{% block title %}Edytuj samochód{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h2 class="text-center">Edytuj samochód</h2>
-
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                {{ form_start(form) }}
-
-                <div class="mb-3">
-                    {{ form_widget(form) }}
-                </div>
-
-                <button class="btn btn-success w-100">Zapisz zmiany</button>
-
-                {{ form_end(form) }}
-            </div>
-        </div>
-    </div>
+    {% include 'cars/_form.html.twig' with {
+        form: form,
+        car: car,
+        page_title: '✏️ Edytuj samochód',
+        page_subtitle: 'Zmień dane pojazdu, zaktualizuj informacje flotowe, zdjęcia i szczegóły ogłoszenia.',
+        is_edit: true
+    } only %}
 {% endblock %}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}CarRental{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block stylesheets %}
+        <style>
+            body { background-color: #f8f9fa; }
+            .navbar-brand { font-weight: bold; font-size: 1.2rem; }
+            .container { max-width: 1200px; }
+            .dropdown-menu-notifications {
+                max-height: 400px;
+                overflow-y: auto;
+                min-width: 320px;
+            }
+            .dropdown-item.unread { font-weight: bold; background-color: #f1f3f5; }
+            .dropdown-item.read { color: #6c757d; }
+        </style>
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="{{ path('app_home') }}">
+            🚗 CarRental (BASE TfewfweEST)
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_car_list') }}">Samochody</a>
+                </li>
+
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_reservations') }}">Moje rezerwacje</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_my_cars') }}">Moje auta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_contract_list') }}">Umowy i faktury</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_owner_dashboard') }}">📊 Panel właściciela</a>
+                    </li>
+
+                    {# ✅ TEST: Admin zawsze widoczny gdy zalogowany #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-warning" href="#" id="adminDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            🛠️ Admin (TEST)
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_reservations') }}">Rezerwacje</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_cars') }}">Auta</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_users') }}">Użytkownicy</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            🔔 Powiadomienia
+                            {% if navbar_notifications_count|default(0) > 0 %}
+                                <span class="badge bg-danger">{{ navbar_notifications_count }}</span>
+                            {% endif %}
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-notifications"
+                            aria-labelledby="notifDropdown" role="menu">
+                            {% if navbar_notifications|default([]) is not empty %}
+                                {% for n in navbar_notifications %}
+                                    <li>
+                                        <a href="{{ path('app_notification_open', {'id': n.id}) }}"
+                                           class="dropdown-item {% if not n.isRead %}unread{% else %}read{% endif %}">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-truncate">{{ n.title }}</span>
+                                                <small class="text-muted">{{ n.createdAt|date('d.m H:i') }}</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="{{ path('app_notifications') }}">
+                                        Zobacz wszystkie
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="dropdown-item text-muted">Brak powiadomień</li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <span class="navbar-text me-2">
+                            Zalogowany jako: <strong>{{ app.user.email }}</strong>
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_profile') }}">Mój profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Wyloguj</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_login') }}">Zaloguj</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_register') }}">Rejestracja</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+            {{ messages|join(', ') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

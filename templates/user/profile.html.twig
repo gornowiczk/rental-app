@@ -1,19 +1,258 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Moje Konto{% endblock %}
+{% block title %}Mój profil{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="text-center">Moje Konto</h1>
+<style>
+    .profile-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
 
-        <div class="card mt-4">
-            <div class="card-body">
-                <p><strong>Imię i nazwisko:</strong> {{ user.fullName }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Rola:</strong> {{ user.roles|join(', ') }}</p>
+    .profile-hero-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
 
-                <a href="{{ path('app_user_edit') }}" class="btn btn-primary">Edytuj profil</a>
+    .profile-hero-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .profile-card,
+    .profile-side-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 1.9rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+    }
+
+    .profile-name {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .profile-email {
+        color: #64748b;
+        font-size: .92rem;
+    }
+
+    .profile-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .78rem;
+        font-weight: 700;
+        background: #dcfce7;
+        color: #166534;
+        margin-top: .9rem;
+    }
+
+    .profile-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .profile-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .9rem;
+    }
+
+    .profile-meta-item {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .9rem;
+        padding: .9rem 1rem;
+    }
+
+    .profile-meta-label {
+        font-size: .78rem;
+        color: #64748b;
+        margin-bottom: .18rem;
+    }
+
+    .profile-meta-value {
+        font-weight: 700;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    .profile-soft-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .profile-actions .btn {
+        border-radius: .8rem;
+        font-weight: 600;
+    }
+
+    .profile-stat-box {
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1rem 1.1rem;
+    }
+
+    .profile-stat-big {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    @media (max-width: 991px) {
+        .profile-meta-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% set displayName =
+    user.fullName is defined and user.fullName
+        ? user.fullName
+        : (
+            (user.firstName is defined and user.firstName ? user.firstName : '')
+            ~
+            ((user.lastName is defined and user.lastName) ? ' ' ~ user.lastName : '')
+          )|trim
+%}
+
+{% set displayName = displayName ?: 'Użytkownik' %}
+{% set initials = displayName|split(' ')|map(v => v|slice(0,1)|upper)|join('')|slice(0,2) %}
+
+<div class="profile-hero">
+    <div class="profile-hero-title">Mój profil</div>
+    <div class="profile-hero-subtitle">
+        Zarządzaj swoimi danymi konta i sprawdzaj informacje przypisane do Twojego profilu.
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="profile-card p-3 p-md-4">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+                <div class="profile-avatar">
+                    {{ initials }}
+                </div>
+
+                <div>
+                    <div class="profile-name">{{ displayName }}</div>
+                    <div class="profile-email">{{ user.email }}</div>
+
+                    <div class="profile-status">
+                        ● Konto aktywne
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section-title">Dane użytkownika</div>
+
+            <div class="profile-meta-grid mb-4">
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">Imię i nazwisko</div>
+                    <div class="profile-meta-value">{{ displayName }}</div>
+                </div>
+
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">Adres e-mail</div>
+                    <div class="profile-meta-value">{{ user.email ?: '—' }}</div>
+                </div>
+
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">Numer telefonu</div>
+                    <div class="profile-meta-value">
+                        {{ user.phoneNumber is defined and user.phoneNumber ? user.phoneNumber : 'Nie podano' }}
+                    </div>
+                </div>
+
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">Adres</div>
+                    <div class="profile-meta-value">
+                        {{ user.address is defined and user.address ? user.address : 'Nie podano' }}
+                    </div>
+                </div>
+
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">PESEL / NIP</div>
+                    <div class="profile-meta-value">
+                        {{ user.peselOrNip is defined and user.peselOrNip ? user.peselOrNip : 'Nie podano' }}
+                    </div>
+                </div>
+
+                <div class="profile-meta-item">
+                    <div class="profile-meta-label">Role</div>
+                    <div class="profile-meta-value">
+                        {% if user.roles is defined and user.roles is not empty %}
+                            {{ user.roles|join(', ') }}
+                        {% else %}
+                            ROLE_USER
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section-title">O koncie</div>
+            <div class="profile-soft-box">
+                Tutaj możesz sprawdzić dane przypisane do Twojego konta. Z tego poziomu przejdziesz także do edycji profilu,
+                aby zmienić swoje dane kontaktowe lub hasło.
             </div>
         </div>
     </div>
+
+    <div class="col-lg-4">
+        <div class="profile-side-card p-3 p-md-4 sticky-top" style="top: 90px;">
+            <div class="profile-stat-box mb-4">
+                <div class="small opacity-75 mb-1">Status konta</div>
+                <div class="profile-stat-big">Aktywne</div>
+                <div class="small opacity-75 mt-2">
+                    Możesz rezerwować auta i zarządzać swoimi ogłoszeniami.
+                </div>
+            </div>
+
+            <div class="profile-section-title">Szybkie akcje</div>
+            <div class="profile-actions d-grid gap-2">
+                <a href="{{ path('app_user_edit') }}" class="btn btn-primary">
+                    Edytuj profil
+                </a>
+
+                <a href="{{ path('app_reservations') }}" class="btn btn-outline-secondary">
+                    Moje rezerwacje
+                </a>
+
+                <a href="{{ path('app_my_cars') }}" class="btn btn-outline-secondary">
+                    Moje auta
+                </a>
+
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">
+                    Wyloguj
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

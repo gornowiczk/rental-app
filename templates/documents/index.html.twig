@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dokumenty{% endblock %}
+{% block body %}
+    <div class="card p-3">
+        <h4 class="mb-3">Historia faktur i umów</h4>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead><tr>
+                    <th>Typ</th><th>Samochód</th><th>Rezerwacja</th><th>Data</th><th></th>
+                </tr></thead>
+                <tbody>
+                {% for d in items %}
+                    <tr>
+                        <td>{{ d.type == 'contract' ? 'Umowa' : 'Faktura' }}</td>
+                        <td>{{ d.reservation.car.brand }} {{ d.reservation.car.model }}</td>
+                        <td>{{ d.reservation.startDate|date('Y-m-d') }} → {{ d.reservation.endDate|date('Y-m-d') }}</td>
+                        <td>{{ d.createdAt|date('Y-m-d H:i') }}</td>
+                        <td class="text-end">
+                            {% if d.type == 'contract' %}
+                                <a class="btn btn-sm btn-primary" href="{{ path('app_contract_generate', {id: d.reservation.id}) }}">Pobierz PDF</a>
+                            {% else %}
+                                <a class="btn btn-sm btn-primary" href="{{ path('app_invoice_generate', {id: d.reservation.id}) }}">Pobierz PDF</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-muted">Brak dokumentów.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

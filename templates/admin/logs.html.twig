@@ -1,0 +1,351 @@
+{% extends 'base.html.twig' %}
+{% block title %}Logi{% endblock %}
+
+{% block body %}
+<style>
+    .admin-page-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .admin-page-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .admin-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .admin-card .form-control,
+    .admin-card .form-select {
+        border-radius: .8rem;
+        border-color: #dbe4ee;
+        min-height: 44px;
+    }
+
+    .admin-card .form-control:focus,
+    .admin-card .form-select:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .admin-toolbar-note {
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    .admin-table-wrap {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        min-width: 1180px;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .admin-table thead th {
+        font-size: .8rem;
+        text-transform: uppercase;
+        color: #64748b;
+        border: 0;
+        background: transparent;
+        padding: 0 .8rem .2rem;
+        white-space: nowrap;
+    }
+
+    .admin-row td {
+        background: #fff;
+        padding: .9rem;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+
+    .admin-row td:first-child {
+        border-left: 1px solid #e2e8f0;
+        border-radius: .85rem 0 0 .85rem;
+    }
+
+    .admin-row td:last-child {
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0 .85rem .85rem 0;
+    }
+
+    .admin-main {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .admin-sub {
+        font-size: .85rem;
+        color: #64748b;
+    }
+
+    .admin-log-badge {
+        border-radius: 999px;
+        padding: .42rem .72rem;
+        font-size: .76rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .admin-log-badge-primary {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .admin-log-badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .admin-log-badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .admin-log-badge-secondary {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .admin-log-badge-dark {
+        background: #cbd5e1;
+        color: #0f172a;
+    }
+
+    .admin-log-badge-info {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .admin-code-box {
+        display: block;
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .8rem;
+        padding: .75rem;
+        font-size: .78rem;
+        line-height: 1.45;
+        color: #334155;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .admin-empty {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .admin-empty-icon {
+        font-size: 2rem;
+        margin-bottom: .55rem;
+    }
+
+    .admin-pagination .page-link {
+        border-radius: .7rem !important;
+        margin: 0 .15rem;
+        border-color: #dbe4ee;
+        color: #334155;
+    }
+
+    .admin-pagination .page-item.active .page-link {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+</style>
+
+<div class="admin-page-hero">
+    <div class="admin-page-title">Logi systemowe</div>
+    <div class="admin-page-subtitle">
+        Przeglądaj zdarzenia administracyjne, operacje systemowe, logowania i historię zmian.
+    </div>
+</div>
+
+<div class="admin-card p-3 p-md-4 mb-4">
+    <div class="admin-section-title">Filtry</div>
+
+    <form class="row g-3" method="get">
+        <div class="col-md-3">
+            <input
+                class="form-control"
+                name="q"
+                placeholder="Szukaj (akcja, entity, email, IP)"
+                value="{{ filters.q }}"
+            >
+        </div>
+
+        <div class="col-md-3">
+            <select class="form-select" name="action">
+                <option value="">-- akcja (wszystkie) --</option>
+                {% for a in actions %}
+                    <option value="{{ a }}" {{ filters.action == a ? 'selected' : '' }}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" class="form-control" name="from" value="{{ filters.from }}" title="Od">
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" class="form-control" name="to" value="{{ filters.to }}" title="Do">
+        </div>
+
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-dark">Filtruj</button>
+        </div>
+    </form>
+</div>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div class="admin-toolbar-note">
+        Wyniki: <strong>{{ pagination.total }}</strong>,
+        strona <strong>{{ pagination.page }}</strong> / <strong>{{ pagination.pages }}</strong>
+    </div>
+
+    <div>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_logs') }}">Reset</a>
+    </div>
+</div>
+
+<div class="admin-card p-3 p-md-4">
+    {% if logs is empty %}
+        <div class="admin-empty">
+            <div class="admin-empty-icon">📜</div>
+            <div class="fw-semibold mb-1">Brak danych</div>
+            <div class="text-muted small">Nie znaleziono logów spełniających wybrane kryteria.</div>
+        </div>
+    {% else %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Akcja</th>
+                        <th>Admin / User</th>
+                        <th>IP</th>
+                        <th>Entity</th>
+                        <th>Entity ID</th>
+                        <th>Szczegóły</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for l in logs %}
+                        {% set act = l.action %}
+                        {% set badgeClass =
+                            act ends with 'super_admin' ? 'admin-log-badge-danger' :
+                            act ends with 'admin' ? 'admin-log-badge-primary' :
+                            act ends with 'manager' ? 'admin-log-badge-warning' :
+                            act ends with 'user' ? 'admin-log-badge-secondary' :
+                            act == 'auth.login_failed' ? 'admin-log-badge-dark' :
+                            'admin-log-badge-info'
+                        %}
+
+                        <tr class="admin-row">
+                            <td>
+                                <div class="admin-main">#{{ l.id }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ l.createdAt|date('Y-m-d H:i') }}</div>
+                            </td>
+
+                            <td>
+                                <span class="admin-log-badge {{ badgeClass }}">
+                                    {{ l.action }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ l.admin ? l.admin.email : '—' }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ l.ip ?? '—' }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ l.entity ?? '—' }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ l.entityId ?? '—' }}</div>
+                            </td>
+
+                            <td style="max-width: 420px;">
+                                <code class="admin-code-box">
+{{ l.details ? (l.details|json_encode(constant('JSON_UNESCAPED_UNICODE'))) : '—' }}
+                                </code>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="mt-4">
+            <ul class="pagination pagination-sm mb-0 admin-pagination">
+                {% set query = app.request.query.all %}
+
+                <li class="page-item {{ pagination.page <= 1 ? 'disabled' : '' }}">
+                    <a class="page-link"
+                       href="{{ path('admin_logs', query|merge({'page': pagination.page - 1})) }}">
+                        ← Prev
+                    </a>
+                </li>
+
+                {% set start = pagination.page - 2 %}
+                {% set end = pagination.page + 2 %}
+                {% if start < 1 %}{% set start = 1 %}{% endif %}
+                {% if end > pagination.pages %}{% set end = pagination.pages %}{% endif %}
+
+                {% for p in start..end %}
+                    <li class="page-item {{ p == pagination.page ? 'active' : '' }}">
+                        <a class="page-link" href="{{ path('admin_logs', query|merge({'page': p})) }}">
+                            {{ p }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                <li class="page-item {{ pagination.page >= pagination.pages ? 'disabled' : '' }}">
+                    <a class="page-link"
+                       href="{{ path('admin_logs', query|merge({'page': pagination.page + 1})) }}">
+                        Next →
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{# templates/documents/history.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Historia dokumentów{% endblock %}
+
+{% block body %}
+    <div class="card p-3">
+        <h4 class="mb-3">🧾 Historia dokumentów</h4>
+        {% if documents is empty %}
+            <div class="alert alert-info">Brak dokumentów do pobrania.</div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Typ</th>
+                        <th>Numer</th>
+                        <th>Utworzono</th>
+                        <th>Rezerwacja</th>
+                        <th class="text-end">Pobierz</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in documents %}
+                        <tr>
+                            <td>{{ d.type|capitalize }}</td>
+                            <td>{{ d.number }}</td>
+                            <td>{{ d.createdAt|date('Y-m-d H:i') }}</td>
+                            <td>
+                                {{ d.reservation.car.brand }} {{ d.reservation.car.model }}
+                                ({{ d.reservation.startDate|date('Y-m-d') }} → {{ d.reservation.endDate|date('Y-m-d') }})
+                            </td>
+                            <td class="text-end">
+                                {% if d.type == 'contract' %}
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_contract_generate', {'id': d.reservation.id}) }}">Umowa</a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_invoice_generate', {'id': d.reservation.id}) }}">Faktura</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

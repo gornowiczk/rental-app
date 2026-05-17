@@ -1,0 +1,27 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block body %}
+  <h2 style="margin:0 0 12px 0;">Umowa najmu jest dostępna</h2>
+
+  <p style="margin:0 0 12px 0;">
+    Twoja rezerwacja <strong>#{{ reservation.id }}</strong> została zaakceptowana.
+    Umowę możesz pobrać tutaj:
+  </p>
+
+  <p style="margin:0 0 16px 0;">
+    <a href="{{ contract_url }}" style="display:inline-block;padding:10px 14px;border-radius:6px;text-decoration:none;">
+      Pobierz umowę (PDF)
+    </a>
+  </p>
+
+  <p style="margin:0 0 12px 0;">
+    Szczegóły rezerwacji:
+    <a href="{{ reservation_url }}">{{ reservation_url }}</a>
+  </p>
+
+  <hr style="margin:16px 0;">
+
+  <p style="margin:0;color:#666;">
+    {{ seller_name }}
+  </p>
+{% endblock %}

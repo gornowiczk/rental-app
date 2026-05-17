@@ -1,83 +1,238 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Lista dostępnych samochodów{% endblock %}
+{% block title %}Auta do wynajęcia{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-4 text-center">Lista dostępnych samochodów</h1>
+<style>
+    .cars-page-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
 
-        <!-- Formularz filtrów -->
-        <form method="GET" action="{{ path('app_list_cars') }}" class="mb-4">
-            <div class="row g-3">
-                <div class="col-md-2"><input type="text" name="brand" class="form-control" placeholder="Marka"></div>
-                <div class="col-md-2"><input type="text" name="model" class="form-control" placeholder="Model"></div>
-                <div class="col-md-2"><input type="number" name="yearFrom" class="form-control" placeholder="Rok od"></div>
-                <div class="col-md-2"><input type="number" name="yearTo" class="form-control" placeholder="Rok do"></div>
-                <div class="col-md-2"><input type="number" name="priceMin" class="form-control" placeholder="Cena min."></div>
-                <div class="col-md-2"><input type="number" name="priceMax" class="form-control" placeholder="Cena max."></div>
-                <div class="col-md-2"><input type="text" name="location" class="form-control" placeholder="Lokalizacja"></div>
-                <div class="col-md-2">
-                    <select name="isAvailable" class="form-control">
-                        <option value="">Dostępność</option>
-                        <option value="1">Dostępny</option>
-                        <option value="0">Niedostępny</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Filtruj</button>
-                </div>
-                <div class="col-md-2">
-                    <a href="{{ path('app_list_cars') }}" class="btn btn-secondary w-100">Wyczyść filtry</a>
-                </div>
-            </div>
-        </form>
+    .cars-page-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+    }
 
-        <!-- Tabela z listą samochodów -->
-        <table class="table table-striped text-center">
-            <thead>
-            <tr>
-                <th>Zdjęcie</th>
-                <th>Marka</th>
-                <th>Model</th>
-                <th>Rok</th>
-                <th>Cena za dzień</th>
-                <th>Lokalizacja</th>
-                <th>Dostępność</th>
-                <th>Akcje</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for car in cars %}
-                <tr {% if car.owner == app.user %}class="table-warning"{% endif %}>
-                    <td>
-                        {% if car.mainImage %}
-                            <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" class="img-thumbnail" width="80" alt="Zdjęcie {{ car.brand }}">
-                        {% else %}
-                            <span class="text-muted">Brak zdjęcia</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ car.brand }}</td>
-                    <td>{{ car.model }}</td>
-                    <td>{{ car.year }}</td>
-                    <td>{{ car.pricePerDay }} zł</td>
-                    <td>{{ car.location }}</td>
-                    <td>
-                        {% if car.isAvailable %}
-                            <span class="badge bg-success">Dostępny</span>
-                        {% else %}
-                            <span class="badge bg-danger">Niedostępny</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-info btn-sm">Szczegóły</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8" class="text-center text-muted">Brak dostępnych samochodów.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    .cars-page-subtitle {
+        opacity: .8;
+        font-size: .9rem;
+    }
+
+    .cars-filter-card,
+    .cars-item-card {
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+        border: 0;
+    }
+
+    .cars-item-card {
+        transition: all .2s ease;
+    }
+
+    .cars-item-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(15,23,42,0.12);
+    }
+
+    .cars-item-image {
+        height: 220px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .cars-item-image-empty {
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .cars-badge {
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .75rem;
+        font-weight: 700;
+    }
+
+    .cars-badge-available {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .cars-badge-unavailable {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .cars-price-box {
+        background: linear-gradient(135deg, #0d6efd, #2563eb);
+        color: #fff;
+        border-radius: .9rem;
+        padding: .8rem;
+    }
+
+    .cars-price-big {
+        font-weight: 800;
+        font-size: 1.3rem;
+    }
+
+    .cars-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: .6rem;
+    }
+
+    .cars-meta-box {
+        background: #f8fafc;
+        border-radius: .7rem;
+        padding: .6rem;
+        font-size: .85rem;
+    }
+
+    .cars-empty {
+        padding: 2rem;
+        text-align: center;
+        border: 1px dashed #cbd5e1;
+        border-radius: 1rem;
+        background: #f8fafc;
+    }
+
+    @media(max-width: 991px){
+        .cars-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="cars-page-hero">
+    <div class="cars-page-title">Auta do wynajęcia</div>
+    <div class="cars-page-subtitle">Znajdź idealny samochód dla siebie</div>
+</div>
+
+<div class="row g-4">
+
+    <!-- FILTRY -->
+    <div class="col-lg-3">
+        <div class="cars-filter-card p-3 sticky-top" style="top:90px;">
+            <h5 class="fw-bold mb-3">🔎 Filtry</h5>
+
+            <form method="get" action="{{ path('app_car_list') }}">
+                <input class="form-control mb-2" name="brand" placeholder="Marka" value="{{ filters.brand }}">
+                <input class="form-control mb-2" name="model" placeholder="Model" value="{{ filters.model }}">
+
+                <div class="row">
+                    <div class="col-6">
+                        <input class="form-control mb-2" type="number" name="yearFrom" placeholder="Rok od" value="{{ filters.yearFrom }}">
+                    </div>
+                    <div class="col-6">
+                        <input class="form-control mb-2" type="number" name="yearTo" placeholder="Rok do" value="{{ filters.yearTo }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <input class="form-control mb-2" type="number" name="priceMin" placeholder="Cena min" value="{{ filters.priceMin }}">
+                    </div>
+                    <div class="col-6">
+                        <input class="form-control mb-2" type="number" name="priceMax" placeholder="Cena max" value="{{ filters.priceMax }}">
+                    </div>
+                </div>
+
+                <input class="form-control mb-2" name="location" placeholder="Lokalizacja" value="{{ filters.location }}">
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="isAvailable" value="1" {% if filters.isAvailable %}checked{% endif %}>
+                    <label class="form-check-label">Tylko dostępne</label>
+                </div>
+
+                <button class="btn btn-primary w-100">Filtruj</button>
+            </form>
+        </div>
     </div>
+
+    <!-- LISTA AUT -->
+    <div class="col-lg-9">
+        {% if cars is empty %}
+            <div class="cars-empty">
+                🚫 Brak aut spełniających kryteria
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for car in cars %}
+
+                    {% set thumb = null %}
+                    {% if car.mainImage %}
+                        {% set thumb = asset('uploads/cars/' ~ car.mainImage) %}
+                    {% elseif car.images is defined and car.images|length > 0 %}
+                        {% set thumb = asset('uploads/cars/' ~ ((car.images|first).path)) %}
+                    {% endif %}
+
+                    <div class="col-md-6">
+
+                        <a href="{{ path('app_car_details', {'id': car.id}) }}"
+                           class="text-decoration-none text-dark d-block h-100">
+
+                            <div class="cars-item-card h-100">
+
+                                {% if thumb %}
+                                    <img src="{{ thumb }}" class="cars-item-image">
+                                {% else %}
+                                    <div class="cars-item-image-empty">Brak zdjęcia</div>
+                                {% endif %}
+
+                                <div class="p-3 d-flex flex-column h-100">
+
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div>
+                                            <strong>{{ car.brand }} {{ car.model }}</strong>
+                                            <div class="small text-muted">{{ car.year }}</div>
+                                        </div>
+
+                                        {% set isPaused = car.isTemporarilyPaused is defined ? car.isTemporarilyPaused() : (car.pausedUntil is not null and car.pausedUntil|date('U') > "now"|date('U')) %}
+
+                                        {% if not car.isAvailable %}
+                                            <span class="cars-badge cars-badge-unavailable">
+                                                Niedostępny
+                                            </span>
+                                        {% elseif isPaused %}
+                                            <span class="cars-badge cars-badge-paused">
+                                                Wstrzymany
+                                            </span>
+                                        {% else %}
+                                            <span class="cars-badge cars-badge-available">
+                                                Dostępny
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="cars-price-box mb-3">
+                                        <div class="cars-price-big">{{ car.pricePerDay }} zł</div>
+                                        <div class="small">za dobę</div>
+                                    </div>
+
+                                    <div class="cars-meta">
+                                        <div class="cars-meta-box">Rej: {{ car.registrationNumber }}</div>
+                                        <div class="cars-meta-box">Rok: {{ car.year }}</div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}

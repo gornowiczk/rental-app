@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ invoice.invoiceNumber }}</title>
+    <style>
+        @page { margin: 34px 42px; }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 12px;
+            color: #111827;
+            line-height: 1.45;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin: 0 0 10px 0;
+            letter-spacing: .5px;
+        }
+
+        .muted { color: #6b7280; }
+        .right { text-align: right; }
+        .strong { font-weight: bold; }
+
+        .header-table,
+        .party-table,
+        .items-table,
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-table td {
+            border: 0;
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .document-meta {
+            line-height: 1.7;
+        }
+
+        .party-table {
+            margin-top: 24px;
+        }
+
+        .party-table td {
+            width: 50%;
+            vertical-align: top;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .party-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        .items-table {
+            margin-top: 22px;
+        }
+
+        .items-table th {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            padding: 9px 8px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .items-table td {
+            border: 1px solid #d1d5db;
+            padding: 9px 8px;
+            vertical-align: top;
+        }
+
+        .totals-wrap {
+            width: 42%;
+            margin-left: auto;
+            margin-top: 14px;
+        }
+
+        .totals-table td {
+            border: 1px solid #d1d5db;
+            padding: 9px 8px;
+        }
+
+        .totals-table .final td {
+            background: #f3f4f6;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .payment-box {
+            margin-top: 26px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .footer {
+            margin-top: 34px;
+            color: #6b7280;
+            font-size: 11px;
+        }
+
+        .small {
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<table class="header-table">
+    <tr>
+        <td>
+            <h1>FAKTURA VAT</h1>
+
+            <div class="document-meta">
+                <span class="muted">Numer:</span>
+                <strong>{{ invoice.invoiceNumber }}</strong><br>
+
+                <span class="muted">Data wystawienia:</span>
+                {{ invoice.issuedAt|date('Y-m-d') }}<br>
+
+                <span class="muted">Data sprzedaży:</span>
+                {{ invoice.saleDate|date('Y-m-d') }}
+            </div>
+        </td>
+
+        <td class="right">
+            <div class="document-meta">
+                <span class="muted">Rezerwacja:</span>
+                <strong>#{{ r.id }}</strong><br>
+
+                <span class="muted">Okres najmu:</span><br>
+                <strong>{{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}</strong>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<table class="party-table">
+    <tr>
+        <td>
+            <div class="party-title">Sprzedawca</div>
+            <strong>{{ invoice.sellerName }}</strong><br>
+            {{ invoice.sellerAddress }}<br>
+            NIP: {{ invoice.sellerNip }}<br>
+
+            {% if invoice.sellerBank %}
+                Bank: {{ invoice.sellerBank }}<br>
+            {% endif %}
+
+            {% if invoice.sellerIban %}
+                IBAN: {{ invoice.sellerIban }}
+            {% endif %}
+        </td>
+
+        <td>
+            <div class="party-title">Nabywca</div>
+            <strong>{{ invoice.buyerName }}</strong><br>
+            {{ invoice.buyerAddress }}<br>
+
+            {% if invoice.buyerNip %}
+                NIP: {{ invoice.buyerNip }}
+            {% else %}
+                <span class="muted">Osoba prywatna</span>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<table class="items-table">
+    <thead>
+    <tr>
+        <th style="width: 5%;">Lp.</th>
+        <th style="width: 38%;">Nazwa usługi</th>
+        <th class="right" style="width: 12%;">Ilość</th>
+        <th class="right" style="width: 15%;">Cena brutto / doba</th>
+        <th class="right" style="width: 10%;">Netto</th>
+        <th class="right" style="width: 10%;">VAT</th>
+        <th class="right" style="width: 10%;">Brutto</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td>
+            {{ invoice.itemName }}<br>
+            <span class="muted small">
+                Okres: {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+            </span>
+        </td>
+        <td class="right">{{ invoice.days }} dób</td>
+        <td class="right">{{ invoice.pricePerDay|number_format(2, ',', ' ') }} zł</td>
+        <td class="right">{{ invoice.netTotal|number_format(2, ',', ' ') }} zł</td>
+        <td class="right">{{ invoice.vatAmount|number_format(2, ',', ' ') }} zł</td>
+        <td class="right"><strong>{{ invoice.grossTotal|number_format(2, ',', ' ') }} zł</strong></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="totals-wrap">
+    <table class="totals-table">
+        <tbody>
+        <tr>
+            <td class="right">Razem netto</td>
+            <td class="right">{{ invoice.netTotal|number_format(2, ',', ' ') }} zł</td>
+        </tr>
+        <tr>
+            <td class="right">Razem VAT ({{ (invoice.vatRate * 100)|number_format(0, '.', '') }}%)</td>
+            <td class="right">{{ invoice.vatAmount|number_format(2, ',', ' ') }} zł</td>
+        </tr>
+        <tr class="final">
+            <td class="right">Do zapłaty brutto</td>
+            <td class="right">{{ invoice.grossTotal|number_format(2, ',', ' ') }} zł</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="payment-box">
+    <strong>Informacje o płatności</strong><br>
+    Sposób płatności: przelew / płatność online<br>
+
+    {% if invoice.sellerIban %}
+        Numer rachunku: {{ invoice.sellerIban }}<br>
+    {% endif %}
+
+    Tytuł płatności: {{ invoice.invoiceNumber }}
+</div>
+
+<div class="footer">
+    Dokument wygenerowany automatycznie przez system CarRental.
+</div>
+
+</body>
+</html>

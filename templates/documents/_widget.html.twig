@@ -1,0 +1,24 @@
+<div class="card p-2">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="fw-bold">📄 Ostatnie dokumenty</div>
+        <a class="btn btn-sm btn-link" href="{{ path('app_documents') }}">Zobacz wszystkie</a>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for d in items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          {{ d.type == 'contract' ? 'Umowa' : 'Faktura' }}
+          – {{ d.reservation.car.brand }} {{ d.reservation.car.model }}
+          <small class="text-muted">({{ d.createdAt|date('Y-m-d H:i') }})</small>
+        </span>
+                {% if d.type == 'contract' %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_contract_generate', {id: d.reservation.id}) }}">Pobierz</a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_invoice_generate', {id: d.reservation.id}) }}">Pobierz</a>
+                {% endif %}
+            </li>
+        {% else %}
+            <li class="list-group-item text-muted">Brak dokumentów.</li>
+        {% endfor %}
+    </ul>
+</div>

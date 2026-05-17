@@ -1,58 +1,203 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Rejestracja{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="text-center">📝 Rejestracja</h1>
-        <p class="text-center text-muted">Uzupełnij dane, aby utworzyć konto.</p>
+<style>
+    .auth-container {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        <div class="card shadow-lg p-4">
+    .auth-card {
+        width: 100%;
+        max-width: 520px;
+        border-radius: 1.2rem;
+        background: #fff;
+        box-shadow: 0 20px 50px rgba(15,23,42,.12);
+        padding: 2rem 1.6rem;
+    }
+
+    .auth-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .auth-subtitle {
+        font-size: .9rem;
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-input {
+        border-radius: .8rem;
+        padding: .6rem .75rem;
+    }
+
+    .auth-btn {
+        border-radius: .9rem;
+        font-weight: 700;
+        padding: .6rem;
+    }
+
+    .auth-footer {
+        font-size: .85rem;
+        color: #64748b;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .auth-footer a {
+        font-weight: 600;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="mb-3">
+            <div class="auth-title">📝 Rejestracja</div>
+            <div class="auth-subtitle">Utwórz konto, aby dodawać auta i zarządzać rezerwacjami</div>
+        </div>
+
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger small" role="alert">{{ flash_error }}</div>
+        {% endfor %}
+
+        {% if registrationForm is defined %}
             {{ form_start(registrationForm) }}
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.email, '📧 Email', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Podaj adres email'}}) }}
-                {{ form_errors(registrationForm.email) }}
-            </div>
+                <div class="mb-3">
+                    {{ form_label(registrationForm.email, 'Email') }}
+                    {{ form_widget(registrationForm.email, {
+                        attr: {
+                            class: 'form-control auth-input',
+                            placeholder: 'twoj@email.com'
+                        }
+                    }) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.fullName, '👤 Imię i nazwisko', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.fullName, {'attr': {'class': 'form-control', 'placeholder': 'Podaj imię i nazwisko'}}) }}
-                {{ form_errors(registrationForm.fullName) }}
-            </div>
+                {% if registrationForm.fullName is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.fullName, 'Imię i nazwisko') }}
+                        {{ form_widget(registrationForm.fullName, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'Jan Kowalski'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.fullName) }}
+                    </div>
+                {% elseif registrationForm.name is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.name, 'Imię i nazwisko') }}
+                        {{ form_widget(registrationForm.name, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'Jan Kowalski'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.name) }}
+                    </div>
+                {% endif %}
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.address, '🏠 Adres zamieszkania', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.address, {'attr': {'class': 'form-control', 'placeholder': 'Podaj adres zamieszkania'}}) }}
-                {{ form_errors(registrationForm.address) }}
-            </div>
+                {% if registrationForm.address is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.address, 'Adres') }}
+                        {{ form_widget(registrationForm.address, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'np. Warszawa, ul. Przykładowa 1'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.address) }}
+                    </div>
+                {% endif %}
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.phoneNumber, '📞 Numer telefonu', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': 'Podaj numer telefonu'}}) }}
-                {{ form_errors(registrationForm.phoneNumber) }}
-            </div>
+                {% if registrationForm.phoneNumber is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.phoneNumber, 'Numer telefonu') }}
+                        {{ form_widget(registrationForm.phoneNumber, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'np. 600700800'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.phoneNumber) }}
+                    </div>
+                {% endif %}
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.peselOrNip, '🆔 PESEL/NIP (opcjonalne)', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.peselOrNip, {'attr': {'class': 'form-control', 'placeholder': 'Podaj PESEL lub NIP (opcjonalnie)'}}) }}
-                {{ form_errors(registrationForm.peselOrNip) }}
-            </div>
+                {% if registrationForm.peselOrNip is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.peselOrNip, 'PESEL / NIP') }}
+                        {{ form_widget(registrationForm.peselOrNip, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'opcjonalnie'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.peselOrNip) }}
+                    </div>
+                {% endif %}
 
-            <div class="mb-3">
-                {{ form_label(registrationForm.plainPassword, '🔒 Hasło', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Podaj hasło'}}) }}
-                {{ form_errors(registrationForm.plainPassword) }}
-            </div>
+                {% if registrationForm.plainPassword is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.plainPassword, 'Hasło') }}
+                        {{ form_widget(registrationForm.plainPassword, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'Wpisz hasło'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+                {% elseif registrationForm.password is defined %}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.password, 'Hasło') }}
+                        {{ form_widget(registrationForm.password, {
+                            attr: {
+                                class: 'form-control auth-input',
+                                placeholder: 'Wpisz hasło'
+                            }
+                        }) }}
+                        {{ form_errors(registrationForm.password) }}
+                    </div>
+                {% endif %}
 
-            <button type="submit" class="btn btn-primary w-100">✅ Zarejestruj się</button>
+                <button type="submit" class="btn btn-success w-100 auth-btn">
+                    Zarejestruj się
+                </button>
 
             {{ form_end(registrationForm) }}
-        </div>
+        {% else %}
+            <form method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Imię i nazwisko</label>
+                    <input type="text" name="name" id="name" class="form-control auth-input" required>
+                </div>
 
-        <div class="text-center mt-3">
-            <p>Masz już konto? <a href="{{ path('app_login') }}" class="text-decoration-none">Zaloguj się</a></p>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control auth-input" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Hasło</label>
+                    <input type="password" name="password" id="password" class="form-control auth-input" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 auth-btn">
+                    Zarejestruj się
+                </button>
+            </form>
+        {% endif %}
+
+        <div class="auth-footer">
+            Masz już konto?
+            <a href="{{ path('app_login') }}">Zaloguj się</a>
         </div>
     </div>
+</div>
 {% endblock %}

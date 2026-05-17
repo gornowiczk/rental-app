@@ -3,61 +3,33 @@
 namespace App\Controller;
 
 use App\Entity\Car;
-use App\Form\CarType;
+use App\Entity\CarServiceLog;
 use App\Entity\Reservation;
+use App\Form\CarServiceLogType;
+use App\Form\CarType;
+use App\Form\ReservationType;
+use App\Form\ReviewType;
 use App\Repository\CarRepository;
+use App\Repository\ReviewRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class CarController extends AbstractController
+
+#[Route('/cars')]
+final class CarController extends AbstractController
 {
-    private string $uploadDirectory;
-
-    public function __construct(string $uploadDirectory)
+    public function __construct(private readonly string $uploadDirectory)
     {
-        $this->uploadDirectory = $uploadDirectory;
     }
 
-    #[Route('/my', name: 'app_my_cars')]
-    public function myCars(Security $security, CarRepository $carRepository): Response
-    {
-        $user = $security->getUser();
-
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Pobieranie tylko samochodów należących do użytkownika
-        $cars = $carRepository->findBy(['owner' => $user]);
-
-        return $this->render('cars/my_cars.html.twig', [
-            'cars' => $cars
-        ]);
-    }
-
-
-
-
-
-    #[Route('/all', name: 'app_list_cars', methods: ['GET'])]
-    public function listCars(CarRepository $carRepository): Response
-    {
-        $cars = $carRepository->findAll();
-
-        return $this->render('cars/list_cars.html.twig', [
-            'cars' => $cars
-        ]);
-    }
-
-    #[Route('/cars/all', name: 'app_car_list')]
+    #[Route('/all', name: 'app_car_list', methods: ['GET'])]
     public function list(Request $request, CarRepository $carRepository): Response
     {
-        // Pobranie parametrów filtrów z zapytania
         $filters = [
             'brand' => $request->query->get('brand'),
             'model' => $request->query->get('model'),
@@ -69,12 +41,21 @@ class CarController extends AbstractController
             'isAvailable' => $request->query->get('isAvailable'),
         ];
 
-        // Parametry sortowania
+        $allowedSorts = ['year', 'pricePerDay', 'brand', 'model'];
         $sortBy = $request->query->get('sortBy', 'year');
-        $order = $request->query->get('order', 'ASC');
+        $order = strtoupper($request->query->get('order', 'DESC'));
 
-        // Pobranie przefiltrowanych samochodów z repozytorium
-        $cars = $carRepository->findCarsByFilters($filters, $sortBy, $order);
+        if (!in_array($sortBy, $allowedSorts, true)) {
+            $sortBy = 'year';
+        }
+
+        if (!in_array($order, ['ASC', 'DESC'], true)) {
+            $order = 'DESC';
+        }
+
+        $cars = method_exists($carRepository, 'findCarsByFilters')
+            ? $carRepository->findCarsByFilters($filters, $sortBy, $order)
+            : $carRepository->findBy([], [$sortBy => $order]);
 
         return $this->render('cars/list.html.twig', [
             'cars' => $cars,
@@ -84,62 +65,155 @@ class CarController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_car_details')]
-    public function details(int $id, CarRepository $carRepository): Response
-    {
+    #[Route('/{id}', name: 'app_car_details', methods: ['GET'])]
+    public function details(
+        int $id,
+        CarRepository $carRepository,
+        ReviewRepository $reviewRepository,
+        Request $request
+    ): Response {
         $car = $carRepository->find($id);
+
         if (!$car) {
-            throw $this->createNotFoundException('Samochód nie został znaleziony');
+            throw $this->createNotFoundException('Samochód nie został znaleziony.');
         }
+
+        $isOwner = $this->getUser()
+            && $car->getOwner()
+            && $this->getUser()->getId() === $car->getOwner()->getId();
+
+        $reviews = $reviewRepository->findBy(
+            ['car' => $car],
+            ['createdAt' => 'DESC']
+        );
+
+        $serviceLogs = $car->getServiceLogs()->toArray();
+        usort($serviceLogs, static function (CarServiceLog $a, CarServiceLog $b): int {
+            $dateA = $a->getServiceDate()?->getTimestamp() ?? 0;
+            $dateB = $b->getServiceDate()?->getTimestamp() ?? 0;
+
+            if ($dateA === $dateB) {
+                return ($b->getCreatedAt()?->getTimestamp() ?? 0) <=> ($a->getCreatedAt()?->getTimestamp() ?? 0);
+            }
+
+            return $dateB <=> $dateA;
+        });
+
+        $avg = 0.0;
+        if (!empty($reviews)) {
+            $sum = 0;
+            foreach ($reviews as $review) {
+                $sum += (int) $review->getRating();
+            }
+            $avg = $sum / count($reviews);
+        }
+
+        $reviewForm = null;
+        if ($this->getUser() && !$isOwner) {
+            $reviewForm = $this->createForm(ReviewType::class)->createView();
+        }
+
+        $reservationForm = null;
+        if ($this->getUser() && !$isOwner && $car->isRentable()) {
+            $reservationForm = $this->createForm(ReservationType::class)->createView();
+        }
+
+        $prefill = [
+            'start' => $request->query->get('start'),
+            'end' => $request->query->get('end'),
+        ];
 
         return $this->render('cars/reservation_details.html.twig', [
             'car' => $car,
+            'isOwner' => $isOwner,
+            'reviews' => $reviews,
+            'serviceLogs' => $serviceLogs,
+            'avg' => $avg,
+            'reviewForm' => $reviewForm,
+            'reservationForm' => $reservationForm,
+            'prefill' => $prefill,
         ]);
     }
 
-
-    #[Route('/cars/add', name: 'app_add_car', methods: ['GET', 'POST'])]
-    public function addCar(Request $request, EntityManagerInterface $entityManager, Security $security): Response
+    #[Route('/{id}/availability', name: 'app_car_availability', methods: ['GET'])]
+    public function availability(Car $car, EntityManagerInterface $em): JsonResponse
     {
-        $user = $security->getUser();
+        $reservations = $em->getRepository(Reservation::class)->findBy([
+            'car' => $car,
+            'status' => ['pending', 'accepted'],
+        ]);
 
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
+        $events = [];
+
+        foreach ($reservations as $reservation) {
+            $events[] = [
+                'title' => 'Zajęte',
+                'start' => $reservation->getStartDate()->format('Y-m-d'),
+                'end' => (clone $reservation->getEndDate())->modify('+1 day')->format('Y-m-d'),
+                'color' => '#dc3545',
+            ];
         }
 
+        $pausedUntil = method_exists($car, 'getPausedUntil') ? $car->getPausedUntil() : null;
+
+        if ($pausedUntil instanceof \DateTimeInterface) {
+            $today = new \DateTimeImmutable('today');
+            $pausedUntilDate = \DateTimeImmutable::createFromInterface($pausedUntil)->setTime(0, 0);
+
+            if ($pausedUntilDate >= $today) {
+                $events[] = [
+                    'title' => 'Wstrzymane',
+                    'start' => $today->format('Y-m-d'),
+                    'end' => $pausedUntilDate->modify('+1 day')->format('Y-m-d'),
+                    'color' => '#f59e0b',
+                ];
+            }
+        }
+
+        return new JsonResponse($events);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/add', name: 'app_add_car', methods: ['GET', 'POST'])]
+    public function addCar(Request $request, EntityManagerInterface $em): Response
+    {
         $car = new Car();
-        $form = $this->createForm(CarType::class, $car);
+
+        $form = $this->createForm(CarType::class, $car, [
+            'validation_groups' => ['Default'],
+        ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Ustawienie właściciela samochodu
-            $car->setOwner($user);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $car->setOwner($this->getUser());
 
-            // Obsługa zdjęcia głównego (jeśli dodano)
-            $mainImageFile = $form->get('mainImage')->getData();
-            if ($mainImageFile) {
-                $newFilename = uniqid() . '.' . $mainImageFile->guessExtension();
-                $mainImageFile->move($this->uploadDirectory, $newFilename);
-                $car->setMainImage($newFilename);
-            }
-
-            // Obsługa galerii zdjęć (jeśli dodano)
-            $galleryFiles = $form->get('gallery')->getData();
-            if (!empty($galleryFiles)) {
-                $gallery = [];
-                foreach ($galleryFiles as $file) {
-                    $newFilename = uniqid() . '.' . $file->guessExtension();
-                    $file->move($this->uploadDirectory, $newFilename);
-                    $gallery[] = $newFilename;
+                $mainImage = $form->get('mainImage')->getData();
+                if ($mainImage) {
+                    $fileName = bin2hex(random_bytes(8)) . '.' . $mainImage->guessExtension();
+                    $mainImage->move($this->uploadDirectory, $fileName);
+                    $car->setMainImage($fileName);
                 }
-                $car->setGallery($gallery);
+
+                $galleryFiles = $form->get('gallery')->getData();
+                if ($galleryFiles) {
+                    $storedFiles = [];
+                    foreach ($galleryFiles as $file) {
+                        $fileName = bin2hex(random_bytes(8)) . '.' . $file->guessExtension();
+                        $file->move($this->uploadDirectory, $fileName);
+                        $storedFiles[] = $fileName;
+                    }
+                    $car->setGallery($storedFiles);
+                }
+
+                $em->persist($car);
+                $em->flush();
+
+                $this->addFlash('success', 'Samochód został dodany.');
+                return $this->redirectToRoute('app_my_cars');
             }
 
-            // Zapis do bazy danych
-            $entityManager->persist($car);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_my_cars');
+            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw je poniżej.');
         }
 
         return $this->render('cars/add.html.twig', [
@@ -147,116 +221,210 @@ class CarController extends AbstractController
         ]);
     }
 
-
-
-
-
-
-
-
-
-    #[Route('/edit/{id}', name: 'app_edit_car')]
-    public function editCar(Car $car, Request $request, EntityManagerInterface $entityManager): Response
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{id}/edit', name: 'app_car_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Car $car, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(CarType::class, $car);
+        if ($car->getOwner() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(CarType::class, $car, [
+            'validation_groups' => ['Default'],
+        ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $removeMain = $request->request->get('remove_main');
+                $removeGallery = $request->request->all('remove_gallery');
 
-            return $this->redirectToRoute('app_my_cars');
+                if ($removeMain && $car->getMainImage()) {
+                    $oldMain = rtrim($this->uploadDirectory, '/') . '/' . $car->getMainImage();
+                    if (is_file($oldMain)) {
+                        @unlink($oldMain);
+                    }
+                    $car->setMainImage(null);
+                }
+
+                if (!empty($removeGallery)) {
+                    $currentGallery = $car->getGallery() ?? [];
+                    $updatedGallery = [];
+
+                    foreach ($currentGallery as $imageName) {
+                        if (in_array($imageName, $removeGallery, true)) {
+                            $galleryFile = rtrim($this->uploadDirectory, '/') . '/' . $imageName;
+                            if (is_file($galleryFile)) {
+                                @unlink($galleryFile);
+                            }
+                            continue;
+                        }
+
+                        $updatedGallery[] = $imageName;
+                    }
+
+                    $car->setGallery($updatedGallery);
+                }
+
+                $mainImage = $form->get('mainImage')->getData();
+                if ($mainImage) {
+                    if ($car->getMainImage()) {
+                        $oldMain = rtrim($this->uploadDirectory, '/') . '/' . $car->getMainImage();
+                        if (is_file($oldMain)) {
+                            @unlink($oldMain);
+                        }
+                    }
+
+                    $fileName = bin2hex(random_bytes(8)) . '.' . $mainImage->guessExtension();
+                    $mainImage->move($this->uploadDirectory, $fileName);
+                    $car->setMainImage($fileName);
+                }
+
+                $newGallery = $form->get('gallery')->getData();
+                if ($newGallery) {
+                    $existingGallery = $car->getGallery() ?? [];
+
+                    foreach ($newGallery as $file) {
+                        $fileName = bin2hex(random_bytes(8)) . '.' . $file->guessExtension();
+                        $file->move($this->uploadDirectory, $fileName);
+                        $existingGallery[] = $fileName;
+                    }
+
+                    $car->setGallery($existingGallery);
+                }
+
+                $em->flush();
+
+                $this->addFlash('success', 'Zmiany zapisane.');
+                return $this->redirectToRoute('app_my_cars');
+            }
+
+            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw je poniżej.');
         }
 
         return $this->render('cars/edit.html.twig', [
             'form' => $form->createView(),
+            'car' => $car,
         ]);
     }
 
-
-    #[Route('/cars/delete/{id}', name: 'app_delete_car', methods: ['POST'])]
-    public function deleteCar(Car $car, EntityManagerInterface $entityManager, Security $security): Response
+    #[IsGranted('ROLE_USER')]
+    #[Route('/my', name: 'app_my_cars', methods: ['GET'])]
+    public function myCars(CarRepository $carRepository): Response
     {
-        if ($car->getOwner() !== $security->getUser()) {
-            throw $this->createAccessDeniedException('Nie masz uprawnień do usunięcia tego pojazdu.');
+        $cars = $carRepository->findBy(['owner' => $this->getUser()], ['id' => 'DESC']);
+
+        return $this->render('cars/my_cars.html.twig', [
+            'cars' => $cars,
+        ]);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{id}/service-log/add', name: 'app_car_service_log_add', methods: ['GET', 'POST'])]
+    public function addServiceLog(Request $request, Car $car, EntityManagerInterface $em): Response
+    {
+        if ($car->getOwner() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        // Usuwamy rezerwacje związane z tym autem
-        $reservations = $entityManager->getRepository(Reservation::class)->findBy(['car' => $car]);
+        $serviceLog = new CarServiceLog();
+        $serviceLog->setCar($car);
 
-        foreach ($reservations as $reservation) {
-            $entityManager->remove($reservation);
+        $form = $this->createForm(CarServiceLogType::class, $serviceLog);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $em->persist($serviceLog);
+
+                if ($serviceLog->getType() === 'service' && $serviceLog->getServiceDate()) {
+                    $car->setLastServiceDate($serviceLog->getServiceDate());
+                }
+
+                if ($serviceLog->getMileage() !== null) {
+                    $car->setMileage($serviceLog->getMileage());
+                }
+
+                if ($serviceLog->getType() === 'inspection' && $serviceLog->getServiceDate()) {
+                    $inspectionValidUntil = (clone $serviceLog->getServiceDate())->modify('+1 year');
+                    $car->setInspectionValidUntil($inspectionValidUntil);
+                }
+
+                if ($serviceLog->getType() === 'insurance' && $serviceLog->getServiceDate()) {
+                    $insuranceValidUntil = (clone $serviceLog->getServiceDate())->modify('+1 year');
+                    $car->setInsuranceValidUntil($insuranceValidUntil);
+                }
+
+                $em->flush();
+
+                $this->addFlash('success', 'Wpis serwisowy został dodany.');
+                return $this->redirectToRoute('app_car_details', ['id' => $car->getId()]);
+            }
+
+            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw dane.');
         }
 
-        // Teraz możemy usunąć auto
-        $entityManager->remove($car);
-        $entityManager->flush();
+        return $this->render('cars/service_log_add.html.twig', [
+            'car' => $car,
+            'form' => $form->createView(),
+        ]);
+    }
 
-        $this->addFlash('success', 'Samochód został usunięty.');
+    #[IsGranted('ROLE_USER')]
+    #[Route('/delete/{id}', name: 'app_delete_car', methods: ['POST'])]
+    public function delete(Request $request, Car $car, EntityManagerInterface $em): Response
+    {
+        if ($car->getOwner() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete_car_' . $car->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Błędny token.');
+        }
+
+        if ($car->getMainImage()) {
+            $mainFile = rtrim($this->uploadDirectory, '/') . '/' . $car->getMainImage();
+            if (is_file($mainFile)) {
+                @unlink($mainFile);
+            }
+        }
+
+        foreach ($car->getGallery() ?? [] as $galleryImage) {
+            $galleryFile = rtrim($this->uploadDirectory, '/') . '/' . $galleryImage;
+            if (is_file($galleryFile)) {
+                @unlink($galleryFile);
+            }
+        }
+
+        $em->remove($car);
+        $em->flush();
+
+        $this->addFlash('success', 'Samochód usunięty.');
         return $this->redirectToRoute('app_my_cars');
     }
-    #[Route('/cars/{id}/availability', name: 'app_car_availability', methods: ['GET'])]
-    public function carAvailability(Car $car): JsonResponse
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{id}/toggle', name: 'app_car_toggle', methods: ['POST'])]
+    public function toggleAvailability(Request $request, Car $car, EntityManagerInterface $em): Response
     {
-        $reservations = $car->getReservations();
-        $events = [];
-
-        foreach ($reservations as $reservation) {
-            $events[] = [
-                'title' => 'Zarezerwowane',
-                'start' => $reservation->getStartDate()->format('Y-m-d'),
-                'end' => $reservation->getEndDate()->modify('+1 day')->format('Y-m-d'),
-                'color' => 'red'
-            ];
+        if ($car->getOwner() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        return new JsonResponse($events);
+        if (!$this->isCsrfTokenValid('toggle_car_' . $car->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Błędny token.');
+        }
+
+        $car->setIsAvailable(!$car->isAvailable());
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            $car->isAvailable() ? 'Ogłoszenie ponownie dostępne.' : 'Ogłoszenie wstrzymane.'
+        );
+
+        return $this->redirectToRoute('app_car_details', [
+            'id' => $car->getId(),
+        ]);
     }
-
-
-
-
-    #[Route('/cars/{id}/reserve', name: 'app_reserve_car', methods: ['GET', 'POST'])]
-    public function reserveCar(Car $car, Request $request, EntityManagerInterface $entityManager, Security $security): Response
-    {
-        $user = $security->getUser();
-
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $startDate = $request->query->get('start_date');
-        $endDate = $request->query->get('end_date');
-        $confirm = $request->query->get('confirm');
-
-        // Sprawdzenie poprawności dat
-        if (!$startDate || !$endDate) {
-            $this->addFlash('danger', 'Musisz wybrać daty przed potwierdzeniem rezerwacji.');
-            return $this->redirectToRoute('app_car_details', ['id' => $car->getId()]);
-        }
-
-        if (!$confirm) {
-            return $this->render('cars/confirm_reservation.html.twig', [
-                'car' => $car,
-                'startDate' => $startDate,
-                'endDate' => $endDate
-            ]);
-        }
-
-        // Tworzenie nowej rezerwacji
-        $reservation = new Reservation();
-        $reservation->setUser($user);
-        $reservation->setCar($car);
-        $reservation->setStartDate(new \DateTime($startDate));
-        $reservation->setEndDate(new \DateTime($endDate));
-
-        $entityManager->persist($reservation);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Rezerwacja została zatwierdzona!');
-        return $this->redirectToRoute('app_my_reservations');
-    }
-
-
-
-
 }

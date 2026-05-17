@@ -1,21 +1,402 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Panel Administratora{% endblock %}
+{% block title %}Panel administratora{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h2 class="text-center">Panel Administratora</h2>
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
 
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <a href="{{ path('admin_cars') }}" class="btn btn-primary w-100">🚗 Zarządzanie samochodami</a>
-            </div>
-            <div class="col-md-4">
-                <a href="{{ path('admin_users') }}" class="btn btn-secondary w-100">👤 Zarządzanie użytkownikami</a>
-            </div>
-            <div class="col-md-4">
-                <a href="{{ path('admin_reservations') }}" class="btn btn-warning w-100">📅 Zarządzanie rezerwacjami</a>
+    .admin-hero-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .admin-hero-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .admin-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-stat-card,
+    .admin-panel-card,
+    .admin-side-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-stat-card {
+        padding: 1rem;
+    }
+
+    .admin-stat-label {
+        font-size: .82rem;
+        color: #64748b;
+        margin-bottom: .3rem;
+    }
+
+    .admin-stat-value {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .admin-section-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .admin-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .9rem;
+    }
+
+    .admin-quick-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+        transition: all .18s ease;
+    }
+
+    .admin-quick-link:hover {
+        background: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-quick-title {
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .admin-quick-text {
+        color: #64748b;
+        font-size: .88rem;
+        margin: 0;
+    }
+
+    .admin-list-item + .admin-list-item {
+        border-top: 1px solid #eef2f7;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .admin-item-title {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .admin-item-subtitle {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .admin-badge {
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .78rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        white-space: nowrap;
+    }
+
+    .admin-badge-pending {
+        background: #fff3cd;
+        color: #7c5a00;
+    }
+
+    .admin-badge-accepted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .admin-badge-completed {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .admin-badge-other {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .admin-soft-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .admin-actions .btn {
+        border-radius: .85rem;
+        font-weight: 600;
+    }
+
+    .admin-empty {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    @media (max-width: 991px) {
+        .admin-stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .admin-quick-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .admin-stat-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{# fallbacki, żeby widok nie wybuchł gdy kontroler jeszcze nie przekazuje wszystkiego #}
+{% set usersCount = usersCount|default(0) %}
+{% set carsCount = carsCount|default(0) %}
+{% set reservationsCount = reservationsCount|default(0) %}
+{% set pendingReservationsCount = pendingReservationsCount|default(0) %}
+{% set acceptedReservationsCount = acceptedReservationsCount|default(0) %}
+{% set completedReservationsCount = completedReservationsCount|default(0) %}
+{% set cancelledReservationsCount = cancelledReservationsCount|default(0) %}
+{% set completedRevenue = completedRevenue|default(0) %}
+{% set invoicesCount = invoicesCount|default(0) %}
+{% set latestReservations = latestReservations|default([]) %}
+{% set latestCars = latestCars|default([]) %}
+{% set logsCount = logsCount|default(0) %}
+
+<div class="admin-hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <div class="admin-hero-title">Panel administratora</div>
+            <div class="admin-hero-subtitle">
+                Zarządzaj użytkownikami, pojazdami, rezerwacjami i stanem całego systemu.
             </div>
         </div>
     </div>
+</div>
+
+<div class="admin-stat-grid">
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Użytkownicy</div>
+        <div class="admin-stat-value">{{ usersCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Auta</div>
+        <div class="admin-stat-value">{{ carsCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Rezerwacje</div>
+        <div class="admin-stat-value">{{ reservationsCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Oczekujące</div>
+        <div class="admin-stat-value">{{ pendingReservationsCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Zaakceptowane</div>
+        <div class="admin-stat-value">{{ acceptedReservationsCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Zakończone</div>
+        <div class="admin-stat-value">{{ completedReservationsCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Faktury</div>
+        <div class="admin-stat-value">{{ invoicesCount }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Przychód brutto</div>
+        <div class="admin-stat-value">{{ completedRevenue|number_format(2, ',', ' ') }} zł</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-panel-card p-3 p-md-4 mb-4">
+            <div class="admin-section-title">Szybkie sekcje</div>
+
+            <div class="admin-quick-grid">
+                <a href="{{ path('admin_users') }}" class="admin-quick-link">
+                    <div class="admin-quick-title">Użytkownicy</div>
+                    <p class="admin-quick-text">Przeglądaj konta, role i dane użytkowników.</p>
+                </a>
+
+                <a href="{{ path('admin_cars') }}" class="admin-quick-link">
+                    <div class="admin-quick-title">Auta</div>
+                    <p class="admin-quick-text">Zarządzaj pojazdami i ogłoszeniami w systemie.</p>
+                </a>
+
+                <a href="{{ path('admin_reservations') }}" class="admin-quick-link">
+                    <div class="admin-quick-title">Rezerwacje</div>
+                    <p class="admin-quick-text">Monitoruj aktywne, zakończone i odrzucone rezerwacje.</p>
+                </a>
+
+                <a href="{{ path('admin_logs') }}" class="admin-quick-link">
+                    <div class="admin-quick-title">Logi systemowe</div>
+                    <p class="admin-quick-text">Sprawdzaj zdarzenia, historię zmian i aktywność.</p>
+                </a>
+
+                <a href="{{ path('admin_health') }}" class="admin-quick-link">
+                    <div class="admin-quick-title">System health</div>
+                    <p class="admin-quick-text">Stan usług, błędów i podstawowych wskaźników systemu.</p>
+                </a>
+
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <a href="{{ path('admin_admins') }}" class="admin-quick-link">
+                        <div class="admin-quick-title">Zarządzaj adminami</div>
+                        <p class="admin-quick-text">Przeglądaj konta administratorów i dodawaj nowe z jednego miejsca.</p>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="admin-panel-card p-3 p-md-4 mb-4">
+            <div class="admin-section-title">Ostatnie rezerwacje</div>
+
+            {% if latestReservations is empty %}
+                <div class="admin-empty">
+                    <div class="fw-semibold mb-1">Brak danych</div>
+                    <div class="text-muted small">Ostatnie rezerwacje pojawią się tutaj.</div>
+                </div>
+            {% else %}
+                {% for r in latestReservations %}
+                    {% set statusClass =
+                        r.status == 'pending' ? 'admin-badge-pending'
+                        : (r.status == 'accepted' ? 'admin-badge-accepted'
+                        : (r.status == 'completed' ? 'admin-badge-completed'
+                        : 'admin-badge-other'))
+                    %}
+
+                    {% set statusLabel =
+                        r.status == 'pending' ? 'Oczekująca'
+                        : (r.status == 'accepted' ? 'Zaakceptowana'
+                        : (r.status == 'completed' ? 'Zakończona'
+                        : (r.status == 'cancelled' ? 'Anulowana' : 'Odrzucona')))
+                    %}
+
+                    <div class="admin-list-item">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <div class="admin-item-title">
+                                    {{ r.car.brand }} {{ r.car.model }}
+                                </div>
+                                <div class="admin-item-subtitle">
+                                    {{ r.user.email }} • {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <span class="admin-badge {{ statusClass }}">
+                                    ● {{ statusLabel }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="admin-panel-card p-3 p-md-4">
+            <div class="admin-section-title">Ostatnio dodane auta</div>
+
+            {% if latestCars is empty %}
+                <div class="admin-empty">
+                    <div class="fw-semibold mb-1">Brak danych</div>
+                    <div class="text-muted small">Nowo dodane auta pojawią się tutaj.</div>
+                </div>
+            {% else %}
+                {% for car in latestCars %}
+                    <div class="admin-list-item">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <div class="admin-item-title">
+                                    {{ car.brand }} {{ car.model }}
+                                </div>
+                                <div class="admin-item-subtitle">
+                                    {{ car.registrationNumber }} • {{ car.year }}
+                                    {% if car.owner is defined and car.owner and car.owner.email is defined %}
+                                        • właściciel: {{ car.owner.email }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="admin-badge {{ car.isAvailable ? 'admin-badge-accepted' : 'admin-badge-completed' }}">
+                                    ● {{ car.isAvailable ? 'Dostępne' : 'Niedostępne' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-side-card p-3 p-md-4 sticky-top" style="top: 90px;">
+            <div class="admin-section-title">Podsumowanie systemu</div>
+
+            <div class="admin-soft-box mb-4 small">
+                W systemie znajduje się obecnie <strong>{{ usersCount }}</strong> użytkowników,
+                <strong>{{ carsCount }}</strong> aut i <strong>{{ reservationsCount }}</strong> rezerwacji.
+                <br><br>
+                Oczekujących rezerwacji: <strong>{{ pendingReservationsCount }}</strong>.
+                <br>
+                Logów systemowych: <strong>{{ logsCount }}</strong>.
+                <br>
+                Wystawionych faktur: <strong>{{ invoicesCount }}</strong>.
+                <br>
+                Przychód z zakończonych rezerwacji: <strong>{{ completedRevenue|number_format(2, ',', ' ') }} zł</strong>.
+            </div>
+
+            <div class="admin-section-title">Szybkie akcje</div>
+            <div class="admin-actions d-grid gap-2">
+                <a href="{{ path('admin_users') }}" class="btn btn-primary">Użytkownicy</a>
+                <a href="{{ path('admin_cars') }}" class="btn btn-outline-secondary">Auta</a>
+                <a href="{{ path('admin_reservations') }}" class="btn btn-outline-secondary">Rezerwacje</a>
+                <a href="{{ path('admin_logs') }}" class="btn btn-outline-secondary">Logi</a>
+                <a href="{{ path('admin_health') }}" class="btn btn-outline-secondary">System health</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

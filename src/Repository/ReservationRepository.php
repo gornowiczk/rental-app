@@ -19,5 +19,31 @@ class ReservationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reservation::class);
     }
 
-    // Możesz dodać dodatkowe metody, jeśli chcesz
+    public function hasOverlapForCar(
+        int $carId,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?int $excludeReservationId = null
+    ): bool {
+        $qb = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.car = :carId')
+            ->andWhere('r.status IN (:activeStatuses)')
+            ->andWhere('r.startDate < :end')
+            ->andWhere('r.endDate > :start')
+            ->setParameter('carId', $carId)
+            ->setParameter('activeStatuses', [
+                Reservation::STATUS_PENDING,
+                Reservation::STATUS_ACCEPTED,
+            ])
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if ($excludeReservationId !== null) {
+            $qb->andWhere('r.id != :excludeReservationId')
+                ->setParameter('excludeReservationId', $excludeReservationId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }

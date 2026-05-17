@@ -2,93 +2,374 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Wynajem samochodów{% endblock %}</title>
+    <title>{% block title %}CarRental{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css" rel="stylesheet">
+    {% block stylesheets %}
+        <style>
+            :root {
+                --app-bg: #f5f7fb;
+                --app-card: #ffffff;
+                --app-border: #e9eef5;
+                --app-text: #0f172a;
+                --app-muted: #64748b;
+                --app-primary: #2563eb;
+                --app-dark: #0f172a;
+                --app-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+                --app-radius: 1rem;
+            }
 
-    <!-- Custom CSS -->
-    <style>
-        body {
-            padding-top: 70px;
-            background-color: #f8f9fa;
-        }
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .container {
-            max-width: 1000px;
-        }
-        .table {
-            background-color: white;
-        }
-        .fc-toolbar-title {
-            font-size: 1.2rem;
-        }
-    </style>
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
 
-    {% block stylesheets %}{% endblock %}
+            body {
+                background: var(--app-bg);
+                color: var(--app-text);
+                font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            }
+
+            .app-shell {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .app-navbar {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+                padding-top: .85rem;
+                padding-bottom: .85rem;
+            }
+
+            .app-navbar .navbar-brand {
+                font-weight: 800;
+                font-size: 1.18rem;
+                letter-spacing: .2px;
+            }
+
+            .app-navbar .nav-link,
+            .app-navbar .navbar-text {
+                color: rgba(255,255,255,.84) !important;
+                font-weight: 500;
+            }
+
+            .app-navbar .nav-link:hover,
+            .app-navbar .nav-link:focus {
+                color: #fff !important;
+            }
+
+            .app-navbar .dropdown-menu {
+                border: 0;
+                border-radius: .9rem;
+                box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+                padding: .5rem;
+            }
+
+            .app-navbar .dropdown-item {
+                border-radius: .7rem;
+                padding: .55rem .8rem;
+            }
+
+            .app-navbar .dropdown-item:hover {
+                background: #f1f5f9;
+            }
+
+            .app-navbar .navbar-toggler {
+                border: 1px solid rgba(255,255,255,.18);
+                border-radius: .8rem;
+            }
+
+            .app-notifications-menu {
+                max-height: 400px;
+                overflow-y: auto;
+                min-width: 340px;
+            }
+
+            .app-notification-unread {
+                font-weight: 700;
+                background: #f8fafc;
+            }
+
+            .app-notification-read {
+                color: #64748b;
+            }
+
+            .app-main {
+                flex: 1;
+                padding-top: 1.25rem;
+                padding-bottom: 2rem;
+            }
+
+            .app-container {
+                max-width: 1240px;
+            }
+
+            .app-flash {
+                border: 0;
+                border-radius: .95rem;
+                box-shadow: var(--app-shadow);
+                padding: .95rem 1rem;
+            }
+
+            .app-user-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: .5rem;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.08);
+                color: #fff;
+                padding: .45rem .8rem;
+                border-radius: 999px;
+                font-size: .88rem;
+            }
+
+            .app-footer {
+                color: var(--app-muted);
+                font-size: .86rem;
+                padding: 1rem 0 1.5rem;
+            }
+
+            .app-footer-inner {
+                border-top: 1px solid var(--app-border);
+                padding-top: 1rem;
+            }
+
+            .badge-soft {
+                background: #eff6ff;
+                color: #1d4ed8;
+                font-weight: 700;
+            }
+
+            @media (max-width: 991px) {
+                .app-notifications-menu {
+                    min-width: 280px;
+                }
+
+                .app-user-chip {
+                    margin-top: .5rem;
+                    margin-bottom: .4rem;
+                    display: inline-flex;
+                }
+            }
+        </style>
+    {% endblock %}
 </head>
+
 <body>
+<div class="app-shell">
+    <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+        <div class="container app-container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('app_home') }}">
+                <span>🚗</span>
+                <span>CarRental</span>
+            </a>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-        <a class="navbar-brand text-white" href="{{ path('app_list_cars') }}">🚗 Wynajem aut</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ path('app_home') }}">🏠 Strona Główna</a>
-                </li>
-                {% if app.user %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ path('app_my_cars') }}">🚘 Moje samochody</a>
+                        <a class="nav-link" href="{{ path('app_car_list') }}">Samochody</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ path('app_reservations') }}">📅 Rezerwacje</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ path('app_reservation_history') }}">📜 Historia</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ path('app_profile') }}">👤 Moje konto</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-success text-white" href="{{ path('app_add_car') }}">➕ Dodaj samochód</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" href="{{ path('app_logout') }}">🚪 Wyloguj</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link text-success" href="{{ path('app_login') }}">🔑 Zaloguj</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-primary" href="{{ path('app_register') }}">📝 Rejestracja</a>
-                    </li>
-                {% endif %}
-            </ul>
+
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_reservations') }}">Rezerwacje</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_my_cars') }}">Moje auta</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_owner_dashboard') }}">Panel właściciela</a>
+                        </li>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_reservations') }}">Rezerwacje</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_reports') }}">Raporty</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_cars') }}">Auta</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_users') }}">Użytkownicy</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_logs') }}">Logi</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('admin_health') }}">System health</a></li>
+
+                                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('admin_admins') }}">🛡️ Admini</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#"
+                               id="notifDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <span>🔔 Powiadomienia</span>
+                                {% if navbar_notifications_count|default(0) > 0 %}
+                                    <span class="badge rounded-pill bg-danger">{{ navbar_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end app-notifications-menu"
+                                aria-labelledby="notifDropdown" role="menu">
+                                {% if navbar_notifications|default([]) is not empty %}
+                                    {% for n in navbar_notifications %}
+                                        <li>
+                                            <a href="{{ path('app_notification_open', {'id': n.id}) }}"
+                                               class="dropdown-item {% if not n.isRead %}app-notification-unread{% else %}app-notification-read{% endif %}">
+                                                <div class="d-flex justify-content-between gap-3">
+                                                    <span class="text-truncate">{{ n.title }}</span>
+                                                    <small class="text-muted flex-shrink-0">{{ n.createdAt|date('d.m H:i') }}</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-center" href="{{ path('app_notifications') }}">
+                                            Zobacz wszystkie
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="dropdown-item text-muted">Brak powiadomień</li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav align-items-lg-center">
+                    {% if app.user %}
+                        <li class="nav-item me-lg-2">
+                            <span class="app-user-chip">
+                                <span>👤</span>
+                                <span>{{ app.user.email }}</span>
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_profile') }}">Mój profil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_logout') }}">Wyloguj</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_login') }}">Zaloguj</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_register') }}">Rejestracja</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container mt-4">
-    {% block body %}{% endblock %}
+    <main class="app-main">
+        <div class="container app-container">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show app-flash" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container app-container">
+            <div class="app-footer-inner d-flex flex-column flex-md-row justify-content-between gap-2">
+                <div>CarRental — system rezerwacji samochodów</div>
+                <div class="text-muted">Projekt inżynierski</div>
+            </div>
+        </div>
+    </footer>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- FullCalendar JS -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/locales-all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 {% block javascripts %}{% endblock %}
+
+{% if app.user %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let lastVersion = null;
+    let isChecking = false;
+
+    async function checkLiveChanges() {
+        if (document.hidden || isChecking) {
+            return;
+        }
+
+        isChecking = true;
+
+        try {
+            const response = await fetch('{{ path('app_live_check') }}', {
+                method: 'GET',
+                cache: 'no-store',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!data.version) {
+                return;
+            }
+
+            if (lastVersion === null) {
+                lastVersion = data.version;
+                return;
+            }
+
+            if (lastVersion !== data.version) {
+                window.location.reload();
+            }
+        } catch (e) {
+            console.warn('Live check error:', e);
+        } finally {
+            isChecking = false;
+        }
+    }
+
+    checkLiveChanges();
+
+    const liveInterval = window.setInterval(checkLiveChanges, 10000);
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            checkLiveChanges();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        window.clearInterval(liveInterval);
+    });
+});
+</script>
+{% endif %}
 </body>
 </html>

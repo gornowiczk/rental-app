@@ -4,35 +4,47 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
-            ->add('fullName', TextType::class, [
-                'label' => 'Imię i nazwisko'
+            ->add('firstName', TextType::class, [
+                'label' => 'Imię',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj imię'],
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => 'Nazwisko',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj nazwisko'],
             ])
             ->add('address', TextType::class, [
-                'label' => 'Adres zamieszkania'
+                'label' => 'Adres',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj adres'],
             ])
-            ->add('phoneNumber', TelType::class, [
-                'label' => 'Numer telefonu'
+            ->add('email', EmailType::class, [
+                'label' => 'Adres e-mail',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj adres e-mail'],
             ])
-            ->add('peselOrNip', TextType::class, [
-                'label' => 'PESEL/NIP',
-                'required' => false
-            ])
-            ->add('plainPassword', PasswordType::class, [
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options'  => [
+                    'label' => 'Hasło',
+                    'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj hasło'],
+                ],
+                'second_options' => [
+                    'label' => 'Powtórz hasło',
+                    'attr' => ['class' => 'form-control', 'placeholder' => 'Powtórz hasło'],
+                ],
+                'invalid_message' => 'Hasła muszą być identyczne.',
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password'],
-                'label' => 'Hasło'
             ]);
     }
 

@@ -1,0 +1,359 @@
+{% extends 'base.html.twig' %}
+{% block title %}System health{% endblock %}
+
+{% block body %}
+<style>
+    .admin-page-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .admin-page-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .admin-health-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-health-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .admin-health-list {
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+    }
+
+    .admin-health-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .9rem;
+        padding: .9rem 1rem;
+    }
+
+    .admin-health-label {
+        color: #64748b;
+        font-size: .9rem;
+        flex: 0 0 auto;
+    }
+
+    .admin-health-value {
+        font-weight: 700;
+        color: #0f172a;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    .admin-badge-ok {
+        background: #dcfce7;
+        color: #166534;
+        border-radius: 999px;
+        padding: .42rem .72rem;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .admin-badge-bad {
+        background: #fee2e2;
+        color: #991b1b;
+        border-radius: 999px;
+        padding: .42rem .72rem;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .admin-badge-warn {
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 999px;
+        padding: .42rem .72rem;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .admin-progress-wrap {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .admin-progress-label {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .admin-progress {
+        height: 18px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e2e8f0;
+        width: 100%;
+    }
+
+    .admin-progress-bar {
+        height: 100%;
+        min-width: 0;
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+    }
+
+    .admin-db-state {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .admin-soft-alert {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .admin-path-list {
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+    }
+
+    .admin-path-item {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 1rem;
+        align-items: start;
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .9rem;
+        padding: 1rem;
+    }
+
+    .admin-path-key {
+        font-weight: 700;
+        color: #334155;
+        word-break: break-word;
+    }
+
+    .admin-code-box {
+        display: block;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e9eef5;
+        border-radius: .8rem;
+        padding: .75rem;
+        font-size: .8rem;
+        line-height: 1.45;
+        color: #334155;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 991px) {
+        .admin-path-item {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-health-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .admin-health-value {
+            text-align: left;
+            width: 100%;
+        }
+
+        .admin-db-state {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="admin-page-hero">
+    <div class="admin-page-title">🩺 System health</div>
+    <div class="admin-page-subtitle">
+        Monitoruj środowisko aplikacji, bazę danych, dostępne zasoby oraz uprawnienia katalogów.
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="admin-health-card p-3 p-md-4">
+            <div class="admin-health-section-title">Środowisko</div>
+
+            <div class="admin-health-list">
+                <div class="admin-health-item">
+                    <div class="admin-health-label">PHP</div>
+                    <div class="admin-health-value">{{ phpVersion }}</div>
+                </div>
+
+                <div class="admin-health-item">
+                    <div class="admin-health-label">Symfony env</div>
+                    <div class="admin-health-value">{{ symfonyEnv }}</div>
+                </div>
+
+                <div class="admin-health-item">
+                    <div class="admin-health-label">Debug</div>
+                    <div class="admin-health-value">
+                        <span class="{{ symfonyDebug ? 'admin-badge-warn' : 'admin-badge-ok' }}">
+                            {{ symfonyDebug ? 'ON' : 'OFF' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-health-card p-3 p-md-4 mt-4">
+            <div class="admin-health-section-title">Dysk</div>
+
+            {% if disk.total and disk.free %}
+                {% set used = disk.total - disk.free %}
+                {% set usedPct = (used / disk.total * 100) %}
+
+                <div class="admin-progress-wrap">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                        <div class="admin-progress-label">
+                            Free: {{ (disk.free / 1024 / 1024 / 1024)|number_format(2, '.', ' ') }} GB /
+                            Total: {{ (disk.total / 1024 / 1024 / 1024)|number_format(2, '.', ' ') }} GB
+                        </div>
+
+                        <div class="fw-semibold text-dark">
+                            {{ usedPct|number_format(1, '.', ' ') }}%
+                        </div>
+                    </div>
+
+                    <div class="admin-progress">
+                        <div class="admin-progress-bar" style="width: {{ usedPct }}%;"></div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="admin-soft-alert text-muted">
+                    Brak danych o dysku.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="admin-health-card p-3 p-md-4">
+            <div class="admin-db-state">
+                <div class="admin-health-section-title mb-0">Baza danych</div>
+                <span class="{{ dbOk ? 'admin-badge-ok' : 'admin-badge-bad' }}">
+                    {{ dbOk ? 'OK' : 'ERROR' }}
+                </span>
+            </div>
+
+            {% if dbOk %}
+                <div class="admin-health-list">
+                    <div class="admin-health-item">
+                        <div class="admin-health-label">Driver</div>
+                        <div class="admin-health-value">{{ dbInfo.driver }}</div>
+                    </div>
+
+                    <div class="admin-health-item">
+                        <div class="admin-health-label">Database</div>
+                        <div class="admin-health-value">{{ dbInfo.database }}</div>
+                    </div>
+
+                    <div class="admin-health-item">
+                        <div class="admin-health-label">MySQL version</div>
+                        <div class="admin-health-value">{{ dbInfo.serverVersion }}</div>
+                    </div>
+
+                    <div class="admin-health-item">
+                        <div class="admin-health-label">Tables</div>
+                        <div class="admin-health-value">{{ dbInfo.tables }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-danger mb-0">
+                    {{ dbInfo.error }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="admin-health-card p-3 p-md-4 mt-4">
+            <div class="admin-health-section-title">Uprawnienia (writable)</div>
+
+            <div class="admin-health-list">
+                <div class="admin-health-item">
+                    <div class="admin-health-label">cache/</div>
+                    <div class="admin-health-value">
+                        <span class="{{ writable.cache ? 'admin-badge-ok' : 'admin-badge-bad' }}">
+                            {{ writable.cache ? 'OK' : 'NO' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="admin-health-item">
+                    <div class="admin-health-label">var/log/</div>
+                    <div class="admin-health-value">
+                        <span class="{{ writable.logs ? 'admin-badge-ok' : 'admin-badge-bad' }}">
+                            {{ writable.logs ? 'OK' : 'NO' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="admin-health-item">
+                    <div class="admin-health-label">uploads/</div>
+                    <div class="admin-health-value">
+                        <span class="{{ writable.uploads ? 'admin-badge-ok' : 'admin-badge-bad' }}">
+                            {{ writable.uploads ? 'OK' : 'NO' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="admin-health-item">
+                    <div class="admin-health-label">public/</div>
+                    <div class="admin-health-value">
+                        <span class="{{ writable.public ? 'admin-badge-ok' : 'admin-badge-bad' }}">
+                            {{ writable.public ? 'OK' : 'NO' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-health-card p-3 p-md-4 mt-4">
+    <div class="admin-health-section-title">Ścieżki</div>
+
+    <div class="admin-path-list">
+        {% for k, v in paths %}
+            <div class="admin-path-item">
+                <div class="admin-path-key">{{ k }}</div>
+                <div>
+                    <code class="admin-code-box">{{ v }}</code>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

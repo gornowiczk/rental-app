@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Security\Core\Security;
 
 #[Route('/user')]
 class UserController extends AbstractController
@@ -42,7 +41,6 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Jeśli użytkownik poda nowe hasło, to je haszujemy
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
                 $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
@@ -52,15 +50,11 @@ class UserController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Dane zostały zaktualizowane.');
-            return $this->redirectToRoute('app_user_profile');
+            return $this->redirectToRoute('app_profile');
         }
-
-        // Pobieramy adres poprzedniej strony
-        $referer = $request->headers->get('referer');
 
         return $this->render('user/edit.html.twig', [
             'form' => $form->createView(),
-            'referer' => $referer,
         ]);
     }
 }

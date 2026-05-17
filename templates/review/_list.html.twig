@@ -1,0 +1,43 @@
+{# Lista opinii z gwiazdkami i usuwaniem własnych #}
+<div id="reviews" class="card p-3 mt-4">
+    <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Opinie</h5>
+        {% if avg is defined %}
+            <div class="text-muted">
+                Średnia: <strong>{{ '%.1f'|format(avg) }}/5</strong>
+                <span class="ms-1">
+          {% for i in 1..5 %}
+              {% if i <= avg|round(0, 'floor') %}★{% else %}☆{% endif %}
+          {% endfor %}
+        </span>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if reviews is empty %}
+        <div class="alert alert-info mt-3 mb-0">Brak opinii — bądź pierwszy!</div>
+    {% else %}
+        <ul class="list-group list-group-flush mt-3">
+            {% for r in reviews %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="small text-muted">
+                            {% for i in 1..5 %}
+                                {% if i <= r.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            • {{ r.createdAt|date('Y-m-d H:i') }}
+                            • {{ r.user.fullName }}
+                        </div>
+                        <div>{{ r.content }}</div>
+                    </div>
+                    {% if app.user and r.user and r.user.id == app.user.id %}
+                        <form method="post" action="{{ path('app_review_delete', {'id': r.id}) }}" onsubmit="return confirm('Usunąć opinię?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ r.id) }}">
+                            <button class="btn btn-sm btn-outline-danger">Usuń</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>

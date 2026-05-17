@@ -1,0 +1,62 @@
+{% set statusLabels = {
+    'pending': 'Oczekująca',
+    'accepted': 'Zaakceptowana',
+    'rejected': 'Odrzucona',
+    'cancelled': 'Anulowana',
+    'completed': 'Zakończona'
+} %}
+
+{% if logs is empty %}
+    <div class="text-muted">
+        Brak historii zmian statusu.
+    </div>
+{% else %}
+    <div class="d-flex flex-column gap-3">
+        {% for log in logs %}
+            {% set oldStatus = log.oldStatus is defined ? log.oldStatus : null %}
+            {% set newStatus = log.newStatus is defined ? log.newStatus : null %}
+            {% set changedAt = log.changedAt is defined ? log.changedAt : (log.createdAt is defined ? log.createdAt : null) %}
+            {% set actor = log.user is defined and log.user ? log.user.email : 'System' %}
+            {% set note = log.note is defined ? log.note : null %}
+
+            <div class="res-soft-box">
+                <div class="fw-bold mb-1">
+                    {% if newStatus %}
+                        {{ statusLabels[newStatus]|default(newStatus) }}
+                    {% else %}
+                        Zmiana statusu
+                    {% endif %}
+                </div>
+
+                <div class="small text-muted mb-2">
+                    {% if changedAt %}
+                        {{ changedAt|date('Y-m-d H:i') }}
+                    {% else %}
+                        Brak daty
+                    {% endif %}
+                    • {{ actor }}
+                </div>
+
+                <div class="small">
+                    {% if oldStatus and newStatus %}
+                        Status zmieniono z
+                        <strong>{{ statusLabels[oldStatus]|default(oldStatus) }}</strong>
+                        na
+                        <strong>{{ statusLabels[newStatus]|default(newStatus) }}</strong>.
+                    {% elseif newStatus %}
+                        Ustawiono status:
+                        <strong>{{ statusLabels[newStatus]|default(newStatus) }}</strong>.
+                    {% else %}
+                        Zarejestrowano zmianę w rezerwacji.
+                    {% endif %}
+                </div>
+
+                {% if note %}
+                    <div class="small text-muted mt-2">
+                        {{ note }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
