@@ -6,10 +6,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AuthControllerTest extends WebTestCase
 {
-    public function testIndex(): void
+    public function testLoginPageLoads(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/auth');
+        $client->request('GET', '/login');
 
         self::assertResponseIsSuccessful();
     }

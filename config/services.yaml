@@ -39,7 +39,7 @@ services:
       $mailer: '@mailer'
       $em: '@doctrine.orm.entity_manager'
 
-  # Event subscriber do powiadomień w navbarze
+  # Event subscriber do powiadomien w navbarze
   App\EventSubscriber\NotificationSubscriber:
     tags: ['kernel.event_subscriber']
 
@@ -64,7 +64,7 @@ services:
     arguments: []
     calls:
       - method: setIsRemoteEnabled
-        arguments: [true]
+        arguments: [false]
       - method: setDefaultFont
         arguments: ['DejaVu Sans']
 

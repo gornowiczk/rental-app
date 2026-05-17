@@ -26,3 +26,9 @@
 
 /public/uploads/
 node_modules/
+.idea/
+*.pem
+*.tar.gz
+*.bak
+*.backup
+*.sql
