@@ -21,9 +21,9 @@
         <div class="p-2 text-end border-top">
             <a href="{{ path('app_notifications') }}" class="btn btn-sm btn-link">Pokaż wszystkie</a>
             <form class="d-inline" method="post" action="{{ path('app_notification_read_all') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('notification_read_all') }}">
                 <button class="btn btn-sm btn-outline-secondary">Oznacz jako przeczytane</button>
             </form>
         </div>
     </div>
 </div>
-
