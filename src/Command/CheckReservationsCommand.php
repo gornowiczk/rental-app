@@ -12,32 +12,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:check-reservations')]
 class CheckReservationsCommand extends Command
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $em)
     {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $today = new \DateTime();
+        $today = new \DateTimeImmutable('today');
 
-        // Pobieramy wszystkie rezerwacje o statusie "confirmed"
-        $reservations = $this->entityManager->getRepository(Reservation::class)->findBy([
-            'status' => 'confirmed'
-        ]);
+        // UWAGA: nie 'confirmed', tylko zaakceptowane
+        $reservations = $this->em->getRepository(Reservation::class)->findBy(['status' => 'accepted']);
 
-        foreach ($reservations as $reservation) {
-            if ($reservation->getEndDate() < $today) {
-                $reservation->setStatus('completed');
+        foreach ($reservations as $r) {
+            if ($r->getEndDate() < $today) {
+                $r->setStatus('completed');
             }
         }
 
-        $this->entityManager->flush();
+        $this->em->flush();
         $output->writeln('Zaktualizowano zakończone rezerwacje.');
-
         return Command::SUCCESS;
     }
 }

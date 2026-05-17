@@ -1,81 +1,377 @@
-{% extends 'base.html.twig' %}
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="reservation-list-card p-3 p-md-4 h-100">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                <div>
+                    <h3 class="reservation-section-title mb-1">📅 Moje rezerwacje</h3>
+                    <div class="text-muted small">Wszystkie Twoje zgłoszenia, dokumenty i akcje w jednym miejscu.</div>
+                </div>
+                <span class="reservation-counter-badge">{{ myReservations|length }}</span>
+            </div>
 
-{% block title %}Rezerwacje{% endblock %}
+            {% if myReservations is empty %}
+                <div class="reservation-empty-state">
+                    <div class="reservation-empty-icon">📭</div>
+                    <div class="fw-semibold mb-1">Nie masz jeszcze rezerwacji</div>
+                    <div class="text-muted small">Po złożeniu pierwszej rezerwacji pojawi się ona tutaj.</div>
+                </div>
+            {% else %}
+                <div class="d-flex flex-column gap-3">
+                    {% for r in myReservations %}
+                        {% set s = r.status %}
+                        {% set invoiceExists = invoiceExistsMap[r.id]|default(false) %}
+                        {% set canCancel = canCancelMap[r.id]|default(false) %}
+                        {% set days = ((r.endDate|date('U') - r.startDate|date('U')) / 86400)|round(0, 'floor') %}
+                        {% set days = days < 1 ? 1 : days %}
+                        {% set pricePerDay = r.pricePerDay ?? r.car.pricePerDay %}
+                        {% set total = r.totalPrice ?? (pricePerDay * days) %}
 
-{% block body %}
-    <div class="container mt-4">
-        <div class="card shadow p-4">
-            <h2 class="text-center">📋 Moje rezerwacje</h2>
+                        {% set statusLabel = {
+                            'pending': 'Oczekująca',
+                            'accepted': 'Zaakceptowana',
+                            'rejected': 'Odrzucona',
+                            'completed': 'Zakończona',
+                            'cancelled': 'Anulowana'
+                        }[s] ?? s %}
 
-            <table class="table table-striped mt-3">
-                <thead class="table-dark">
-                <tr>
-                    <th>🚗 Samochód</th>
-                    <th>📅 Początek</th>
-                    <th>📅 Koniec</th>
-                    <th>📌 Status</th>
-                    <th>🔍 Akcje</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for reservation in myReservations %}
-                    <tr>
-                        <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
-                        <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
-                        <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
-                        <td>
-                            {% if reservation.status == 'pending' %}
-                                <span class="badge bg-warning">⏳ Oczekuje</span>
-                            {% elseif reservation.status == 'accepted' %}
-                                <span class="badge bg-success">✅ Zaakceptowana</span>
-                            {% else %}
-                                <span class="badge bg-danger">❌ Odrzucona</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ path('app_reservation_details', {'id': reservation.id}) }}" class="btn btn-info btn-sm">🔍 Szczegóły</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                        {% set statusClass = {
+                            'pending': 'reservation-status-pending',
+                            'accepted': 'reservation-status-accepted',
+                            'rejected': 'reservation-status-rejected',
+                            'completed': 'reservation-status-completed',
+                            'cancelled': 'reservation-status-cancelled'
+                        }[s] ?? 'reservation-status-completed' %}
 
-            <h2 class="text-center mt-5">🚗 Rezerwacje moich samochodów</h2>
+                        <div class="reservation-item-card" data-reservation-id="{{ r.id }}">
+                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                                <div>
+                                    <div class="reservation-item-title">
+                                        {{ r.car.brand }} {{ r.car.model }}
+                                    </div>
+                                    <div class="reservation-item-subtitle">
+                                        {{ r.car.registrationNumber }} • {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                    </div>
+                                </div>
 
-            <table class="table table-striped mt-3">
-                <thead class="table-dark">
-                <tr>
-                    <th>🚗 Samochód</th>
-                    <th>👤 Najemca</th>
-                    <th>📅 Początek</th>
-                    <th>📅 Koniec</th>
-                    <th>📌 Status</th>
-                    <th>🔍 Akcje</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for reservation in carReservations %}
-                    <tr>
-                        <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
-                        <td>{{ reservation.user.fullName }}</td>
-                        <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
-                        <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
-                        <td>
-                            {% if reservation.status == 'pending' %}
-                                <span class="badge bg-warning">⏳ Oczekuje</span>
-                            {% elseif reservation.status == 'accepted' %}
-                                <span class="badge bg-success">✅ Zaakceptowana</span>
-                            {% else %}
-                                <span class="badge bg-danger">❌ Odrzucona</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ path('app_reservation_details', {'id': reservation.id}) }}" class="btn btn-info btn-sm">🔍 Szczegóły</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                                <span class="reservation-status-badge {{ statusClass }}">
+                                    ● {{ statusLabel }}
+                                </span>
+                            </div>
+
+                            <div class="reservation-meta-grid mb-3">
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Okres</div>
+                                    <div class="reservation-meta-value">
+                                        {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                    </div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Dni</div>
+                                    <div class="reservation-meta-value">{{ days|round }}</div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Cena / doba</div>
+                                    <div class="reservation-meta-value">{{ pricePerDay|number_format(2, ',', ' ') }} zł</div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Łącznie</div>
+                                    <div class="reservation-meta-value">{{ total|number_format(2, ',', ' ') }} zł</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                {% if s in ['accepted', 'completed'] %}
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="{{ path('app_contract_generate', {'id': r.id}) }}">
+                                        Umowa
+                                    </a>
+                                {% endif %}
+
+                                {% if s == 'completed' %}
+                                    {% if r.wantsInvoice %}
+                                        {% if invoiceExists %}
+                                            <a class="btn btn-sm btn-outline-success"
+                                               href="{{ path('app_invoice_generate', {'id': r.id}) }}">
+                                                Faktura
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted small">Faktura: jeszcze niewystawiona</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted small">Faktura: nie wybrano</span>
+                                    {% endif %}
+                                {% elseif s == 'accepted' and r.wantsInvoice %}
+                                    <span class="text-muted small">Faktura po zakończeniu</span>
+                                {% endif %}
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{{ path('app_reservations_show', {'id': r.id, 'from': 'reservations'}) }}">
+                                    Szczegóły
+                                </a>
+
+                                {% if s == 'pending' %}
+                                    {% if canCancel %}
+                                        <form method="post"
+                                              action="{{ path('app_reservation_cancel', {'id': r.id}) }}"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Czy na pewno anulować rezerwację?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('reservation_cancel_' ~ r.id) }}">
+                                            <button class="btn btn-sm btn-outline-danger">Anuluj</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted small">Anulowanie zablokowane (&lt;24h)</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
-{% endblock %}
+
+    <div class="col-lg-6">
+        <div class="reservation-list-card p-3 p-md-4 h-100">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                <div>
+                    <h3 class="reservation-section-title mb-1">🧑‍🔧 Rezerwacje na moje auta</h3>
+                    <div class="text-muted small">Zarządzaj zgłoszeniami najemców dla swoich pojazdów.</div>
+                </div>
+                <span class="reservation-counter-badge">{{ carReservations|length }}</span>
+            </div>
+
+            {% if carReservations is empty %}
+                <div class="reservation-empty-state">
+                    <div class="reservation-empty-icon">🚗</div>
+                    <div class="fw-semibold mb-1">Brak zgłoszeń na Twoje pojazdy</div>
+                    <div class="text-muted small">Kiedy ktoś zarezerwuje Twoje auto, pojawi się tutaj.</div>
+                </div>
+            {% else %}
+                <div class="d-flex flex-column gap-3">
+                    {% for r in carReservations %}
+                        {% set s = r.status %}
+                        {% set days = ((r.endDate|date('U') - r.startDate|date('U')) / 86400) %}
+                        {% set total = r.car.pricePerDay * days %}
+
+                        {% set statusLabel = {
+                            'pending': 'Oczekująca',
+                            'accepted': 'Zaakceptowana',
+                            'rejected': 'Odrzucona',
+                            'completed': 'Zakończona',
+                            'cancelled': 'Anulowana'
+                        }[s] ?? s %}
+
+                        {% set statusClass = {
+                            'pending': 'reservation-status-pending',
+                            'accepted': 'reservation-status-accepted',
+                            'rejected': 'reservation-status-rejected',
+                            'completed': 'reservation-status-completed',
+                            'cancelled': 'reservation-status-cancelled'
+                        }[s] ?? 'reservation-status-completed' %}
+
+                        <div class="reservation-item-card" data-reservation-id="{{ r.id }}">
+                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                                <div>
+                                    <div class="reservation-item-title">
+                                        {{ r.car.brand }} {{ r.car.model }}
+                                    </div>
+                                    <div class="reservation-item-subtitle">
+                                        Najemca: {{ r.user.email }}
+                                    </div>
+                                </div>
+
+                                <span class="reservation-status-badge {{ statusClass }}">
+                                    ● {{ statusLabel }}
+                                </span>
+                            </div>
+
+                            <div class="reservation-meta-grid mb-3">
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Termin</div>
+                                    <div class="reservation-meta-value">
+                                        {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                    </div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Dni</div>
+                                    <div class="reservation-meta-value">{{ days|round }}</div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Najemca</div>
+                                    <div class="reservation-meta-value">{{ r.user.firstName }} {{ r.user.lastName }}</div>
+                                </div>
+
+                                <div class="reservation-meta-box">
+                                    <div class="reservation-meta-label">Wartość</div>
+                                    <div class="reservation-meta-value">{{ total|number_format(2, ',', ' ') }} zł</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                {% if s == 'pending' %}
+                                    <form method="post" action="{{ path('app_reservation_accept', {'id': r.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reservation_accept_' ~ r.id) }}">
+                                        <button class="btn btn-sm btn-success">Akceptuj</button>
+                                    </form>
+
+                                    <form method="post" action="{{ path('app_reservation_reject', {'id': r.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reservation_reject_' ~ r.id) }}">
+                                        <button class="btn btn-sm btn-outline-danger">Odrzuć</button>
+                                    </form>
+                                {% elseif s == 'accepted' %}
+                                    <form method="post"
+                                          action="{{ path('app_reservation_complete', {'id': r.id}) }}"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Zakończyć rezerwację? (oddanie auta)');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reservation_complete_' ~ r.id) }}">
+                                        <button class="btn btn-sm btn-outline-primary">Zakończ</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted small">Brak akcji</span>
+                                {% endif %}
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{{ path('app_reservations_show', {'id': r.id, 'from': 'reservations'}) }}">
+                                    Szczegóły
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .reservation-list-card {
+        border: 0;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        background: #fff;
+    }
+
+    .reservation-section-title {
+        font-size: 1.12rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .reservation-counter-badge {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 .8rem;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+    }
+
+    .reservation-empty-state {
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .reservation-empty-icon {
+        font-size: 2rem;
+        margin-bottom: .5rem;
+    }
+
+    .reservation-item-card {
+        background: #ffffff;
+        border: 1px solid #e9eef5;
+        border-radius: 1rem;
+        padding: 1rem 1rem;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .reservation-item-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .reservation-item-subtitle {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .reservation-status-badge {
+        border-radius: 999px;
+        padding: .5rem .85rem;
+        font-weight: 700;
+        font-size: .8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        white-space: nowrap;
+    }
+
+    .reservation-status-pending {
+        background: #fff3cd;
+        color: #7c5a00;
+    }
+
+    .reservation-status-accepted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .reservation-status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .reservation-status-completed {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .reservation-status-cancelled {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .reservation-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .8rem;
+    }
+
+    .reservation-meta-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .85rem;
+        padding: .8rem .9rem;
+    }
+
+    .reservation-meta-label {
+        font-size: .76rem;
+        color: #64748b;
+        margin-bottom: .15rem;
+    }
+
+    .reservation-meta-value {
+        font-weight: 700;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    @media (max-width: 991px) {
+        .reservation-meta-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

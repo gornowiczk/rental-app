@@ -1,0 +1,18 @@
+{# Mini lista powiadomień (np. na stronie auta/rezerwacji) #}
+{% if notifications is defined and notifications %}
+    <div class="card p-3 mt-3">
+        <h5 class="mb-2">🔔 Ostatnie powiadomienia</h5>
+        <ul class="list-unstyled mb-0">
+            {% for n in notifications|slice(0,5) %}
+                <li class="py-1">
+                    <strong>{{ n.title }}</strong>
+                    <small class="text-muted">• {{ n.createdAt|date('Y-m-d H:i') }}</small>
+                    {% if not n.isRead %}
+                        <span class="badge bg-danger ms-2">Nowe</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ path('app_notifications') }}" class="btn btn-sm btn-link">Wszystkie powiadomienia</a>
+    </div>
+{% endif %}

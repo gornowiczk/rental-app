@@ -1,0 +1,7 @@
+{% extends 'emails/layout.html.twig' %}
+{% block subject %}Rezerwacja {{ status == 'accepted' ? 'zaakceptowana' : 'odrzucona' }}{% endblock %}
+{% block body %}
+    <p>Twoja rezerwacja na auto <strong>{{ reservation.car.brand }} {{ reservation.car.model }}</strong>
+        została <strong>{{ status == 'accepted' ? 'zaakceptowana' : 'odrzucona' }}</strong>.</p>
+    <p>Okres: <strong>{{ reservation.startDate|date('Y-m-d') }} → {{ reservation.endDate|date('Y-m-d') }}</strong></p>
+{% endblock %}

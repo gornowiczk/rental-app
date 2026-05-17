@@ -1,0 +1,27 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block body %}
+  <h2 style="margin:0 0 12px 0;">Wystawiono fakturę</h2>
+
+  <p style="margin:0 0 12px 0;">
+    Dla Twojej rezerwacji <strong>#{{ reservation.id }}</strong> została wystawiona faktura:
+    <strong>{{ invoice.invoiceNumber }}</strong>.
+  </p>
+
+  <p style="margin:0 0 16px 0;">
+    <a href="{{ invoice_url }}" style="display:inline-block;padding:10px 14px;border-radius:6px;text-decoration:none;">
+      Pobierz fakturę (PDF)
+    </a>
+  </p>
+
+  <p style="margin:0 0 12px 0;">
+    Szczegóły rezerwacji:
+    <a href="{{ reservation_url }}">{{ reservation_url }}</a>
+  </p>
+
+  <hr style="margin:16px 0;">
+
+  <p style="margin:0;color:#666;">
+    {{ seller_name }}
+  </p>
+{% endblock %}

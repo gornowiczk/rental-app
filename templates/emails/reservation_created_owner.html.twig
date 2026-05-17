@@ -1,0 +1,3 @@
+<p>Masz nową rezerwację na auto {{ r.car.brand }} {{ r.car.model }}.</p>
+<p>Najemca: {{ r.user.fullName ?? r.user.email }}<br>
+    Termin: {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}</p>

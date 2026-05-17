@@ -1,0 +1,417 @@
+{% extends 'base.html.twig' %}
+{% block title %}Rezerwacje{% endblock %}
+
+{% block body %}
+<style>
+    .admin-page-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .admin-page-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .admin-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .admin-card .form-control,
+    .admin-card .form-select {
+        border-radius: .8rem;
+        border-color: #dbe4ee;
+        min-height: 44px;
+    }
+
+    .admin-card .form-control:focus,
+    .admin-card .form-select:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .admin-table-wrap {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        min-width: 1040px;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .admin-table thead th {
+        font-size: .8rem;
+        text-transform: uppercase;
+        color: #64748b;
+        border: 0;
+        background: transparent;
+        padding: 0 .8rem .2rem;
+        white-space: nowrap;
+    }
+
+    .admin-row td {
+        background: #fff;
+        padding: .9rem;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+
+    .admin-row td:first-child {
+        border-left: 1px solid #e2e8f0;
+        border-radius: .85rem 0 0 .85rem;
+    }
+
+    .admin-row td:last-child {
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0 .85rem .85rem 0;
+    }
+
+    .admin-main {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .admin-sub {
+        font-size: .85rem;
+        color: #64748b;
+    }
+
+    .admin-status-badge {
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .78rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        white-space: nowrap;
+        text-transform: capitalize;
+    }
+
+    .admin-status-pending {
+        background: #fff3cd;
+        color: #7c5a00;
+    }
+
+    .admin-status-accepted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .admin-status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .admin-status-cancelled {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .admin-status-completed {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .admin-invoice-yes {
+        background: #dcfce7;
+        color: #166534;
+        border-radius: 999px;
+        padding: .35rem .65rem;
+        font-size: .75rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .admin-invoice-no {
+        background: #e2e8f0;
+        color: #334155;
+        border-radius: 999px;
+        padding: .35rem .65rem;
+        font-size: .75rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        justify-content: flex-end;
+    }
+
+    .admin-actions .btn {
+        border-radius: .75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .admin-empty {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .admin-empty-icon {
+        font-size: 2rem;
+        margin-bottom: .55rem;
+    }
+
+    .admin-bulk-note {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .admin-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+</style>
+
+{% set statusLabels = {
+    'pending': 'Oczekująca',
+    'accepted': 'Zaakceptowana',
+    'rejected': 'Odrzucona',
+    'cancelled': 'Anulowana',
+    'completed': 'Zakończona'
+} %}
+
+<div class="admin-page-hero">
+    <div class="admin-page-title">Rezerwacje</div>
+    <div class="admin-page-subtitle">
+        Zarządzaj statusem rezerwacji, wykonuj akcje zbiorcze i przechodź do dokumentów.
+    </div>
+</div>
+
+<div class="admin-card p-3 p-md-4 mb-4">
+    <div class="admin-section-title">Filtry</div>
+
+    <form class="row g-3" method="get" action="{{ path('admin_reservations') }}">
+        <div class="col-md-4">
+            <input
+                class="form-control"
+                name="q"
+                placeholder="Szukaj (email / marka / model)"
+                value="{{ filters.q|default('') }}"
+            >
+        </div>
+
+        <div class="col-md-4">
+            <select class="form-select" name="status">
+                <option value="">-- status (wszystkie) --</option>
+                {% set st = filters.status|default('') %}
+                <option value="pending" {{ st == 'pending' ? 'selected' : '' }}>Oczekująca</option>
+                <option value="accepted" {{ st == 'accepted' ? 'selected' : '' }}>Zaakceptowana</option>
+                <option value="rejected" {{ st == 'rejected' ? 'selected' : '' }}>Odrzucona</option>
+                <option value="cancelled" {{ st == 'cancelled' ? 'selected' : '' }}>Anulowana</option>
+                <option value="completed" {{ st == 'completed' ? 'selected' : '' }}>Zakończona</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-dark w-100">Filtruj</button>
+        </div>
+    </form>
+</div>
+
+<form id="bulkForm" class="admin-card p-3 p-md-4 mb-4" method="post" action="{{ path('admin_reservations_bulk') }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('admin_reservations_bulk') }}">
+
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Akcja zbiorcza</label>
+            <select class="form-select" name="action" required>
+                <option value="">-- wybierz --</option>
+                <option value="accept">Ustaw jako zaakceptowana</option>
+                <option value="reject">Ustaw jako odrzucona</option>
+                <option value="complete">Ustaw jako zakończona</option>
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <option value="delete">Usuń (SUPER_ADMIN)</option>
+                {% endif %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100">Wykonaj</button>
+        </div>
+
+        <div class="col-md-5">
+            <div class="admin-bulk-note">
+                Zaznacz rezerwacje checkboxami w tabeli poniżej, a następnie wybierz akcję zbiorczą.
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="admin-card p-3 p-md-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="admin-section-title mb-0">Lista rezerwacji</div>
+        <span class="badge rounded-pill text-bg-light">{{ reservations|length }}</span>
+    </div>
+
+    {% if reservations is empty %}
+        <div class="admin-empty">
+            <div class="admin-empty-icon">📅</div>
+            <div class="fw-semibold mb-1">Brak rezerwacji</div>
+            <div class="text-muted small">Nie znaleziono rezerwacji spełniających wybrane kryteria.</div>
+        </div>
+    {% else %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 42px;">
+                            <input type="checkbox" id="checkAll" class="admin-checkbox">
+                        </th>
+                        <th>ID</th>
+                        <th>Auto</th>
+                        <th>Użytkownik</th>
+                        <th>Od</th>
+                        <th>Do</th>
+                        <th>Status</th>
+                        <th>Faktura</th>
+                        <th class="text-end">Akcje</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in reservations %}
+                        {% set statusClass =
+                            r.status == 'pending' ? 'admin-status-pending'
+                            : (r.status == 'accepted' ? 'admin-status-accepted'
+                            : (r.status == 'rejected' ? 'admin-status-rejected'
+                            : (r.status == 'cancelled' ? 'admin-status-cancelled'
+                            : 'admin-status-completed')))
+                        %}
+
+                        <tr class="admin-row">
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    name="ids[]"
+                                    value="{{ r.id }}"
+                                    form="bulkForm"
+                                    class="admin-checkbox"
+                                >
+                            </td>
+
+                            <td>
+                                <div class="admin-main">#{{ r.id }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ r.car.brand }} {{ r.car.model }}</div>
+                                <div class="admin-sub">
+                                    {{ r.car.registrationNumber ?? '—' }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ r.user.email }}</div>
+                                <div class="admin-sub">
+                                    {% if r.user.firstName is defined or r.user.lastName is defined %}
+                                        {{ r.user.firstName|default('') }} {{ r.user.lastName|default('') }}
+                                    {% else %}
+                                        użytkownik systemu
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ r.startDate|date('Y-m-d') }}</div>
+                            </td>
+
+                            <td>
+                                <div class="admin-main">{{ r.endDate|date('Y-m-d') }}</div>
+                            </td>
+
+                            <td>
+                                <span class="admin-status-badge {{ statusClass }}">
+                                    ● {{ statusLabels[r.status]|default(r.status) }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if r.wantsInvoice %}
+                                    <span class="admin-invoice-yes">TAK</span>
+                                {% else %}
+                                    <span class="admin-invoice-no">NIE</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="admin-actions">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ path('admin_reservation_show', {id: r.id}) }}">
+                                        Szczegóły
+                                    </a>
+
+                                    {% if r.status in ['accepted', 'completed'] %}
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="{{ path('app_contract_generate', {id: r.id}) }}">
+                                            Umowa
+                                        </a>
+
+                                        {% if r.status == 'completed' and r.wantsInvoice %}
+                                            <a class="btn btn-sm btn-outline-success"
+                                            href="{{ path('app_invoice_generate', {id: r.id}) }}">
+                                                Faktura
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const checkAll = document.getElementById('checkAll');
+    if (checkAll) {
+        checkAll.addEventListener('change', () => {
+            document.querySelectorAll('input[type="checkbox"][name="ids[]"]').forEach(cb => {
+                cb.checked = checkAll.checked;
+            });
+        });
+    }
+
+    const bulkForm = document.getElementById('bulkForm');
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', (e) => {
+            const anyChecked = document.querySelectorAll('input[type="checkbox"][name="ids[]"]:checked').length > 0;
+            if (!anyChecked) {
+                e.preventDefault();
+                alert('Zaznacz przynajmniej jedną rezerwację.');
+            }
+        });
+    }
+</script>
+{% endblock %}

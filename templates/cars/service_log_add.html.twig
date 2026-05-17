@@ -1,0 +1,324 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dodaj wpis serwisowy{% endblock %}
+
+{% block body %}
+<style>
+    .page-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        background:
+            radial-gradient(1000px 500px at 0% 0%, rgba(59,130,246,.18), transparent 55%),
+            radial-gradient(800px 400px at 100% 0%, rgba(255,255,255,.08), transparent 40%),
+            linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 24px;
+        padding: clamp(24px, 4vw, 34px);
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .page-hero-title {
+        font-size: clamp(1.5rem, 2.4vw, 1.95rem);
+        font-weight: 800;
+        margin-bottom: .35rem;
+        letter-spacing: -.02em;
+    }
+
+    .page-hero-subtitle {
+        opacity: .86;
+        font-size: .96rem;
+    }
+
+    .page-card {
+        background: #fff;
+        border: 1px solid #e8eef5;
+        border-radius: 22px;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+        padding: 1.25rem;
+        overflow: hidden;
+    }
+
+    .section-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid #e8eef5;
+        border-radius: 20px;
+        padding: 1.1rem;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+        letter-spacing: -.01em;
+    }
+
+    .section-subtitle {
+        color: #64748b;
+        font-size: .89rem;
+        margin-bottom: 1rem;
+    }
+
+    .car-box {
+        background: #f8fbff;
+        border: 1px solid #dfe9f3;
+        border-radius: 18px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .car-name {
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .car-meta {
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    .page-card .form-label {
+        display: block;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: .45rem;
+        line-height: 1.2;
+    }
+
+    .page-card .form-control,
+    .page-card .form-select,
+    .page-card input[type="text"],
+    .page-card input[type="number"],
+    .page-card input[type="date"],
+    .page-card input[type="datetime-local"],
+    .page-card select,
+    .page-card textarea {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 16px;
+        border: 1px solid #d8e2ec;
+        min-height: 48px;
+        background: #fff;
+        box-shadow: none;
+        padding: .75rem .9rem;
+        box-sizing: border-box;
+    }
+
+    .page-card textarea,
+    .page-card textarea.form-control {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .page-card .form-control:focus,
+    .page-card .form-select:focus,
+    .page-card input:focus,
+    .page-card select:focus,
+    .page-card textarea:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+        outline: none;
+    }
+
+    .field-block {
+        display: flex;
+        flex-direction: column;
+        gap: .35rem;
+    }
+
+    .field-block .form-errors,
+    .field-block .invalid-feedback,
+    .field-block ul {
+        margin: 0;
+        padding-left: 1rem;
+        color: #dc2626;
+        font-size: .82rem;
+    }
+
+    .side-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid #e8eef5;
+        border-radius: 20px;
+        padding: 1.1rem;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .side-highlight {
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+        color: #fff;
+        border-radius: 20px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .side-highlight-title {
+        font-size: .82rem;
+        opacity: .82;
+        margin-bottom: .25rem;
+    }
+
+    .side-highlight-value {
+        font-size: 1.28rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .soft-box {
+        background: #f8fbff;
+        border: 1px solid #dfe9f3;
+        border-radius: 18px;
+        padding: 1rem;
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    .form-actions {
+        border-top: 1px solid #e8eef5;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+    }
+
+    .form-actions .btn {
+        border-radius: 14px;
+        font-weight: 700;
+        padding: .72rem 1.05rem;
+    }
+
+    @media (max-width: 991px) {
+        .page-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="page-hero-title">Dodaj wpis serwisowy</div>
+                <div class="page-hero-subtitle">
+                    Uzupełnij historię serwisową pojazdu i zapisz ważne informacje eksploatacyjne.
+                </div>
+            </div>
+
+            <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-light fw-semibold">
+                ← Powrót do auta
+            </a>
+        </div>
+    </div>
+
+    <div class="page-card">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="section-card">
+                    <div class="section-title">Dane wpisu</div>
+                    <div class="section-subtitle">
+                        Wprowadź informacje o wykonanym serwisie, koszcie i przebiegu auta.
+                    </div>
+
+                    <div class="car-box">
+                        <div class="car-name">{{ car.brand }} {{ car.model }}</div>
+                        <div class="car-meta">{{ car.registrationNumber }}</div>
+                    </div>
+
+                    {{ form_start(form) }}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="field-block">
+                                    {{ form_label(form.type) }}
+                                    {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.type) }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="field-block">
+                                    {{ form_label(form.serviceDate) }}
+                                    {{ form_widget(form.serviceDate, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.serviceDate) }}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="field-block">
+                                    {{ form_label(form.title) }}
+                                    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.title) }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="field-block">
+                                    {{ form_label(form.mileage) }}
+                                    {{ form_widget(form.mileage, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.mileage) }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="field-block">
+                                    {{ form_label(form.cost) }}
+                                    {{ form_widget(form.cost, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.cost) }}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="field-block">
+                                    {{ form_label(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div class="text-muted small">
+                                Po zapisaniu wpis pojawi się w historii serwisowej pojazdu.
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-primary">Zapisz wpis</button>
+                                <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-outline-secondary">
+                                    Anuluj
+                                </a>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-4">
+                    <div class="side-card">
+                        <div class="side-highlight">
+                            <div class="side-highlight-title">Nowy wpis</div>
+                            <div class="side-highlight-value">Historia serwisowa</div>
+                        </div>
+
+                        <div class="section-title">Po co ten wpis?</div>
+                        <div class="soft-box">
+                            Historia serwisowa pomaga kontrolować koszty eksploatacji, terminy przeglądów i ostatnie naprawy pojazdu.
+                        </div>
+                    </div>
+
+                    <div class="side-card">
+                        <div class="section-title">Podpowiedź</div>
+                        <div class="soft-box">
+                            Najlepiej wpisywać dokładną datę, przebieg i koszt usługi. Dzięki temu łatwiej później analizować stan auta i planować kolejne serwisy.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

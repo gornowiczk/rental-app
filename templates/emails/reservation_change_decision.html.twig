@@ -1,0 +1,43 @@
+{# templates/emails/reservation_change_decision.html.twig #}
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>{{ title|default('Decyzja ws. zmiany terminu') }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.4;">
+    {% set decision = decision|default('') %}
+
+    {% if decision == 'accepted' %}
+        <h2 style="margin:0 0 12px 0;">✅ Zmiana terminu zaakceptowana</h2>
+    {% else %}
+        <h2 style="margin:0 0 12px 0;">❌ Zmiana terminu odrzucona</h2>
+    {% endif %}
+
+    <p style="margin:0 0 12px 0;">
+        {{ body|default('') }}
+    </p>
+
+    {% if reservation is defined and reservation %}
+        <hr>
+        <p style="margin:0 0 6px 0;"><strong>Rezerwacja:</strong> #{{ reservation.id }}</p>
+        <p style="margin:0 0 6px 0;"><strong>Auto:</strong> {{ reservation.car.brand }} {{ reservation.car.model }}</p>
+    {% endif %}
+
+    {% if changeRequest is defined and changeRequest %}
+        <hr>
+
+        <p style="margin:0 0 6px 0;"><strong>Wniosek dotyczył terminu:</strong></p>
+        <p style="margin:0 0 6px 0;">
+            {{ changeRequest.newStartDate ? changeRequest.newStartDate|date('Y-m-d') : '—' }}
+            →
+            {{ changeRequest.newEndDate ? changeRequest.newEndDate|date('Y-m-d') : '—' }}
+        </p>
+    {% endif %}
+
+    <hr>
+    <p style="color:#666; font-size:12px; margin:12px 0 0 0;">
+        Wiadomość wygenerowana automatycznie przez {{ seller_name|default('CarRental') }}.
+    </p>
+</body>
+</html>

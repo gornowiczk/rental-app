@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Protokół wydania i zwrotu pojazdu</title>
+    <style>
+        @page { margin: 28px 34px; }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 12px;
+            color: #111;
+            line-height: 1.45;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 11px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            border: 1px solid #d7d7d7;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f3f4f6;
+            text-align: left;
+        }
+
+        .no-border td {
+            border: 0;
+            padding: 3px 0;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 34%;
+        }
+
+        .notes {
+            height: 80px;
+        }
+
+        .signatures {
+            margin-top: 32px;
+        }
+
+        .signatures td {
+            border: 0;
+            width: 50%;
+            text-align: center;
+            padding-top: 45px;
+        }
+
+        .line {
+            border-top: 1px solid #111;
+            width: 220px;
+            margin: 0 auto 7px;
+        }
+
+        .small {
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+{% set renterName = ((reservation.user.firstName|default('') ~ ' ' ~ reservation.user.lastName|default(''))|trim) %}
+{% set ownerName = ((reservation.car.owner.firstName|default('') ~ ' ' ~ reservation.car.owner.lastName|default(''))|trim) %}
+
+<h1>Protokół wydania i zwrotu pojazdu</h1>
+<div class="subtitle">
+    Rezerwacja #{{ reservation.id }} • dokument wygenerowany {{ "now"|date("Y-m-d H:i") }}
+</div>
+
+<div class="section">
+    <div class="section-title">1. Dane pojazdu</div>
+    <table class="no-border">
+        <tr>
+            <td class="label">Pojazd:</td>
+            <td>{{ reservation.car.brand }} {{ reservation.car.model }}</td>
+        </tr>
+        <tr>
+            <td class="label">Rok produkcji:</td>
+            <td>{{ reservation.car.year }}</td>
+        </tr>
+        <tr>
+            <td class="label">Numer rejestracyjny:</td>
+            <td>{{ reservation.car.registrationNumber }}</td>
+        </tr>
+        <tr>
+            <td class="label">VIN:</td>
+            <td>{{ reservation.car.vin ?: '—' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Okres najmu:</td>
+            <td>{{ reservation.startDate|date('Y-m-d') }} → {{ reservation.endDate|date('Y-m-d') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Miejsce odbioru / zwrotu:</td>
+            <td>{{ reservation.rentalLocation ?: '—' }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">2. Strony</div>
+    <table>
+        <tr>
+            <th>Najemca</th>
+            <th>Wynajmujący</th>
+        </tr>
+        <tr>
+            <td>
+                <strong>{{ renterName ?: reservation.user.email }}</strong><br>
+                Email: {{ reservation.user.email }}<br>
+                Telefon: {{ reservation.phoneNumber ?: '—' }}
+            </td>
+            <td>
+                <strong>{{ ownerName ?: reservation.car.owner.email }}</strong><br>
+                Email: {{ reservation.car.owner.email }}<br>
+                Telefon: {{ reservation.car.owner.phoneNumber|default('—') }}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">3. Wydanie pojazdu</div>
+    <table>
+        <tr>
+            <td class="label">Data i godzina wydania</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="label">Przebieg przy wydaniu</td>
+            <td>................................ km</td>
+        </tr>
+        <tr>
+            <td class="label">Poziom paliwa / naładowania</td>
+            <td>................................</td>
+        </tr>
+        <tr>
+            <td class="label">Liczba kluczyków</td>
+            <td>................................</td>
+        </tr>
+        <tr>
+            <td class="label">Dokumenty pojazdu</td>
+            <td>TAK / NIE</td>
+        </tr>
+        <tr>
+            <td class="label">Stan pojazdu przy wydaniu</td>
+            <td class="notes"></td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">4. Zwrot pojazdu</div>
+    <table>
+        <tr>
+            <td class="label">Data i godzina zwrotu</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="label">Przebieg przy zwrocie</td>
+            <td>................................ km</td>
+        </tr>
+        <tr>
+            <td class="label">Poziom paliwa / naładowania</td>
+            <td>................................</td>
+        </tr>
+        <tr>
+            <td class="label">Zwrot kluczyków</td>
+            <td>TAK / NIE</td>
+        </tr>
+        <tr>
+            <td class="label">Zwrot dokumentów</td>
+            <td>TAK / NIE</td>
+        </tr>
+        <tr>
+            <td class="label">Stan pojazdu przy zwrocie</td>
+            <td class="notes"></td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">5. Uwagi / uszkodzenia / braki</div>
+    <table>
+        <tr>
+            <td class="notes"></td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">6. Oświadczenie</div>
+    <p>
+        Strony potwierdzają zgodność powyższych danych ze stanem faktycznym w chwili wydania i zwrotu pojazdu.
+        Ewentualne uszkodzenia, braki wyposażenia lub różnice w stanie pojazdu powinny zostać wpisane w sekcji uwag.
+    </p>
+</div>
+
+<table class="signatures">
+    <tr>
+        <td>
+            <div class="line"></div>
+            Podpis Najemcy
+        </td>
+        <td>
+            <div class="line"></div>
+            Podpis Wynajmującego
+        </td>
+    </tr>
+</table>
+
+<p class="small" style="text-align:center;margin-top:20px;">
+    Dokument wygenerowany automatycznie przez system CarRental.
+</p>
+
+</body>
+</html>

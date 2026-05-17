@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Powiadomienia{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>🔔 Powiadomienia</h1>
+
+        {% if notifications %}
+            <ul class="list-group">
+                {% for n in notifications %}
+                    <li class="list-group-item p-3 {% if not n.isRead %}fw-bold bg-light{% else %}text-muted{% endif %}">
+                        <a href="{{ path('app_notification_open', {'id': n.id}) }}"
+                           class="d-block text-decoration-none {% if n.isRead %}text-muted{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ n.title }}</span>
+                                <small>{{ n.createdAt|date('Y-m-d H:i') }}</small>
+                            </div>
+                            {% if n.body %}
+                                <div class="small">{{ n.body|raw }}</div>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Brak powiadomień.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,1337 @@
+{% extends 'base.html.twig' %}
+{% block title %}Panel właściciela{% endblock %}
+
+{% block body %}
+<style>
+    .owner-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .owner-hero-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .owner-hero-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .owner-card,
+    .owner-side-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .owner-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .owner-stat-box {
+        background: #fff;
+        border: 1px solid #e9eef5;
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .owner-stat-label {
+        font-size: .82rem;
+        color: #64748b;
+        margin-bottom: .3rem;
+    }
+
+    .owner-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .owner-section-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .owner-list-item + .owner-list-item {
+        border-top: 1px solid #eef2f7;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .owner-item-title {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .owner-item-subtitle {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .owner-badge {
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .78rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+    }
+
+    .owner-badge-pending {
+        background: #fff3cd;
+        color: #7c5a00;
+    }
+
+    .owner-badge-accepted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .owner-badge-completed {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .owner-badge-other {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .owner-soft-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .owner-actions .btn {
+        border-radius: .85rem;
+        font-weight: 600;
+    }
+
+    .owner-empty {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .owner-doc-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        margin-top: .7rem;
+    }
+
+    .owner-doc-actions .btn {
+        border-radius: .75rem;
+        font-weight: 600;
+    }
+
+    .owner-doc-note {
+        color: #64748b;
+        font-size: .84rem;
+        margin-top: .45rem;
+    }
+
+    .owner-alert-list {
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+    }
+
+    .owner-alert-box {
+        border: 1px solid #e9eef5;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1rem;
+    }
+
+    .owner-alert-box-danger {
+        background: #fff7f7;
+        border-color: #fecaca;
+    }
+
+    .owner-alert-box-warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .owner-alert-box-info {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .owner-alert-title {
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .15rem;
+    }
+
+    .owner-alert-subtitle {
+        color: #64748b;
+        font-size: .87rem;
+        margin-bottom: .75rem;
+    }
+
+    .owner-flag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        margin-top: .6rem;
+    }
+
+    .owner-flag {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        padding: .4rem .7rem;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+    }
+
+    .owner-flag-danger {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    .owner-flag-warning {
+        background: #fff7ed;
+        color: #9a3412;
+        border-color: #fed7aa;
+    }
+
+    .owner-flag-info {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+
+    .owner-flag-neutral {
+        background: #f8fafc;
+        color: #475569;
+        border-color: #e2e8f0;
+    }
+
+    .owner-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+        margin-top: .9rem;
+    }
+
+    .owner-mini-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .85rem;
+        padding: .75rem .85rem;
+    }
+
+    .owner-mini-label {
+        font-size: .74rem;
+        color: #64748b;
+        margin-bottom: .12rem;
+    }
+
+    .owner-mini-value {
+        font-size: .9rem;
+        font-weight: 700;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    .owner-car-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .owner-car-card {
+        border: 1px solid #e9eef5;
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .owner-car-media {
+        position: relative;
+        height: 180px;
+        background: #f8fafc;
+    }
+
+    .owner-car-media img,
+    .owner-car-no-photo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .owner-car-no-photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+        font-weight: 600;
+    }
+
+    .owner-car-price {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        background: rgba(15, 23, 42, 0.82);
+        color: #fff;
+        padding: .45rem .75rem;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .owner-car-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+        flex: 1;
+    }
+
+    .owner-car-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .15rem;
+    }
+
+    .owner-car-subtitle {
+        color: #64748b;
+        font-size: .86rem;
+    }
+
+    .owner-car-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+    }
+
+    .owner-car-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        border-radius: 999px;
+        padding: .4rem .7rem;
+        font-size: .76rem;
+        font-weight: 700;
+        width: fit-content;
+    }
+
+    .owner-car-status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .owner-car-status-off {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .owner-car-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .55rem;
+        margin-top: auto;
+    }
+
+    .owner-car-actions .btn {
+        border-radius: .8rem;
+        font-weight: 600;
+    }
+
+    .owner-car-actions-full {
+        grid-column: 1 / -1;
+    }
+
+    .owner-tabs {
+        gap: .65rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 0;
+    }
+
+    .owner-tabs .nav-link {
+        border: 1px solid #dbe3ec;
+        background: #fff;
+        color: #334155;
+        border-radius: 999px;
+        padding: .65rem 1rem;
+        font-weight: 700;
+    }
+
+    .owner-tabs .nav-link.active {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-color: transparent;
+    }
+
+    .owner-tab-pane {
+        animation: fadeIn .18s ease-in-out;
+    }
+
+    .owner-deadline-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .owner-deadline-card {
+        border: 1px solid #e9eef5;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .owner-deadline-card-danger {
+        background: #fff7f7;
+        border-color: #fecaca;
+    }
+
+    .owner-deadline-card-warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .owner-deadline-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .55rem;
+        margin-top: .8rem;
+    }
+
+    .owner-deadline-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .45rem .75rem;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 700;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+    }
+
+    .owner-deadline-pill-danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #991b1b;
+    }
+
+    .owner-deadline-pill-warning {
+        background: #fff7ed;
+        border-color: #fed7aa;
+        color: #9a3412;
+    }
+
+    .deadline-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .deadline-summary-box {
+        border-radius: 1rem;
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+    }
+
+    .deadline-summary-box-danger {
+        background: #fff7f7;
+        border-color: #fecaca;
+    }
+
+    .deadline-summary-box-warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .deadline-summary-box-info {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+    }
+
+    .deadline-summary-label {
+        font-size: .8rem;
+        color: #64748b;
+        margin-bottom: .25rem;
+    }
+
+    .deadline-summary-value {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .deadline-group + .deadline-group {
+        margin-top: 1.5rem;
+    }
+
+    .deadline-group-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .85rem;
+    }
+
+    .deadline-empty-inline {
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 1rem;
+        padding: 1rem 1.1rem;
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 991px) {
+        .owner-stat-grid,
+        .deadline-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .owner-mini-grid,
+        .owner-car-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .owner-stat-grid,
+        .deadline-summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% set rentableCarsCount = 0 %}
+{% set pausedCarsCount = 0 %}
+{% set expiredInspectionCount = 0 %}
+{% set expiredInsuranceCount = 0 %}
+{% set incompleteFleetCount = 0 %}
+{% set upcomingDeadlinesCount = 0 %}
+{% set nowTs = "now"|date('U') %}
+{% set in60DaysTs = ("now"|date_modify("+60 days"))|date('U') %}
+{% set serviceThresholdTs = ("now"|date_modify("-180 days"))|date('U') %}
+
+{% if cars is defined and cars is not empty %}
+    {% for car in cars %}
+        {% if car.isRentable() %}
+            {% set rentableCarsCount = rentableCarsCount + 1 %}
+        {% endif %}
+
+        {% if car.isTemporarilyPaused() %}
+            {% set pausedCarsCount = pausedCarsCount + 1 %}
+        {% endif %}
+
+        {% set inspectionTs = car.inspectionValidUntil ? car.inspectionValidUntil|date('U') : null %}
+        {% set insuranceTs = car.insuranceValidUntil ? car.insuranceValidUntil|date('U') : null %}
+        {% set serviceTs = car.lastServiceDate ? car.lastServiceDate|date('U') : null %}
+
+        {% if inspectionTs and inspectionTs < nowTs %}
+            {% set expiredInspectionCount = expiredInspectionCount + 1 %}
+        {% endif %}
+
+        {% if insuranceTs and insuranceTs < nowTs %}
+            {% set expiredInsuranceCount = expiredInsuranceCount + 1 %}
+        {% endif %}
+
+        {% if not car.vin or not car.mileage %}
+            {% set incompleteFleetCount = incompleteFleetCount + 1 %}
+        {% endif %}
+
+        {% if (inspectionTs and inspectionTs <= in60DaysTs) or (insuranceTs and insuranceTs <= in60DaysTs) or (serviceTs and serviceTs <= serviceThresholdTs) %}
+            {% set upcomingDeadlinesCount = upcomingDeadlinesCount + 1 %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="owner-hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <div class="owner-hero-title">Panel właściciela</div>
+            <div class="owner-hero-subtitle">
+                Monitoruj swoje pojazdy, stan floty, rezerwacje i dokumenty w jednym miejscu.
+            </div>
+        </div>
+
+        <a href="{{ path('app_add_car') }}" class="btn btn-light fw-semibold">
+            ➕ Dodaj samochód
+        </a>
+    </div>
+</div>
+
+<div class="owner-stat-grid">
+    <div class="owner-stat-box">
+        <div class="owner-stat-label">Moje auta</div>
+        <div class="owner-stat-value">{{ carsCount }}</div>
+    </div>
+
+    <div class="owner-stat-box">
+        <div class="owner-stat-label">Aktywne do wynajmu</div>
+        <div class="owner-stat-value">{{ rentableCarsCount }}</div>
+    </div>
+
+    <div class="owner-stat-box">
+        <div class="owner-stat-label">Oczekujące rezerwacje</div>
+        <div class="owner-stat-value">{{ pendingCount }}</div>
+    </div>
+
+    <div class="owner-stat-box">
+        <div class="owner-stat-label">Wstrzymane auta</div>
+        <div class="owner-stat-value">{{ pausedCarsCount }}</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <ul class="nav nav-pills owner-tabs" id="ownerTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-overview-btn" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab">
+                    Przegląd
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-cars-btn" data-bs-toggle="tab" data-bs-target="#tab-cars" type="button" role="tab">
+                    Moje auta
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-deadlines-btn" data-bs-toggle="tab" data-bs-target="#tab-deadlines" type="button" role="tab">
+                    Terminy
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-reservations-btn" data-bs-toggle="tab" data-bs-target="#tab-reservations" type="button" role="tab">
+                    Rezerwacje
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-docs-btn" data-bs-toggle="tab" data-bs-target="#tab-docs" type="button" role="tab">
+                    Dokumenty
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active owner-tab-pane" id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-btn">
+                <div class="owner-card p-3 p-md-4">
+                    <div class="owner-section-title">Stan floty — wymaga uwagi</div>
+
+                    {% if cars is not defined or cars is empty %}
+                        <div class="owner-empty">
+                            <div class="fw-semibold mb-1">Brak pojazdów</div>
+                            <div class="text-muted small">
+                                Dodaj samochód, aby rozpocząć zarządzanie flotą.
+                            </div>
+                        </div>
+                    {% else %}
+                        {% set flaggedCars = 0 %}
+
+                        <div class="owner-alert-list">
+                            {% for car in cars %}
+                                {% set inspectionExpired = car.inspectionValidUntil and car.inspectionValidUntil|date('U') < "now"|date('U') %}
+                                {% set insuranceExpired = car.insuranceValidUntil and car.insuranceValidUntil|date('U') < "now"|date('U') %}
+                                {% set missingFleetData = not car.vin or not car.mileage %}
+                                {% set paused = car.isTemporarilyPaused() %}
+                                {% set needsAttention = inspectionExpired or insuranceExpired or missingFleetData or paused %}
+
+                                {% if needsAttention %}
+                                    {% set flaggedCars = flaggedCars + 1 %}
+
+                                    <div class="owner-alert-box {{ inspectionExpired or insuranceExpired ? 'owner-alert-box-danger' : (paused ? 'owner-alert-box-warning' : 'owner-alert-box-info') }}">
+                                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                            <div>
+                                                <div class="owner-alert-title">
+                                                    {{ car.brand }} {{ car.model }}
+                                                </div>
+                                                <div class="owner-alert-subtitle">
+                                                    {{ car.registrationNumber }}{% if car.location %} • {{ car.location }}{% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                                    Podgląd
+                                                </a>
+                                                <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    Edytuj auto
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="owner-flag-list">
+                                            {% if inspectionExpired %}
+                                                <span class="owner-flag owner-flag-danger">⚠ Nieważny przegląd</span>
+                                            {% elseif car.inspectionValidUntil %}
+                                                <span class="owner-flag owner-flag-neutral">🔧 Przegląd do {{ car.inspectionValidUntil|date('Y-m-d') }}</span>
+                                            {% endif %}
+
+                                            {% if insuranceExpired %}
+                                                <span class="owner-flag owner-flag-danger">⚠ Nieważne ubezpieczenie</span>
+                                            {% elseif car.insuranceValidUntil %}
+                                                <span class="owner-flag owner-flag-info">🛡 Ubezpieczenie do {{ car.insuranceValidUntil|date('Y-m-d') }}</span>
+                                            {% endif %}
+
+                                            {% if paused %}
+                                                <span class="owner-flag owner-flag-warning">⏸ Wstrzymane do {{ car.pausedUntil|date('Y-m-d H:i') }}</span>
+                                            {% endif %}
+
+                                            {% if not car.vin %}
+                                                <span class="owner-flag owner-flag-warning">VIN nieuzupełniony</span>
+                                            {% endif %}
+
+                                            {% if not car.mileage %}
+                                                <span class="owner-flag owner-flag-warning">Brak przebiegu</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="owner-mini-grid">
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">VIN</div>
+                                                <div class="owner-mini-value">{{ car.vin ?: 'Brak danych' }}</div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Przebieg</div>
+                                                <div class="owner-mini-value">
+                                                    {{ car.mileage ? car.mileage ~ ' km' : 'Brak danych' }}
+                                                </div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Paliwo</div>
+                                                <div class="owner-mini-value">
+                                                    {% if car.fuelType == 'benzyna' %}
+                                                        Benzyna
+                                                    {% elseif car.fuelType == 'diesel' %}
+                                                        Diesel
+                                                    {% elseif car.fuelType == 'hybryda' %}
+                                                        Hybryda
+                                                    {% elseif car.fuelType == 'elektryczny' %}
+                                                        Elektryczny
+                                                    {% elseif car.fuelType == 'lpg' %}
+                                                        LPG
+                                                    {% else %}
+                                                        Brak danych
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Skrzynia</div>
+                                                <div class="owner-mini-value">
+                                                    {{ car.transmission == 'automatic' ? 'Automatyczna' : (car.transmission == 'manual' ? 'Manualna' : 'Brak danych') }}
+                                                </div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Ostatni serwis</div>
+                                                <div class="owner-mini-value">
+                                                    {{ car.lastServiceDate ? car.lastServiceDate|date('Y-m-d') : 'Brak danych' }}
+                                                </div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Możliwość wynajmu</div>
+                                                <div class="owner-mini-value">
+                                                    {{ car.isRentable() ? 'Tak' : 'Nie' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {% if car.notes %}
+                                            <div class="owner-doc-note mt-3">
+                                                <strong>Uwagi:</strong> {{ car.notes|length > 160 ? car.notes|slice(0, 160) ~ '…' : car.notes }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        {% if flaggedCars == 0 %}
+                            <div class="owner-empty">
+                                <div class="fw-semibold mb-1">Wszystko wygląda dobrze</div>
+                                <div class="text-muted small">
+                                    Żaden z Twoich pojazdów nie wymaga teraz pilnej uwagi.
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade owner-tab-pane" id="tab-cars" role="tabpanel" aria-labelledby="tab-cars-btn">
+                <div class="owner-card p-3 p-md-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <div class="owner-section-title mb-1">Moje pojazdy</div>
+                            <div class="text-muted small">Szybki podgląd aut i najważniejszych działań właściciela.</div>
+                        </div>
+
+                        <a href="{{ path('app_my_cars') }}" class="btn btn-sm btn-outline-secondary">
+                            Zobacz wszystkie
+                        </a>
+                    </div>
+
+                    {% if cars is not defined or cars is empty %}
+                        <div class="owner-empty">
+                            <div class="fw-semibold mb-1">Nie masz jeszcze dodanych aut</div>
+                            <div class="text-muted small">
+                                Dodaj pierwszy pojazd, aby zacząć zarządzać swoją flotą.
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="owner-car-grid">
+                            {% for car in cars|slice(0, 6) %}
+                                {% set img = car.mainImage ? asset('uploads/' ~ car.mainImage) : null %}
+                                {% set inspectionExpired = car.inspectionValidUntil and car.inspectionValidUntil|date('U') < "now"|date('U') %}
+                                {% set insuranceExpired = car.insuranceValidUntil and car.insuranceValidUntil|date('U') < "now"|date('U') %}
+
+                                <div class="owner-car-card">
+                                    <div class="owner-car-media">
+                                        {% if img %}
+                                            <img src="{{ img }}" alt="{{ car.brand }} {{ car.model }}">
+                                        {% else %}
+                                            <div class="owner-car-no-photo">Brak zdjęcia</div>
+                                        {% endif %}
+
+                                        <div class="owner-car-price">{{ car.pricePerDay }} zł / doba</div>
+                                    </div>
+
+                                    <div class="owner-car-body">
+                                        <div>
+                                            <div class="owner-car-title">{{ car.brand }} {{ car.model }}</div>
+                                            <div class="owner-car-subtitle">
+                                                {{ car.registrationNumber }} • {{ car.year }}{% if car.location %} • {{ car.location }}{% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="owner-car-status-row">
+                                            <span class="owner-car-status {{ car.isAvailable ? 'owner-car-status-active' : 'owner-car-status-off' }}">
+                                                ● {{ car.isAvailable ? 'Aktywne' : 'Wyłączone' }}
+                                            </span>
+
+                                            {% if car.isTemporarilyPaused() %}
+                                                <span class="owner-car-status owner-car-status-off">⏸ Wstrzymane</span>
+                                            {% endif %}
+
+                                            {% if inspectionExpired or insuranceExpired %}
+                                                <span class="owner-car-status owner-car-status-off">⚠ Wymaga uwagi</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="owner-mini-grid">
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">VIN</div>
+                                                <div class="owner-mini-value">{{ car.vin ?: '—' }}</div>
+                                            </div>
+
+                                            <div class="owner-mini-box">
+                                                <div class="owner-mini-label">Przebieg</div>
+                                                <div class="owner-mini-value">{{ car.mileage ? car.mileage ~ ' km' : '—' }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="owner-car-actions">
+                                            <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-outline-primary">
+                                                Szczegóły
+                                            </a>
+
+                                            <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-outline-secondary">
+                                                Edytuj
+                                            </a>
+
+                                            <form method="post"
+                                                  action="{{ path('app_car_toggle', {'id': car.id}) }}"
+                                                  class="owner-car-actions-full"
+                                                  onsubmit="return confirm('{{ car.isAvailable ? 'Wstrzymać to ogłoszenie?' : 'Przywrócić to ogłoszenie?' }}');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_car_' ~ car.id) }}">
+                                                <button class="btn {{ car.isAvailable ? 'btn-outline-warning' : 'btn-outline-success' }} w-100">
+                                                    {{ car.isAvailable ? 'Wstrzymaj ogłoszenie' : 'Przywróć ogłoszenie' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if cars|length > 6 %}
+                            <div class="text-muted small mt-3">
+                                Pokazano 6 ostatnich pojazdów. Pełna lista jest dostępna w sekcji „Moje auta”.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade owner-tab-pane" id="tab-deadlines" role="tabpanel" aria-labelledby="tab-deadlines-btn">
+                <div class="owner-card p-3 p-md-4">
+                    {% set overdueCount = 0 %}
+                    {% set urgentCount = 0 %}
+                    {% set soonCount = 0 %}
+
+                    {% if cars is defined and cars is not empty %}
+                        {% for car in cars %}
+                            {% set inspectionTs = car.inspectionValidUntil ? car.inspectionValidUntil|date('U') : null %}
+                            {% set insuranceTs = car.insuranceValidUntil ? car.insuranceValidUntil|date('U') : null %}
+                            {% set serviceTs = car.lastServiceDate ? car.lastServiceDate|date('U') : null %}
+
+                            {% if inspectionTs %}
+                                {% set inspectionDays = ((inspectionTs - nowTs) / 86400)|round(0, 'floor') %}
+                                {% if inspectionTs < nowTs %}
+                                    {% set overdueCount = overdueCount + 1 %}
+                                {% elseif inspectionDays <= 14 %}
+                                    {% set urgentCount = urgentCount + 1 %}
+                                {% elseif inspectionDays <= 60 %}
+                                    {% set soonCount = soonCount + 1 %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if insuranceTs %}
+                                {% set insuranceDays = ((insuranceTs - nowTs) / 86400)|round(0, 'floor') %}
+                                {% if insuranceTs < nowTs %}
+                                    {% set overdueCount = overdueCount + 1 %}
+                                {% elseif insuranceDays <= 14 %}
+                                    {% set urgentCount = urgentCount + 1 %}
+                                {% elseif insuranceDays <= 60 %}
+                                    {% set soonCount = soonCount + 1 %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if serviceTs and serviceTs <= serviceThresholdTs %}
+                                {% set overdueCount = overdueCount + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <div class="owner-section-title mb-1">Zbliżające się terminy</div>
+                            <div class="text-muted small">
+                                Najważniejsze terminy podzielone według pilności.
+                            </div>
+                        </div>
+
+                        <div class="text-muted small">
+                            Łącznie wpisów: <strong>{{ overdueCount + urgentCount + soonCount }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="deadline-summary-grid">
+                        <div class="deadline-summary-box deadline-summary-box-danger">
+                            <div class="deadline-summary-label">Po terminie</div>
+                            <div class="deadline-summary-value">{{ overdueCount }}</div>
+                        </div>
+
+                        <div class="deadline-summary-box deadline-summary-box-warning">
+                            <div class="deadline-summary-label">Do 14 dni</div>
+                            <div class="deadline-summary-value">{{ urgentCount }}</div>
+                        </div>
+
+                        <div class="deadline-summary-box deadline-summary-box-info">
+                            <div class="deadline-summary-label">Do 60 dni</div>
+                            <div class="deadline-summary-value">{{ soonCount }}</div>
+                        </div>
+                    </div>
+
+                    {% if cars is not defined or cars is empty %}
+                        <div class="owner-empty">
+                            <div class="fw-semibold mb-1">Brak pojazdów</div>
+                            <div class="text-muted small">
+                                Dodaj samochód, aby zobaczyć terminy.
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="deadline-group">
+                            <div class="deadline-group-title">🚨 Po terminie</div>
+
+                            {% set overdueRendered = 0 %}
+                            <div class="owner-deadline-list">
+                                {% for car in cars %}
+                                    {% set inspectionTs = car.inspectionValidUntil ? car.inspectionValidUntil|date('U') : null %}
+                                    {% set insuranceTs = car.insuranceValidUntil ? car.insuranceValidUntil|date('U') : null %}
+                                    {% set serviceTs = car.lastServiceDate ? car.lastServiceDate|date('U') : null %}
+
+                                    {% set showInspection = inspectionTs and inspectionTs < nowTs %}
+                                    {% set showInsurance = insuranceTs and insuranceTs < nowTs %}
+                                    {% set showService = serviceTs and serviceTs <= serviceThresholdTs %}
+
+                                    {% if showInspection or showInsurance or showService %}
+                                        {% set overdueRendered = overdueRendered + 1 %}
+
+                                        <div class="owner-deadline-card owner-deadline-card-danger">
+                                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                                <div>
+                                                    <div class="owner-item-title">{{ car.brand }} {{ car.model }}</div>
+                                                    <div class="owner-item-subtitle">
+                                                        {{ car.registrationNumber }}{% if car.location %} • {{ car.location }}{% endif %}
+                                                    </div>
+                                                </div>
+
+                                                <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    Edytuj auto
+                                                </a>
+                                            </div>
+
+                                            <div class="owner-deadline-items">
+                                                {% if showInspection %}
+                                                    <span class="owner-deadline-pill owner-deadline-pill-danger">
+                                                        🔧 Przegląd • po terminie ({{ car.inspectionValidUntil|date('Y-m-d') }})
+                                                    </span>
+                                                {% endif %}
+
+                                                {% if showInsurance %}
+                                                    <span class="owner-deadline-pill owner-deadline-pill-danger">
+                                                        🛡 Ubezpieczenie • po terminie ({{ car.insuranceValidUntil|date('Y-m-d') }})
+                                                    </span>
+                                                {% endif %}
+
+                                                {% if showService %}
+                                                    {% set serviceDaysAgo = ((nowTs - serviceTs) / 86400)|round(0, 'floor') %}
+                                                    <span class="owner-deadline-pill owner-deadline-pill-danger">
+                                                        🧰 Kontrola serwisowa • ostatni wpis {{ car.lastServiceDate|date('Y-m-d') }} ({{ serviceDaysAgo }} dni temu)
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            {% if overdueRendered == 0 %}
+                                <div class="deadline-empty-inline">Brak pozycji po terminie.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="deadline-group">
+                            <div class="deadline-group-title">⏳ Do 14 dni</div>
+
+                            {% set urgentRendered = 0 %}
+                            <div class="owner-deadline-list">
+                                {% for car in cars %}
+                                    {% set inspectionTs = car.inspectionValidUntil ? car.inspectionValidUntil|date('U') : null %}
+                                    {% set insuranceTs = car.insuranceValidUntil ? car.insuranceValidUntil|date('U') : null %}
+
+                                    {% set inspectionDays = inspectionTs ? ((inspectionTs - nowTs) / 86400)|round(0, 'floor') : null %}
+                                    {% set insuranceDays = insuranceTs ? ((insuranceTs - nowTs) / 86400)|round(0, 'floor') : null %}
+
+                                    {% set showInspection = inspectionTs and inspectionTs >= nowTs and inspectionDays <= 14 %}
+                                    {% set showInsurance = insuranceTs and insuranceTs >= nowTs and insuranceDays <= 14 %}
+
+                                    {% if showInspection or showInsurance %}
+                                        {% set urgentRendered = urgentRendered + 1 %}
+
+                                        <div class="owner-deadline-card owner-deadline-card-warning">
+                                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                                <div>
+                                                    <div class="owner-item-title">{{ car.brand }} {{ car.model }}</div>
+                                                    <div class="owner-item-subtitle">
+                                                        {{ car.registrationNumber }}{% if car.location %} • {{ car.location }}{% endif %}
+                                                    </div>
+                                                </div>
+
+                                                <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    Edytuj auto
+                                                </a>
+                                            </div>
+
+                                            <div class="owner-deadline-items">
+                                                {% if showInspection %}
+                                                    <span class="owner-deadline-pill owner-deadline-pill-warning">
+                                                        🔧 Przegląd • za {{ inspectionDays }} dni
+                                                    </span>
+                                                {% endif %}
+
+                                                {% if showInsurance %}
+                                                    <span class="owner-deadline-pill owner-deadline-pill-warning">
+                                                        🛡 Ubezpieczenie • za {{ insuranceDays }} dni
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            {% if urgentRendered == 0 %}
+                                <div class="deadline-empty-inline">Brak terminów w ciągu 14 dni.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="deadline-group">
+                            <div class="deadline-group-title">📅 Do 60 dni</div>
+
+                            {% set soonRendered = 0 %}
+                            <div class="owner-deadline-list">
+                                {% for car in cars %}
+                                    {% set inspectionTs = car.inspectionValidUntil ? car.inspectionValidUntil|date('U') : null %}
+                                    {% set insuranceTs = car.insuranceValidUntil ? car.insuranceValidUntil|date('U') : null %}
+
+                                    {% set inspectionDays = inspectionTs ? ((inspectionTs - nowTs) / 86400)|round(0, 'floor') : null %}
+                                    {% set insuranceDays = insuranceTs ? ((insuranceTs - nowTs) / 86400)|round(0, 'floor') : null %}
+
+                                    {% set showInspection = inspectionTs and inspectionTs >= nowTs and inspectionDays > 14 and inspectionDays <= 60 %}
+                                    {% set showInsurance = insuranceTs and insuranceTs >= nowTs and insuranceDays > 14 and insuranceDays <= 60 %}
+
+                                    {% if showInspection or showInsurance %}
+                                        {% set soonRendered = soonRendered + 1 %}
+
+                                        <div class="owner-deadline-card owner-deadline-card-warning">
+                                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                                <div>
+                                                    <div class="owner-item-title">{{ car.brand }} {{ car.model }}</div>
+                                                    <div class="owner-item-subtitle">
+                                                        {{ car.registrationNumber }}{% if car.location %} • {{ car.location }}{% endif %}
+                                                    </div>
+                                                </div>
+
+                                                <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    Edytuj auto
+                                                </a>
+                                            </div>
+
+                                            <div class="owner-deadline-items">
+                                                {% if showInspection %}
+                                                    <span class="owner-deadline-pill">
+                                                        🔧 Przegląd • za {{ inspectionDays }} dni
+                                                    </span>
+                                                {% endif %}
+
+                                                {% if showInsurance %}
+                                                    <span class="owner-deadline-pill">
+                                                        🛡 Ubezpieczenie • za {{ insuranceDays }} dni
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            {% if soonRendered == 0 %}
+                                <div class="deadline-empty-inline">Brak terminów w ciągu 60 dni.</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade owner-tab-pane" id="tab-reservations" role="tabpanel" aria-labelledby="tab-reservations-btn">
+                <div class="owner-card p-3 p-md-4">
+                    <div class="owner-section-title">Ostatnie rezerwacje na Twoje auta</div>
+
+                    {% if recentReservations is empty %}
+                        <div class="owner-empty">
+                            <div class="fw-semibold mb-1">Brak rezerwacji</div>
+                            <div class="text-muted small">
+                                Gdy pojawią się nowe rezerwacje na Twoje pojazdy, zobaczysz je tutaj.
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for r in recentReservations %}
+                            {% set statusClass =
+                                r.status == 'pending' ? 'owner-badge-pending'
+                                : (r.status == 'accepted' ? 'owner-badge-accepted'
+                                : (r.status == 'completed' ? 'owner-badge-completed'
+                                : 'owner-badge-other'))
+                            %}
+
+                            {% set statusLabel =
+                                r.status == 'pending' ? 'Oczekująca'
+                                : (r.status == 'accepted' ? 'Zaakceptowana'
+                                : (r.status == 'completed' ? 'Zakończona'
+                                : (r.status == 'cancelled' ? 'Anulowana' : 'Odrzucona')))
+                            %}
+
+                            <div class="owner-list-item">
+                                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                    <div>
+                                        <div class="owner-item-title">
+                                            {{ r.car.brand }} {{ r.car.model }}
+                                        </div>
+                                        <div class="owner-item-subtitle">
+                                            Najemca: {{ r.user.firstName }} {{ r.user.lastName }}{% if r.user.email %} • {{ r.user.email }}{% endif %}
+                                        </div>
+                                        <div class="owner-item-subtitle mt-1">
+                                            {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-column align-items-end gap-2">
+                                        <span class="owner-badge {{ statusClass }}">
+                                            ● {{ statusLabel }}
+                                        </span>
+
+                                        <a href="{{ path('app_reservations_show', {'id': r.id, 'from': 'reservations'}) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Szczegóły
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade owner-tab-pane" id="tab-docs" role="tabpanel" aria-labelledby="tab-docs-btn">
+                <div class="owner-card p-3 p-md-4">
+                    <div class="owner-section-title">Umowy i faktury</div>
+
+                    {% if recentReservations is empty %}
+                        <div class="owner-empty">
+                            <div class="fw-semibold mb-1">Brak dokumentów</div>
+                            <div class="text-muted small">
+                                Dokumenty pojawią się wraz z zaakceptowanymi i zakończonymi rezerwacjami.
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for r in recentReservations %}
+                            {% set invoiceExists = invoiceExistsMap[r.id]|default(false) %}
+                            {% set canShowContract = r.status in ['accepted', 'completed'] %}
+                            {% set canShowInvoice = r.status == 'completed' and r.wantsInvoice and invoiceExists %}
+
+                            <div class="owner-list-item">
+                                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                    <div>
+                                        <div class="owner-item-title">
+                                            {{ r.car.brand }} {{ r.car.model }}
+                                        </div>
+                                        <div class="owner-item-subtitle">
+                                            Rezerwacja: {{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}
+                                        </div>
+                                        <div class="owner-item-subtitle mt-1">
+                                            Status: {{ r.status|capitalize }}
+                                        </div>
+
+                                        <div class="owner-doc-actions">
+                                            {% if canShowContract %}
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   href="{{ path('app_contract_generate', {'id': r.id}) }}">
+                                                    📄 Pobierz umowę
+                                                </a>
+                                            {% else %}
+                                                <span class="owner-doc-note">Umowa będzie dostępna po akceptacji rezerwacji.</span>
+                                            {% endif %}
+
+                                            {% if canShowInvoice %}
+                                                <a class="btn btn-sm btn-outline-success"
+                                                   href="{{ path('app_invoice_generate', {'id': r.id}) }}">
+                                                    💰 Pobierz fakturę
+                                                </a>
+                                            {% elseif r.status == 'completed' and r.wantsInvoice and not invoiceExists %}
+                                                <span class="owner-doc-note">Faktura jeszcze nie została wystawiona.</span>
+                                            {% elseif r.status == 'completed' and not r.wantsInvoice %}
+                                                <span class="owner-doc-note">Dla tej rezerwacji nie wybrano faktury.</span>
+                                            {% elseif r.status != 'completed' and r.wantsInvoice %}
+                                                <span class="owner-doc-note">Faktura będzie dostępna po zakończeniu rezerwacji.</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <a href="{{ path('app_reservations_show', {'id': r.id, 'from': 'reservations'}) }}"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            Szczegóły
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="owner-side-card p-3 p-md-4 sticky-top" style="top: 90px;">
+            <div class="owner-section-title">Szybkie akcje</div>
+
+            <div class="owner-actions d-grid gap-2 mb-4">
+                <a href="{{ path('app_my_cars') }}" class="btn btn-primary">
+                    Moje auta
+                </a>
+
+                <a href="{{ path('app_reservations') }}" class="btn btn-outline-secondary">
+                    Rezerwacje
+                </a>
+
+                <a href="{{ path('app_add_car') }}" class="btn btn-outline-secondary">
+                    Dodaj samochód
+                </a>
+            </div>
+
+            <div class="owner-section-title">Podsumowanie</div>
+            <div class="owner-soft-box small">
+                {% if carsCount > 0 %}
+                    Masz obecnie <strong>{{ carsCount }}</strong>
+                    {{ carsCount == 1 ? 'pojazd' : (carsCount in [2,3,4] ? 'pojazdy' : 'pojazdów') }}
+                    w systemie.
+                    <br><br>
+                    Aktywnych do wynajmu: <strong>{{ rentableCarsCount }}</strong>.
+                    <br>
+                    Oczekujących rezerwacji: <strong>{{ pendingCount }}</strong>.
+                    <br>
+                    Zakończonych: <strong>{{ completedCount }}</strong>.
+                    <br><br>
+
+                    Auta z nieważnym przeglądem: <strong>{{ expiredInspectionCount }}</strong>.
+                    <br>
+                    Auta z nieważnym ubezpieczeniem: <strong>{{ expiredInsuranceCount }}</strong>.
+                    <br>
+                    Wstrzymane ogłoszenia: <strong>{{ pausedCarsCount }}</strong>.
+                    <br>
+                    Niepełne dane flotowe: <strong>{{ incompleteFleetCount }}</strong>.
+                    <br>
+                    Terminów do sprawdzenia: <strong>{{ upcomingDeadlinesCount }}</strong>.
+                {% else %}
+                    Nie masz jeszcze dodanych samochodów. Dodaj pierwszy pojazd, aby zacząć przyjmować rezerwacje.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

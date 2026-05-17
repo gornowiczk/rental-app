@@ -1,0 +1,465 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admini{% endblock %}
+
+{% block body %}
+<style>
+    .admin-page-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
+
+    .admin-page-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .admin-card,
+    .admin-side-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .admin-card .form-control,
+    .admin-card .form-select {
+        border-radius: .8rem;
+        border-color: #dbe4ee;
+        min-height: 46px;
+    }
+
+    .admin-card .form-control:focus,
+    .admin-card .form-select:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .admin-card .form-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: .45rem;
+    }
+
+    .admin-table-wrap {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .admin-table thead th {
+        font-size: .8rem;
+        text-transform: uppercase;
+        color: #64748b;
+        border: 0;
+        background: transparent;
+        padding: 0 .8rem .2rem;
+        white-space: nowrap;
+    }
+
+    .admin-row td {
+        background: #fff;
+        padding: .95rem;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+
+    .admin-row td:first-child {
+        border-left: 1px solid #e2e8f0;
+        border-radius: .85rem 0 0 .85rem;
+    }
+
+    .admin-row td:last-child {
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0 .85rem .85rem 0;
+    }
+
+    .admin-main {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .admin-sub {
+        font-size: .85rem;
+        color: #64748b;
+    }
+
+    .admin-role-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+    }
+
+    .admin-role-badge {
+        border-radius: 999px;
+        padding: .35rem .65rem;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .admin-role-super {
+        background: #0f172a;
+        color: #fff;
+        border-radius: 999px;
+        padding: .42rem .72rem;
+        font-size: .76rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+    }
+
+    .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .admin-actions .btn {
+        border-radius: .75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .admin-inline-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .admin-check-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        align-items: center;
+    }
+
+    .admin-check {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        color: #334155;
+        font-size: .9rem;
+    }
+
+    .admin-note {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .admin-empty {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .admin-empty-icon {
+        font-size: 2rem;
+        margin-bottom: .55rem;
+    }
+
+    .admin-soft-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
+
+    .admin-role-info {
+        display: grid;
+        gap: .75rem;
+    }
+
+    .admin-role-box {
+        background: #fff;
+        border: 1px solid #e9eef5;
+        border-radius: .9rem;
+        padding: .9rem 1rem;
+    }
+
+    .admin-role-title {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: .2rem;
+    }
+
+    .admin-role-text {
+        color: #64748b;
+        font-size: .88rem;
+        margin: 0;
+    }
+
+    .admin-side-highlight {
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1rem 1.1rem;
+    }
+
+    .admin-side-highlight-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    @media (max-width: 991px) {
+        .admin-side-card {
+            position: static !important;
+        }
+    }
+</style>
+
+<div class="admin-page-hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <div class="admin-page-title">🛡️ Zarządzanie adminami</div>
+            <div class="admin-page-subtitle">
+                Przeglądaj konta administratorów, zarządzaj dodatkowymi rolami i dodawaj nowych adminów bez opuszczania tej strony.
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-light fw-semibold"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#adminCreateCollapse"
+                    aria-expanded="false"
+                    aria-controls="adminCreateCollapse">
+                ➕ Dodaj admina
+            </button>
+
+            <a class="btn btn-outline-light fw-semibold" href="{{ path('admin_dashboard') }}">
+                ← Wróć do dashboardu
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="collapse mb-4" id="adminCreateCollapse">
+            <div class="admin-card p-3 p-md-4">
+                <div class="admin-section-title">Dodaj nowego admina</div>
+
+                <form method="post" action="{{ path('admin_admins') }}" class="row g-3">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin_create_admin') }}">
+                    <input type="hidden" name="_action" value="create">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="email" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Hasło</label>
+                        <input type="password" name="password" class="form-control" placeholder="hasło" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label d-block">Dodatkowe role</label>
+                        <div class="admin-check-group pt-2">
+                            <label class="admin-check">
+                                <input class="form-check-input mt-0" type="checkbox" name="ROLE_MANAGER" value="1">
+                                <span>Manager</span>
+                            </label>
+
+                            <label class="admin-check">
+                                <input class="form-check-input mt-0" type="checkbox" name="ROLE_FLEET_ADMIN" value="1">
+                                <span>Fleet</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-dark w-100">Utwórz</button>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="admin-note">
+                            Domyślnie konto otrzyma role:
+                            <code>ROLE_USER</code> + <code>ROLE_ADMIN</code>
+                            oraz opcjonalnie dodatkowe uprawnienia Manager / Fleet.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div class="admin-section-title mb-0">Lista adminów</div>
+                <span class="badge rounded-pill text-bg-light">{{ admins|length }}</span>
+            </div>
+
+            {% if admins is empty %}
+                <div class="admin-empty">
+                    <div class="admin-empty-icon">🧑‍💼</div>
+                    <div class="fw-semibold mb-1">Brak adminów</div>
+                    <div class="text-muted small">Nie ma jeszcze żadnych kont administracyjnych.</div>
+                </div>
+            {% else %}
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th class="text-end">Akcje</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for a in admins %}
+                                {% set isSuper = 'ROLE_SUPER_ADMIN' in a.roles %}
+
+                                <tr class="admin-row">
+                                    <td>
+                                        <div class="admin-main">#{{ a.id }}</div>
+                                    </td>
+
+                                    <td>
+                                        <div class="admin-main">{{ a.email }}</div>
+                                        <div class="admin-sub">konto administracyjne</div>
+                                    </td>
+
+                                    <td>
+                                        {% if isSuper %}
+                                            <span class="admin-role-super">SUPER_ADMIN</span>
+                                        {% else %}
+                                            <div class="admin-role-list">
+                                                {% for role in a.roles %}
+                                                    <span class="admin-role-badge">{{ role }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="admin-actions">
+                                            {% if not isSuper %}
+                                                <form method="post"
+                                                      action="{{ path('admin_update_admin_roles', {id: a.id}) }}"
+                                                      class="admin-inline-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_update_roles_' ~ a.id) }}">
+
+                                                    <label class="admin-check">
+                                                        <input type="checkbox"
+                                                               name="ROLE_MANAGER"
+                                                               value="1"
+                                                               {% if 'ROLE_MANAGER' in a.roles %}checked{% endif %}>
+                                                        <span>Manager</span>
+                                                    </label>
+
+                                                    <label class="admin-check">
+                                                        <input type="checkbox"
+                                                               name="ROLE_FLEET_ADMIN"
+                                                               value="1"
+                                                               {% if 'ROLE_FLEET_ADMIN' in a.roles %}checked{% endif %}>
+                                                        <span>Fleet</span>
+                                                    </label>
+
+                                                    <button class="btn btn-sm btn-outline-primary">Zapisz role</button>
+                                                </form>
+
+                                                <form method="post"
+                                                      action="{{ path('admin_delete_admin', {id: a.id}) }}"
+                                                      onsubmit="return confirm('Na pewno usunąć konto admina {{ a.email }}?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_delete_admin_' ~ a.id) }}">
+                                                    <button class="btn btn-sm btn-danger">Usuń konto</button>
+                                                </form>
+                                            {% else %}
+                                                <span class="admin-role-super">SUPER_ADMIN</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-side-card p-3 p-md-4 sticky-top" style="top: 90px;">
+            <div class="admin-side-highlight mb-4">
+                <div class="small opacity-75 mb-1">Tworzenie konta</div>
+                <div class="admin-side-highlight-title">Nowy administrator</div>
+                <div class="small opacity-75 mt-2">
+                    Dodaj konto i przypisz dodatkowe role zgodnie z zakresem odpowiedzialności.
+                </div>
+            </div>
+
+            <div class="admin-section-title">Poziomy ról</div>
+
+            <div class="admin-role-info">
+                <div class="admin-role-box">
+                    <div class="admin-role-title">ROLE_ADMIN</div>
+                    <p class="admin-role-text">
+                        Standardowy administrator z dostępem do głównych sekcji panelu administracyjnego.
+                    </p>
+                </div>
+
+                <div class="admin-role-box">
+                    <div class="admin-role-title">ROLE_MANAGER</div>
+                    <p class="admin-role-text">
+                        Dodatkowe uprawnienia do szerszej obsługi systemu i operacji administracyjnych.
+                    </p>
+                </div>
+
+                <div class="admin-role-box">
+                    <div class="admin-role-title">ROLE_FLEET_ADMIN</div>
+                    <p class="admin-role-text">
+                        Rola przeznaczona do zarządzania flotą, pojazdami i pokrewnymi procesami.
+                    </p>
+                </div>
+
+                <div class="admin-role-box">
+                    <div class="admin-role-title">ROLE_SUPER_ADMIN</div>
+                    <p class="admin-role-text">
+                        Najwyższy poziom uprawnień. Takie konto nie powinno być usuwane ani edytowane bez potrzeby.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-soft-box mt-4">
+                <div class="admin-note mb-0">
+                    Formularz dodawania nowego administratora rozwija się po kliknięciu przycisku
+                    <strong>„Dodaj admina”</strong> u góry strony.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

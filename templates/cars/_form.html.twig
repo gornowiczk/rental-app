@@ -1,0 +1,584 @@
+<style>
+    .page-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .page-hero {
+        background:
+            radial-gradient(1000px 500px at 0% 0%, rgba(59,130,246,.18), transparent 55%),
+            radial-gradient(800px 400px at 100% 0%, rgba(255,255,255,.08), transparent 40%),
+            linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 24px;
+        padding: clamp(24px, 4vw, 34px);
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .page-hero-title {
+        font-size: clamp(1.55rem, 2.5vw, 2rem);
+        font-weight: 800;
+        margin-bottom: .35rem;
+        letter-spacing: -.02em;
+    }
+
+    .page-hero-subtitle {
+        opacity: .86;
+        font-size: .98rem;
+        max-width: 760px;
+    }
+
+    .page-card {
+        background: #fff;
+        border: 1px solid #e8eef5;
+        border-radius: 22px;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+        padding: 1.25rem;
+    }
+
+    .section-card {
+        height: 100%;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid #e8eef5;
+        border-radius: 20px;
+        padding: 1.1rem;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: .2rem;
+        letter-spacing: -.01em;
+    }
+
+    .section-subtitle {
+        color: #64748b;
+        font-size: .89rem;
+        margin-bottom: 1rem;
+    }
+
+    .soft-box {
+        background: #f8fbff;
+        border: 1px solid #dfe9f3;
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .upload-box {
+        background: repeating-linear-gradient(
+            45deg,
+            #f8fbff,
+            #f8fbff 10px,
+            #f3f7fb 10px,
+            #f3f7fb 20px
+        );
+        border: 1px dashed #cbd7e4;
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .form-note {
+        font-size: .8rem;
+        color: #64748b;
+        margin-top: .5rem;
+    }
+
+    .check-panel {
+        background: #f8fbff;
+        border: 1px solid #dfe9f3;
+        border-radius: 18px;
+        padding: .9rem 1rem;
+    }
+
+    .check-panel .form-check {
+        margin-bottom: 0;
+    }
+
+    .check-panel label,
+    .check-panel .form-check-label {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .page-card .form-label {
+        display: block;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: .45rem;
+        line-height: 1.2;
+    }
+
+    .page-card .form-control,
+    .page-card .form-select,
+    .page-card input[type="text"],
+    .page-card input[type="number"],
+    .page-card input[type="date"],
+    .page-card input[type="datetime-local"],
+    .page-card input[type="file"],
+    .page-card select,
+    .page-card textarea {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 16px;
+        border: 1px solid #d8e2ec;
+        min-height: 48px;
+        background: #fff;
+        box-shadow: none;
+        padding: .75rem .9rem;
+        box-sizing: border-box;
+    }
+
+    .page-card textarea,
+    .page-card textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .page-card .form-control:focus,
+    .page-card .form-select:focus,
+    .page-card input:focus,
+    .page-card select:focus,
+    .page-card textarea:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+        outline: none;
+    }
+
+    .field-block {
+        display: flex;
+        flex-direction: column;
+        gap: .35rem;
+    }
+
+    .field-block .form-errors,
+    .field-block .invalid-feedback,
+    .field-block ul {
+        margin: 0;
+        padding-left: 1rem;
+        color: #dc2626;
+        font-size: .82rem;
+    }
+
+    .thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .thumb-card {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .thumb-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .thumb-badge {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        background: rgba(15, 23, 42, 0.82);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .thumb-check {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        background: rgba(255,255,255,.96);
+        color: #0f172a;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(0,0,0,.10);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .main-thumb {
+        max-width: 320px;
+    }
+
+    .form-summary {
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+        color: #fff;
+        border-radius: 20px;
+        padding: 1rem 1.1rem;
+    }
+
+    .form-summary-title {
+        font-size: .82rem;
+        opacity: .82;
+        margin-bottom: .25rem;
+    }
+
+    .form-summary-value {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .form-actions {
+        border-top: 1px solid #e8eef5;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+    }
+
+    .form-actions .btn {
+        border-radius: 14px;
+        font-weight: 700;
+        padding: .72rem 1.05rem;
+    }
+
+    .error-box {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(239, 68, 68, 0.08);
+    }
+
+    @media (max-width: 991px) {
+        .page-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="page-hero-title">{{ page_title }}</div>
+                <div class="page-hero-subtitle">{{ page_subtitle }}</div>
+            </div>
+
+            <a href="{{ path('app_my_cars') }}" class="btn btn-light fw-semibold">
+                ← Powrót do moich aut
+            </a>
+        </div>
+    </div>
+
+    <div class="page-card">
+        {% if form.vars.errors|length %}
+            <div class="alert alert-danger error-box mb-4">
+                <div class="fw-semibold mb-2">Formularz zawiera błędy:</div>
+                <ul class="mb-0">
+                    {% for error in form.vars.errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="section-card">
+                            <div class="section-title">Podstawowe dane</div>
+                            <div class="section-subtitle">
+                                Informacje widoczne w ogłoszeniu i na liście dostępnych pojazdów.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.brand) }}
+                                        {{ form_widget(form.brand, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.brand) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.model) }}
+                                        {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.model) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="field-block">
+                                        {{ form_label(form.year) }}
+                                        {{ form_widget(form.year, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.year) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="field-block">
+                                        {{ form_label(form.registrationNumber) }}
+                                        {{ form_widget(form.registrationNumber, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.registrationNumber) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.pricePerDay) }}
+                                        {{ form_widget(form.pricePerDay, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.pricePerDay) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.location) }}
+                                        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.location) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="section-card">
+                            <div class="section-title">Dane techniczne</div>
+                            <div class="section-subtitle">
+                                Parametry pomocne przy zarządzaniu autem i jego obsłudze.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.vin) }}
+                                        {{ form_widget(form.vin, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.vin) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.mileage) }}
+                                        {{ form_widget(form.mileage, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.mileage) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.fuelType) }}
+                                        {{ form_widget(form.fuelType, {'attr': {'class': 'form-select'}}) }}
+                                        {{ form_errors(form.fuelType) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="field-block">
+                                        {{ form_label(form.transmission) }}
+                                        {{ form_widget(form.transmission, {'attr': {'class': 'form-select'}}) }}
+                                        {{ form_errors(form.transmission) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="field-block">
+                                        {{ form_label(form.insuranceValidUntil) }}
+                                        {{ form_widget(form.insuranceValidUntil, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.insuranceValidUntil) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="field-block">
+                                        {{ form_label(form.inspectionValidUntil) }}
+                                        {{ form_widget(form.inspectionValidUntil, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.inspectionValidUntil) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="field-block">
+                                        {{ form_label(form.lastServiceDate) }}
+                                        {{ form_widget(form.lastServiceDate, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.lastServiceDate) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="field-block">
+                                        {{ form_label(form.notes) }}
+                                        {{ form_widget(form.notes, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                                        {{ form_errors(form.notes) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if is_edit|default(false) %}
+                        <div class="col-12">
+                            <div class="section-card">
+                                <div class="section-title">Aktualne zdjęcia</div>
+                                <div class="section-subtitle">
+                                    Możesz usunąć obecne zdjęcia i dodać nowe.
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="fw-semibold mb-2">Zdjęcie główne</div>
+
+                                    {% if car.mainImage %}
+                                        <div class="thumb-card main-thumb mb-3">
+                                            <img src="{{ asset('uploads/' ~ car.mainImage) }}" alt="Zdjęcie główne">
+                                            <span class="thumb-badge">Główne</span>
+                                        </div>
+
+                                        <div class="check-panel">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="remove_main" name="remove_main" value="1">
+                                                <label class="form-check-label" for="remove_main">
+                                                    Usuń zdjęcie główne
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="soft-box text-muted small">
+                                            Brak ustawionego zdjęcia głównego.
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold mb-2">Galeria</div>
+
+                                    {% set gal = car.gallery ?? [] %}
+                                    {% if gal is not empty %}
+                                        <div class="thumb-grid">
+                                            {% for img in gal %}
+                                                <label class="thumb-card">
+                                                    <img src="{{ asset('uploads/' ~ img) }}" alt="Zdjęcie galerii">
+                                                    <span class="thumb-check">
+                                                        <input type="checkbox" name="remove_gallery[]" value="{{ img }}" class="form-check-input m-0">
+                                                        Usuń
+                                                    </span>
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="soft-box text-muted small">
+                                            Brak zdjęć w galerii.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-12">
+                        <div class="section-card">
+                            <div class="section-title">{{ is_edit|default(false) ? 'Dodaj nowe zdjęcia' : 'Zdjęcia pojazdu' }}</div>
+                            <div class="section-subtitle">
+                                {{ is_edit|default(false)
+                                    ? 'Podmień zdjęcie główne albo uzupełnij galerię nowymi fotografiami.'
+                                    : 'Dobre zdjęcia znacząco zwiększają atrakcyjność ogłoszenia.' }}
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="upload-box">
+                                        <div class="field-block">
+                                            {{ form_label(form.mainImage, is_edit|default(false) ? 'Nowe zdjęcie główne' : 'Zdjęcie główne') }}
+                                            {{ form_widget(form.mainImage, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.mainImage) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="upload-box">
+                                        <div class="field-block">
+                                            {{ form_label(form.gallery, is_edit|default(false) ? 'Dodaj nowe zdjęcia do galerii' : 'Galeria zdjęć') }}
+                                            {{ form_widget(form.gallery, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.gallery) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-note">
+                                Najlepiej dodawać jasne i wyraźne zdjęcia. Obsługiwane formaty: JPG, PNG, WEBP.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-4">
+                    <div class="section-card">
+                        <div class="form-summary mb-3">
+                            <div class="form-summary-title">{{ is_edit|default(false) ? 'Edycja ogłoszenia' : 'Nowe ogłoszenie' }}</div>
+                            <div class="form-summary-value">{{ is_edit|default(false) ? 'Zaktualizuj samochód' : 'Samochód do wynajęcia' }}</div>
+                        </div>
+
+                        <div class="section-title">Dostępność</div>
+                        <div class="section-subtitle">
+                            Zdecyduj, czy auto ma być aktywne od razu po zapisaniu.
+                        </div>
+
+                        <div class="check-panel mb-3">
+                            {{ form_row(form.isAvailable) }}
+                        </div>
+
+                        <div class="field-block">
+                            {{ form_label(form.pausedUntil) }}
+                            {{ form_widget(form.pausedUntil, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.pausedUntil) }}
+                        </div>
+
+                        <div class="form-note">
+                            Możesz tymczasowo ukryć możliwość rezerwacji do wybranej daty i godziny.
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-title">Podpowiedź</div>
+                        <div class="soft-box small text-muted">
+                            {{ is_edit|default(false)
+                                ? 'Sprawdź dokładnie cenę, lokalizację, ważność przeglądu, ubezpieczenie i zdjęcia, bo to one najmocniej wpływają na odbiór oferty i zarządzanie flotą.'
+                                : 'Dobrze uzupełnione dane, informacje flotowe i komplet zdjęć sprawiają, że oferta wygląda bardziej wiarygodnie i profesjonalnie.' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="text-muted small">
+                {{ is_edit|default(false)
+                    ? 'Po zapisaniu zmiany będą od razu widoczne w Twoim ogłoszeniu.'
+                    : 'Po zapisaniu samochód pojawi się na liście „Moje auta”.' }}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ path('app_my_cars') }}" class="btn btn-outline-secondary">
+                    Anuluj
+                </a>
+                <button class="btn btn-primary">
+                    {{ is_edit|default(false) ? '💾 Zapisz zmiany' : 'Zapisz samochód' }}
+                </button>
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>

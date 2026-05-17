@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+{% block title %}Raporty{% endblock %}
+
+{% block body %}
+<style>
+    .reports-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .reports-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .reports-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
+
+    .reports-card {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+        padding: 1.25rem;
+        height: 100%;
+    }
+
+    .reports-section-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
+
+    .reports-table th {
+        color: #64748b;
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .reports-table td {
+        vertical-align: middle;
+    }
+
+    .reports-big-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .reports-muted {
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    .reports-bar {
+        height: 10px;
+        background: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .reports-bar-fill {
+        height: 100%;
+        background: #2563eb;
+        border-radius: 999px;
+    }
+</style>
+
+{% set statusLabels = {
+    'pending': 'Oczekujące',
+    'accepted': 'Zaakceptowane',
+    'rejected': 'Odrzucone',
+    'cancelled': 'Anulowane',
+    'completed': 'Zakończone'
+} %}
+
+<div class="reports-hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <div class="reports-title">Raporty i statystyki</div>
+            <div class="reports-subtitle">
+                Analiza rezerwacji, przychodów i popularności pojazdów w systemie.
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ path('admin_reports_export') }}" class="btn btn-success fw-semibold">
+                ⬇ Eksport CSV
+            </a>
+
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-light fw-semibold">
+                ← Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="reports-card">
+            <div class="reports-section-title">Przychód brutto</div>
+            <div class="reports-big-value">{{ totalRevenue|number_format(2, ',', ' ') }} zł</div>
+            <div class="reports-muted">Suma zakończonych rezerwacji.</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="reports-card">
+            <div class="reports-section-title">Miesięcy z rezerwacjami</div>
+            <div class="reports-big-value">{{ reservationsByMonth|length }}</div>
+            <div class="reports-muted">Na podstawie dat utworzenia rezerwacji.</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="reports-card">
+            <div class="reports-section-title">Liczba statusów</div>
+            <div class="reports-big-value">{{ reservationsByStatus|length }}</div>
+            <div class="reports-muted">Aktywne typy statusów w bazie.</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="reports-card">
+            <div class="reports-section-title">Rezerwacje miesięcznie</div>
+
+            {% if reservationsByMonth is empty %}
+                <div class="text-muted">Brak danych.</div>
+            {% else %}
+                {% set maxReservations = 1 %}
+                {% for row in reservationsByMonth %}
+                    {% if row.count > maxReservations %}
+                        {% set maxReservations = row.count %}
+                    {% endif %}
+                {% endfor %}
+
+                <table class="table reports-table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Miesiąc</th>
+                        <th>Liczba</th>
+                        <th style="width: 45%;">Wykres</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in reservationsByMonth %}
+                        {% set percent = (row.count / maxReservations * 100)|round %}
+                        <tr>
+                            <td>{{ row.month }}</td>
+                            <td><strong>{{ row.count }}</strong></td>
+                            <td>
+                                <div class="reports-bar">
+                                    <div class="reports-bar-fill" style="width: {{ percent }}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="reports-card">
+            <div class="reports-section-title">Przychód miesięcznie</div>
+
+            {% if revenueByMonth is empty %}
+                <div class="text-muted">Brak danych.</div>
+            {% else %}
+                {% set maxRevenue = 1 %}
+                {% for row in revenueByMonth %}
+                    {% if row.revenue > maxRevenue %}
+                        {% set maxRevenue = row.revenue %}
+                    {% endif %}
+                {% endfor %}
+
+                <table class="table reports-table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Miesiąc</th>
+                        <th>Przychód</th>
+                        <th style="width: 40%;">Wykres</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in revenueByMonth %}
+                        {% set percent = (row.revenue / maxRevenue * 100)|round %}
+                        <tr>
+                            <td>{{ row.month }}</td>
+                            <td><strong>{{ row.revenue|number_format(2, ',', ' ') }} zł</strong></td>
+                            <td>
+                                <div class="reports-bar">
+                                    <div class="reports-bar-fill" style="width: {{ percent }}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="reports-card">
+            <div class="reports-section-title">Statusy rezerwacji</div>
+
+            {% if reservationsByStatus is empty %}
+                <div class="text-muted">Brak danych.</div>
+            {% else %}
+                <table class="table reports-table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Liczba</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in reservationsByStatus %}
+                        <tr>
+                            <td>{{ statusLabels[row.status]|default(row.status) }}</td>
+                            <td><strong>{{ row.count }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="reports-card">
+            <div class="reports-section-title">Najczęściej rezerwowane auta</div>
+
+            {% if topCars is empty %}
+                <div class="text-muted">Brak danych.</div>
+            {% else %}
+                <table class="table reports-table mb-0">
+                    <thead>
+                    <tr>
+                        <th>Auto</th>
+                        <th>Rejestracja</th>
+                        <th>Rezerwacje</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in topCars %}
+                        <tr>
+                            <td>{{ row.brand }} {{ row.model }}</td>
+                            <td>{{ row.registrationNumber }}</td>
+                            <td><strong>{{ row.count }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

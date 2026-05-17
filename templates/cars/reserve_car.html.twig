@@ -1,30 +1,68 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Nowa Rezerwacja{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h2 class="text-center">Nowa Rezerwacja</h2>
+    <style>
+        .shell{max-width:1100px;margin:auto}
+        .cardx{border:none;border-radius:18px;box-shadow:0 10px 28px rgba(15,23,42,.08)}
+        .hd{font-weight:800;letter-spacing:.2px}
+        .muted{color:#64748b}
+        .media{position:relative;height:0;padding-top:56.25%;background:#f1f5f9;border-radius:14px;overflow:hidden}
+        .media img,.no-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .no-photo{display:grid;place-items:center;color:#94a3b8;background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 10px,#eef2f7 10px,#eef2f7 20px)}
+        .price{position:absolute;right:10px;bottom:10px;background:rgba(15,23,42,.78);color:#fff;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12.5px}
+        .btn-cta{border-radius:12px;font-weight:600}
+    </style>
 
-        {# Wysyłamy formularz metodą POST #}
-        <form method="POST" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
+    <div class="container my-4 shell">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card cardx">
+                    <div class="card-body p-4">
+                        <h1 class="hd mb-1">Nowa rezerwacja</h1>
+                        <div class="muted mb-3">Potwierdź dane i wyślij.</div>
 
-            {# Przekazujemy daty rezerwacji jako ukryte pola #}
-            <input type="hidden" name="start_date" value="{{ startDate }}">
-            <input type="hidden" name="end_date" value="{{ endDate }}">
+                        <form method="POST" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
+                            <input type="hidden" name="start_date" value="{{ startDate }}">
+                            <input type="hidden" name="end_date" value="{{ endDate }}">
 
-            <div class="mb-3">
-                <label for="phoneNumber" class="form-label">Numer telefonu</label>
-                <input type="text" name="phoneNumber" id="phoneNumber" class="form-control" required>
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">Numer telefonu</label>
+                                <input type="text" name="phoneNumber" id="phoneNumber" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comments" class="form-label">Dodatkowe uwagi</label>
+                                <textarea name="comments" id="comments" class="form-control"></textarea>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-cta">Zarezerwuj</button>
+                                <a href="{{ app.request.headers.get('referer') }}" class="btn btn-outline-secondary btn-cta">Powrót</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="comments" class="form-label">Dodatkowe uwagi</label>
-                <textarea name="comments" id="comments" class="form-control"></textarea>
+            <div class="col-lg-5">
+                <div class="card cardx">
+                    <div class="card-body p-3">
+                        <div class="media mb-3">
+                            {% set img = car.mainImage ? asset('uploads/cars/' ~ car.mainImage) : null %}
+                            {% if img %}<img src="{{ img }}" alt="{{ car.brand ~ ' ' ~ car.model }}">{% else %}<div class="no-photo">Brak zdjęcia</div>{% endif %}
+                            <span class="price">{{ car.pricePerDay }} zł / dzień</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">{{ car.brand }} {{ car.model }}</div>
+                                <div class="muted">Rok: {{ car.year }} • Rej: {{ car.registrationNumber }}</div>
+                            </div>
+                            <a class="btn btn-outline-primary btn-cta" href="{{ path('app_car_details', {'id': car.id}) }}">Szczegóły</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <button type="submit" class="btn btn-primary">Zarezerwuj</button>
-            <a href="{{ app.request.headers.get('referer') }}" class="btn btn-secondary">Powrót</a>
-        </form>
+        </div>
     </div>
 {% endblock %}

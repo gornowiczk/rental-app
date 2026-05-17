@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Umowy i faktury{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>📑 Moje umowy i faktury</h1>
+
+        {% if reservations is empty %}
+            <div class="alert alert-info">Nie masz jeszcze wygenerowanych umów ani faktur.</div>
+        {% else %}
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Samochód</th>
+                    <th>Okres</th>
+                    <th>Status</th>
+                    <th>Dokumenty</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in reservations %}
+                    <tr>
+                        <td>{{ r.car.brand }} {{ r.car.model }}</td>
+                        <td>{{ r.startDate|date('Y-m-d') }} → {{ r.endDate|date('Y-m-d') }}</td>
+                        <td>{{ r.status|capitalize }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" href="{{ path('app_contract_generate', {'id': r.id}) }}">📄 Pobierz umowę</a>
+                            <a class="btn btn-sm btn-secondary" href="#">💰 Pobierz fakturę</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

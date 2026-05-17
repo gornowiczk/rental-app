@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodaj opinię o samochodzie{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="text-center">📝 Dodaj opinię</h1>
+        <hr>
+
+        <p><strong>🚗 Samochód:</strong> {{ car.brand }} {{ car.model }}</p>
+
+        {{ form_start(form) }}
+        <div class="mb-3">
+            {{ form_label(form.rating, '⭐ Ocena (1-5)') }}
+            {{ form_widget(form.rating, { 'attr': {'class': 'form-control'} }) }}
+            {{ form_errors(form.rating) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.comment, '💬 Treść opinii') }}
+            {{ form_widget(form.comment, { 'attr': {'class': 'form-control', 'rows': '4'} }) }}
+            {{ form_errors(form.comment) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">📩 Dodaj opinię</button>
+        {{ form_end(form) }}
+
+        <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-secondary mt-3">🔙 Powrót do samochodu</a>
+    </div>
+{% endblock %}

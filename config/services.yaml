@@ -1,15 +1,73 @@
 parameters:
-    upload_directory: '%kernel.project_dir%/public/uploads/cars'
+  locale: 'pl'
+  upload_directory: '%kernel.project_dir%/public/uploads/cars'
+
+  seller_name: 'CarRental Sp. z o.o.'
+  seller_address: 'ul. Testowa 1, 00-000 Warszawa'
+  seller_nip: '123-456-78-90'
+  seller_bank: 'mBank'
+  seller_iban: 'PL00123456789012345678901234'
+  vat_rate: '0.2300'
+
+  mailer_from: 'no-reply@carrental.local'
+
 
 
 services:
-    # default configuration for services in this file
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        bind:
-            $uploadDirectory: '%upload_directory%'
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    bind:
+      string $uploadDirectory: '%upload_directory%'
 
-    App\:
-        resource: '../src/'
-        exclude: '../src/{DependencyInjection,Entity,Kernel.php,Tests}'
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Migrations/'
+      - '../src/Tests/'
+      - '../src/Kernel.php'
+
+  App\Controller\:
+    resource: '../src/Controller/'
+    tags: ['controller.service_arguments']
+
+  # Notyfikacje (baza + e-mail)
+  App\Service\NotificationService:
+    arguments:
+      $mailer: '@mailer'
+      $em: '@doctrine.orm.entity_manager'
+
+  # Event subscriber do powiadomień w navbarze
+  App\EventSubscriber\NotificationSubscriber:
+    tags: ['kernel.event_subscriber']
+
+  # Listener: logowanie admina (login success)
+  App\EventListener\AdminLoginListener:
+    tags:
+      - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LoginSuccessEvent, method: onLoginSuccess }
+      - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LoginFailureEvent, method: onLoginFailure }
+
+  App\Security\LoginIpBlocker: ~
+
+  App\EventListener\LoginBlockListener:
+    tags:
+      - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\CheckPassportEvent, method: onCheckPassport }
+      - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LoginFailureEvent, method: onLoginFailure }
+
+
+
+
+  # DOMPDF (PDF: umowy, faktury)
+  Dompdf\Options:
+    arguments: []
+    calls:
+      - method: setIsRemoteEnabled
+        arguments: [true]
+      - method: setDefaultFont
+        arguments: ['DejaVu Sans']
+
+  Dompdf\Dompdf:
+    arguments:
+      $options: '@Dompdf\Options'

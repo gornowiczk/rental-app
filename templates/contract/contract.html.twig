@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Umowa najmu samochodu</title>
+    <style>
+        @page {
+            margin: 22px 26px;
+        }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #111;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        h1, h2, h3, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .document {
+            width: 100%;
+        }
+
+        .topbar {
+            border-bottom: 2px solid #111;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 10px;
+            color: #555;
+        }
+
+        .section {
+            margin-bottom: 10px;
+            border: 1px solid #d6d6d6;
+            padding: 10px 12px;
+            border-radius: 4px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .allow-break {
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .15px;
+            border-bottom: 1px solid #e3e3e3;
+            padding-bottom: 4px;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table,
+        .two-cols,
+        .handover-table,
+        .signatures {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .info-table td {
+            padding: 3px 0;
+            vertical-align: top;
+        }
+
+        .label {
+            width: 34%;
+            font-weight: bold;
+        }
+
+        .value {
+            width: 66%;
+        }
+
+        .two-cols {
+            width: 100%;
+        }
+
+        .two-cols td {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .box {
+            border: 1px solid #d7d7d7;
+            border-radius: 4px;
+            padding: 9px 10px;
+            min-height: 105px;
+            background: #fcfcfc;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .box-title {
+            font-weight: bold;
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .financial-box {
+            background: #f6f6f6;
+            border: 1px solid #d7d7d7;
+            border-radius: 4px;
+            padding: 9px 10px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .financial-row {
+            margin-bottom: 5px;
+        }
+
+        .financial-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            font-weight: bold;
+            font-size: 11.5px;
+        }
+
+        ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 4px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .deposit-line {
+            display: inline-block;
+            min-width: 130px;
+            border-bottom: 1px solid #111;
+            height: 12px;
+            vertical-align: bottom;
+            margin: 0 6px;
+        }
+
+        .notes-box {
+            border: 1px dashed #999;
+            min-height: 44px;
+            padding: 8px 10px;
+            margin-top: 6px;
+            border-radius: 4px;
+        }
+
+        .handover-table td {
+            border: 1px solid #d9d9d9;
+            padding: 6px 7px;
+            vertical-align: top;
+        }
+
+        .handover-head {
+            font-weight: bold;
+            background: #f4f4f4;
+            width: 34%;
+        }
+
+        .signatures {
+            margin-top: 18px;
+            width: 100%;
+        }
+
+        .signatures td {
+            width: 50%;
+            text-align: center;
+            vertical-align: bottom;
+            padding-top: 30px;
+        }
+
+        .signature-line {
+            width: 200px;
+            margin: 0 auto 7px auto;
+            border-top: 1px solid #111;
+            height: 1px;
+        }
+
+        .small {
+            font-size: 9px;
+            color: #555;
+        }
+
+        .footer-note {
+            margin-top: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+{% set renterName = ((reservation.user.firstName|default('') ~ ' ' ~ reservation.user.lastName|default(''))|trim) %}
+{% set ownerName = ((reservation.car.owner.firstName|default('') ~ ' ' ~ reservation.car.owner.lastName|default(''))|trim) %}
+{% set phone = reservation.phoneNumber|default(reservation.user.phoneNumber|default('—')) %}
+{% set address = reservation.user.address|default('—') %}
+{% set rentalLocation = reservation.rentalLocation|default('—') %}
+
+{% set days = reservation.startDate|date('U') and reservation.endDate|date('U')
+    ? ((reservation.endDate|date('U') - reservation.startDate|date('U')) / 86400)
+    : 1
+%}
+{% set days = days < 1 ? 1 : days %}
+
+{% set pricePerDay = reservation.pricePerDay ?? reservation.car.pricePerDay %}
+{% set total = reservation.totalPrice ?? (pricePerDay * days) %}
+
+<div class="document">
+    <div class="topbar">
+        <div class="title">Umowa najmu samochodu</div>
+        <div class="subtitle">
+            Data sporządzenia: {{ "now"|date("d-m-Y") }}
+            &nbsp; | &nbsp;
+            Numer rezerwacji: #{{ reservation.id }}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">§ 1. Przedmiot umowy</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Pojazd:</td>
+                <td class="value">{{ reservation.car.brand }} {{ reservation.car.model }}</td>
+            </tr>
+            <tr>
+                <td class="label">Rok produkcji:</td>
+                <td class="value">{{ reservation.car.year }}</td>
+            </tr>
+            <tr>
+                <td class="label">Numer rejestracyjny:</td>
+                <td class="value">{{ reservation.car.registrationNumber }}</td>
+            </tr>
+            <tr>
+                <td class="label">Cena za dobę:</td>
+                <td class="value">{{ pricePerDay|number_format(2, ',', ' ') }} zł</td>
+            </tr>
+            <tr>
+                <td class="label">Okres najmu:</td>
+                <td class="value">
+                    {{ reservation.startDate|date('d-m-Y') }} → {{ reservation.endDate|date('d-m-Y') }}
+                    ({{ days }} {{ days == 1 ? 'doba' : (days in [2,3,4] ? 'doby' : 'dób') }})
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Miejsce odbioru / zwrotu:</td>
+                <td class="value">{{ rentalLocation }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">§ 2. Strony umowy</div>
+        <table class="two-cols">
+            <tr>
+                <td style="padding-right: 7px;">
+                    <div class="box">
+                        <div class="box-title">Najemca</div>
+                        <table class="info-table">
+                            <tr>
+                                <td class="label">Imię i nazwisko:</td>
+                                <td class="value">{{ renterName ?: '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Email:</td>
+                                <td class="value">{{ reservation.user.email|default('—') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Telefon:</td>
+                                <td class="value">{{ phone ?: '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Adres:</td>
+                                <td class="value">{{ address }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td style="padding-left: 7px;">
+                    <div class="box">
+                        <div class="box-title">Wynajmujący</div>
+                        <table class="info-table">
+                            <tr>
+                                <td class="label">Imię i nazwisko:</td>
+                                <td class="value">{{ ownerName ?: '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Email:</td>
+                                <td class="value">{{ reservation.car.owner.email|default('—') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Telefon:</td>
+                                <td class="value">{{ reservation.car.owner.phoneNumber|default('—') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Adres:</td>
+                                <td class="value">{{ reservation.car.owner.address|default('—') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">§ 3. Rozliczenie i kaucja</div>
+        <div class="financial-box">
+            <div class="financial-row">Liczba dób najmu: <strong>{{ days }}</strong></div>
+            <div class="financial-row">Cena za dobę: <strong>{{ pricePerDay|number_format(2, ',', ' ') }} zł</strong></div>
+            <div class="financial-row highlight">Łączna kwota najmu: {{ total|number_format(2, ',', ' ') }} zł</div>
+            <div class="financial-row">Faktura: <strong>{{ reservation.wantsInvoice ? 'Tak' : 'Nie' }}</strong></div>
+            <div class="financial-row" style="margin-top: 10px;">
+                Kaucja pobrana przy wydaniu pojazdu:
+                <span class="deposit-line"></span> zł
+            </div>
+            <div class="financial-row small" style="margin-top: 6px;">
+                Wypełnia Wynajmujący przy przekazaniu pojazdu.
+            </div>
+        </div>
+    </div>
+
+    <div class="section allow-break">
+        <div class="section-title">§ 4. Warunki najmu</div>
+        <ul>
+            <li>Najemca zobowiązuje się do korzystania z pojazdu zgodnie z jego przeznaczeniem oraz obowiązującymi przepisami prawa.</li>
+            <li>Najemca ponosi pełną odpowiedzialność za pojazd od chwili jego odbioru do momentu zwrotu Wynajmującemu.</li>
+            <li>Pojazd nie może być wykorzystywany do celów sprzecznych z prawem, w szczególności do przewozu materiałów niebezpiecznych, udziału w wyścigach, rajdach, testach sprawnościowych ani do nauki jazdy.</li>
+            <li>Bez uprzedniej zgody Wynajmującego pojazd nie może zostać oddany do używania osobom trzecim.</li>
+            <li>Najemca zobowiązany jest do zabezpieczenia pojazdu przed kradzieżą, w szczególności do każdorazowego zamykania pojazdu oraz używania dostępnych zabezpieczeń.</li>
+            <li>Najemca zobowiązuje się do użytkowania pojazdu z należytą starannością oraz do bieżącej kontroli podstawowych parametrów eksploatacyjnych pojazdu.</li>
+            <li>Najemca jest zobowiązany do niezwłocznego poinformowania Wynajmującego o każdej awarii, kolizji, wypadku, uszkodzeniu lub utracie pojazdu albo jego dokumentów.</li>
+            <li>Pojazd powinien zostać zwrócony w stanie niepogorszonym, z uwzględnieniem normalnego zużycia wynikającego z prawidłowej eksploatacji.</li>
+            <li>Najemca odpowiada za wszelkie mandaty, opłaty parkingowe, opłaty drogowe oraz inne należności publicznoprawne powstałe w okresie najmu.</li>
+            <li>W przypadku opóźnienia w zwrocie pojazdu Wynajmujący ma prawo naliczyć opłatę za każdy rozpoczęty dzień dodatkowego użytkowania pojazdu według stawki nie niższej niż wynikająca z niniejszej umowy.</li>
+        </ul>
+    </div>
+
+    <div class="section allow-break">
+        <div class="section-title">§ 5. Płatności i zabezpieczenie roszczeń</div>
+        <ul>
+            <li>Najemca zobowiązuje się do uiszczenia wynagrodzenia za najem zgodnie z ustaloną w umowie stawką i terminem płatności.</li>
+            <li>Łączna kwota należna z tytułu najmu wynosi <strong>{{ total|number_format(2, ',', ' ') }} zł</strong>.</li>
+            <li>Wynajmujący może pobrać od Najemcy kaucję zabezpieczającą na poczet ewentualnych szkód, braków wyposażenia, opóźnienia w zwrocie pojazdu lub innych należności wynikających z umowy.</li>
+            <li>Kaucja, jeżeli została pobrana, podlega zwrotowi po zakończeniu umowy i rozliczeniu wszystkich należności, o ile nie zachodzą podstawy do potrąceń.</li>
+            <li>W przypadku stwierdzenia szkód lub innych należności Wynajmujący ma prawo potrącić odpowiednią kwotę z kaucji lub dochodzić zapłaty na zasadach ogólnych.</li>
+        </ul>
+    </div>
+
+    <div class="section allow-break">
+        <div class="section-title">§ 6. Odpowiedzialność i ubezpieczenie</div>
+        <ul>
+            <li>Pojazd posiada obowiązkowe ubezpieczenie OC, a zakres dodatkowych ubezpieczeń zależy od warunków dotyczących danego pojazdu.</li>
+            <li>Najemca ponosi odpowiedzialność za szkody wyrządzone z jego winy lub winy osób, którym bezprawnie umożliwił korzystanie z pojazdu.</li>
+            <li>W przypadku kolizji, wypadku lub innego zdarzenia drogowego Najemca zobowiązany jest do zabezpieczenia miejsca zdarzenia, sporządzenia wymaganej dokumentacji oraz, jeśli wymagają tego przepisy, zawiadomienia odpowiednich służb.</li>
+            <li>Najemca zobowiązany jest do współpracy z Wynajmującym i ubezpieczycielem przy likwidacji szkody.</li>
+            <li>Jeżeli z winy Najemcy ubezpieczyciel odmówi wypłaty odszkodowania lub ograniczy jego wysokość, Najemca ponosi odpowiedzialność za powstałą szkodę w pełnym zakresie.</li>
+        </ul>
+    </div>
+
+    <div class="section allow-break">
+        <div class="section-title">§ 7. Zasady eksploatacji i zwrotu pojazdu</div>
+        <ul>
+            <li>Najemca zobowiązuje się do zwrotu pojazdu w uzgodnionym miejscu, terminie i stanie odpowiadającym warunkom określonym w niniejszej umowie.</li>
+            <li>Pojazd powinien zostać zwrócony z takim samym poziomem paliwa, z jakim został wydany, chyba że strony postanowią inaczej.</li>
+            <li>Zabrania się palenia tytoniu oraz przewożenia substancji mogących trwale zabrudzić lub uszkodzić wnętrze pojazdu, o ile Wynajmujący nie wyrazi na to zgody.</li>
+            <li>W przypadku nadmiernego zabrudzenia pojazdu Wynajmujący może obciążyć Najemcę kosztami doprowadzenia pojazdu do stanu sprzed wydania.</li>
+            <li>Zwrot pojazdu obejmuje również obowiązek przekazania kluczyków, dokumentów pojazdu oraz wyposażenia dodatkowego, jeżeli zostało wydane wraz z pojazdem.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <div class="section-title">§ 8. Protokół wydania i zwrotu pojazdu</div>
+        <table class="handover-table">
+            <tr>
+                <td class="handover-head">Data i godzina wydania</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Stan paliwa przy wydaniu</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Przebieg przy wydaniu</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Data i godzina zwrotu</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Stan paliwa przy zwrocie</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Przebieg przy zwrocie</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="handover-head">Uwagi przy wydaniu / zwrocie</td>
+                <td>
+                    <div class="notes-box"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">§ 9. Postanowienia końcowe</div>
+        <ul>
+            <li>Umowa zostaje zawarta na czas oznaczony wskazany w niniejszym dokumencie.</li>
+            <li>Wszelkie zmiany umowy wymagają formy dokumentowej lub pisemnej, chyba że bezwzględnie obowiązujące przepisy stanowią inaczej.</li>
+            <li>W sprawach nieuregulowanych niniejszą umową zastosowanie mają odpowiednie przepisy Kodeksu cywilnego oraz innych właściwych aktów prawnych.</li>
+            <li>Ewentualne spory wynikające z realizacji umowy strony będą starały się rozwiązać polubownie, a w przypadku braku porozumienia właściwy będzie sąd powszechny właściwy miejscowo według przepisów prawa.</li>
+        </ul>
+    </div>
+
+    <table class="signatures">
+        <tr>
+            <td>
+                <div class="signature-line"></div>
+                <div>Podpis Najemcy</div>
+            </td>
+            <td>
+                <div class="signature-line"></div>
+                <div>Podpis Wynajmującego</div>
+            </td>
+        </tr>
+    </table>
+
+    <p class="small footer-note">
+        Dokument wygenerowany automatycznie na podstawie danych rezerwacji nr {{ reservation.id }}.
+    </p>
+</div>
+</body>
+</html>

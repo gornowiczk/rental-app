@@ -1,0 +1,8 @@
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : (label == 'success' ? 'success' : 'info')) }} alert-dismissible fade show">
+            {{ message|raw }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endfor %}

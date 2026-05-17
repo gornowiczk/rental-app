@@ -1,52 +1,217 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Edycja profilu{% endblock %}
+{% block title %}Edytuj profil{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1 class="text-center">Edycja profilu</h1>
+<style>
+    .profile-edit-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
 
-        {{ form_start(form) }}
+    .profile-edit-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .3rem;
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.fullName, 'Imię i nazwisko', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.fullName, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.fullName) }}
-        </div>
+    .profile-edit-subtitle {
+        opacity: .82;
+        font-size: .92rem;
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.email) }}
-        </div>
+    .profile-edit-card,
+    .profile-edit-side {
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.address, 'Adres', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.address, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.address) }}
-        </div>
+    .profile-edit-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.phoneNumber, 'Numer telefonu', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.phoneNumber) }}
-        </div>
+    .profile-edit-soft-box {
+        background: #f8fafc;
+        border: 1px solid #e9eef5;
+        border-radius: .95rem;
+        padding: 1rem;
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.peselOrNip, 'PESEL/NIP', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.peselOrNip, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.peselOrNip) }}
-        </div>
+    .profile-edit-side-box {
+        background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1rem 1.1rem;
+    }
 
-        <div class="mb-3">
-            {{ form_label(form.plainPassword, 'Nowe hasło (opcjonalnie)', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.plainPassword) }}
-        </div>
+    .profile-edit-side-title {
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1;
+    }
 
-        <button type="submit" class="btn btn-success">Zapisz zmiany</button>
-        <a href="{{ app.request.headers.get('referer') }}" class="btn btn-secondary">Powrót</a>
+    .profile-edit-actions .btn {
+        border-radius: .85rem;
+        font-weight: 600;
+    }
 
-        {{ form_end(form) }}
+    .profile-edit-card .form-control,
+    .profile-edit-card .form-select {
+        border-radius: .8rem;
+        padding: .65rem .8rem;
+        border-color: #dbe4ee;
+    }
+
+    .profile-edit-card .form-control:focus,
+    .profile-edit-card .form-select:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .profile-edit-card .form-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: .45rem;
+    }
+
+    .profile-edit-card .invalid-feedback,
+    .profile-edit-card .form-error-message {
+        display: block;
+        font-size: .84rem;
+        color: #dc2626;
+        margin-top: .35rem;
+    }
+
+    @media (max-width: 991px) {
+        .profile-edit-side {
+            position: static !important;
+        }
+    }
+</style>
+
+<div class="profile-edit-hero">
+    <div class="profile-edit-title">Edytuj profil</div>
+    <div class="profile-edit-subtitle">
+        Zaktualizuj swoje dane kontaktowe, adres i hasło konta.
     </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="profile-edit-card p-3 p-md-4">
+            {{ form_start(form) }}
+
+                <div class="profile-edit-section-title">Dane użytkownika</div>
+
+                <div class="row g-3">
+                    {% if form.fullName is defined %}
+                        <div class="col-md-12">
+                            {{ form_row(form.fullName) }}
+                        </div>
+                    {% else %}
+                        {% if form.firstName is defined %}
+                            <div class="col-md-6">
+                                {{ form_row(form.firstName) }}
+                            </div>
+                        {% endif %}
+
+                        {% if form.lastName is defined %}
+                            <div class="col-md-6">
+                                {{ form_row(form.lastName) }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if form.phoneNumber is defined %}
+                        <div class="col-md-6">
+                            {{ form_row(form.phoneNumber) }}
+                        </div>
+                    {% elseif form.phone is defined %}
+                        <div class="col-md-6">
+                            {{ form_row(form.phone) }}
+                        </div>
+                    {% endif %}
+
+                    {% if form.address is defined %}
+                        <div class="col-md-6">
+                            {{ form_row(form.address) }}
+                        </div>
+                    {% endif %}
+
+                    {% if form.email is defined %}
+                        <div class="col-md-12">
+                            {{ form_row(form.email) }}
+                        </div>
+                    {% endif %}
+
+                    {% if form.peselOrNip is defined %}
+                        <div class="col-md-12">
+                            {{ form_row(form.peselOrNip) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="profile-edit-section-title mt-4">Bezpieczeństwo</div>
+                <div class="profile-edit-soft-box mb-3">
+                    <div class="small text-muted mb-3">
+                        Jeśli nie chcesz zmieniać hasła, pozostaw to pole puste.
+                    </div>
+
+                    {% if form.plainPassword is defined %}
+                        {{ form_row(form.plainPassword) }}
+                    {% elseif form.password is defined %}
+                        {{ form_row(form.password) }}
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button class="btn btn-success px-4">💾 Zapisz zmiany</button>
+
+                    <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary px-4">
+                        ↩ Powrót do profilu
+                    </a>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="profile-edit-side p-3 p-md-4 sticky-top" style="top: 90px;">
+            <div class="profile-edit-side-box mb-4">
+                <div class="small opacity-75 mb-1">Edycja konta</div>
+                <div class="profile-edit-side-title">Profil</div>
+                <div class="small opacity-75 mt-2">
+                    Zadbaj o aktualne dane kontaktowe, aby ułatwić komunikację przy rezerwacjach.
+                </div>
+            </div>
+
+            <div class="profile-edit-section-title">Szybkie akcje</div>
+            <div class="profile-edit-actions d-grid gap-2">
+                <a href="{{ path('app_profile') }}" class="btn btn-outline-primary">
+                    Mój profil
+                </a>
+
+                <a href="{{ path('app_reservations') }}" class="btn btn-outline-secondary">
+                    Moje rezerwacje
+                </a>
+
+                <a href="{{ path('app_my_cars') }}" class="btn btn-outline-secondary">
+                    Moje auta
+                </a>
+
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">
+                    Wyloguj
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

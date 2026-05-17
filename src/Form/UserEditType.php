@@ -16,32 +16,38 @@ class UserEditType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('fullName', TextType::class, [
-                'label' => 'Imię i nazwisko',
-                'attr' => ['class' => 'form-control']
+            ->add('firstName', TextType::class, [
+                'label' => 'Imię',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj imię']
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => 'Nazwisko',
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj nazwisko']
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'form-control'],
+                'disabled' => true, // e-mail niezmienny
             ])
             ->add('address', TextType::class, [
                 'label' => 'Adres zamieszkania',
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj adres']
             ])
-            ->add('phoneNumber', TelType::class, [
+            ->add('phone', TelType::class, [
                 'label' => 'Numer telefonu',
-                'attr' => ['class' => 'form-control']
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj numer telefonu']
             ])
             ->add('peselOrNip', TextType::class, [
-                'label' => 'PESEL/NIP',
+                'label' => 'PESEL / NIP',
                 'required' => false,
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Podaj PESEL lub NIP']
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Nowe hasło (opcjonalnie)',
                 'required' => false,
                 'mapped' => false,
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Wpisz nowe hasło jeśli chcesz zmienić']
             ]);
     }
 

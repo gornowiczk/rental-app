@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Powiadomienia{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>🔔 Powiadomienia</h1>
+        {% if notifications %}
+            <ul class="list-group">
+                {% for notification in notifications %}
+                    <li class="list-group-item {% if not notification.isRead %}bg-light{% endif %}">
+                        {{ notification.message }} - <small>{{ notification.createdAt|date('d-m-Y H:i') }}</small>
+                        {% if not notification.isRead %}
+                            <a href="{{ path('app_mark_notification_as_read', {'id': notification.id}) }}" class="btn btn-sm btn-primary">Oznacz jako przeczytane</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Brak nowych powiadomień.</p>
+        {% endif %}
+    </div>
+{% endblock %}

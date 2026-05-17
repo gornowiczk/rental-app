@@ -1,0 +1,9 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block subject %}Nowa rezerwacja na Twoje auto{% endblock %}
+{% block body %}
+    <p>Cześć!</p>
+    <p>Masz nową rezerwację na auto <strong>{{ reservation.car.brand }} {{ reservation.car.model }}</strong>.</p>
+    <p>Okres: <strong>{{ reservation.startDate|date('Y-m-d') }} → {{ reservation.endDate|date('Y-m-d') }}</strong></p>
+    <p>Najemca: {{ reservation.user.email }}</p>
+{% endblock %}

@@ -1,65 +1,54 @@
+{# templates/reservations/confirm.html.twig #}
 {% extends 'base.html.twig' %}
-
 {% block title %}Potwierdzenie rezerwacji{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h2 class="text-center">Potwierdzenie rezerwacji</h2>
-        <p><strong>Samochód:</strong> {{ car.brand }} {{ car.model }} ({{ car.year }})</p>
-        <p><strong>Numer rejestracyjny:</strong> {{ car.registrationNumber }}</p>
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <h3 class="mb-3">Potwierdź rezerwację</h3>
 
-        <!-- Kalendarz do wyboru dat -->
-        <div id="rental-calendar" style="max-width: 600px; margin: auto;"></div>
+                <div class="mb-3">
+                    <div class="fw-bold">{{ car.brand }} {{ car.model }}</div>
+                    <div class="text-muted small">Rej: {{ car.registrationNumber }}</div>
+                </div>
 
-        <form id="reservation-form" method="post" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
-            <input type="hidden" name="start_date" id="start_date">
-            <input type="hidden" name="end_date" id="end_date">
+                <div class="row g-3">
+                    <div class="col-md-4"><div class="border rounded p-3"><div class="text-muted small">Start</div><div class="fs-5">{{ start|date('Y-m-d') }}</div></div></div>
+                    <div class="col-md-4"><div class="border rounded p-3"><div class="text-muted small">Koniec</div><div class="fs-5">{{ end|date('Y-m-d') }}</div></div></div>
+                    <div class="col-md-4"><div class="border rounded p-3"><div class="text-muted small">Liczba dni</div><div class="fs-5">{{ days }}</div></div></div>
+                </div>
 
-            <div class="mb-3">
-                <label for="phoneNumber" class="form-label">Numer telefonu:</label>
-                <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" required>
+                <div class="border rounded p-3 mt-3 bg-light">
+                    <div class="d-flex justify-content-between">
+                        <div>Stawka za dobę</div>
+                        <div>{{ pricePerDay|number_format(2, '.', ' ') }} zł</div>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <div>Łącznie</div>
+                        <div>{{ total|number_format(2, '.', ' ') }} zł</div>
+                    </div>
+                </div>
+
+                <form class="mt-4" method="post" action="{{ path('app_reservation_store', {'id': car.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf }}">
+                    <input type="hidden" name="start" value="{{ start|date('Y-m-d') }}">
+                    <input type="hidden" name="end"   value="{{ end|date('Y-m-d') }}">
+
+                    <div class="form-check my-2">
+                        <input class="form-check-input" type="checkbox" id="agree" required>
+                        <label class="form-check-label" for="agree">
+                            Akceptuję regulamin najmu i potwierdzam dane rezerwacji.
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="{{ path('app_car_details', {'id': car.id}) }}" class="btn btn-outline-secondary">Wróć</a>
+                        <button type="submit" class="btn btn-primary">Potwierdź i złóż rezerwację</button>
+                    </div>
+                </form>
             </div>
-
-            <div class="mb-3">
-                <label for="rentalLocation" class="form-label">Preferowana lokalizacja odbioru:</label>
-                <input type="text" class="form-control" name="rentalLocation" required>
-            </div>
-
-
-            <div class="mb-3">
-                <label for="comments" class="form-label">Dodatkowe uwagi (opcjonalnie):</label>
-                <textarea id="comments" name="comments" class="form-control" rows="3"></textarea>
-            </div>
-
-
-
-            <button type="submit" class="btn btn-success w-100">Zarezerwuj</button>
-        </form>
-
-        <a href="{{ path('app_list_cars') }}" class="btn btn-secondary mt-3 w-100">Powrót</a>
+        </div>
     </div>
-
-    <!-- JavaScript obsługujący kalendarz -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var today = new Date().toISOString().split("T")[0]; // Dzisiejsza data w formacie YYYY-MM-DD
-
-            var rentalCalendar = new FullCalendar.Calendar(document.getElementById('rental-calendar'), {
-                initialView: 'dayGridMonth',
-                selectable: true,
-                validRange: {
-                    start: today // ❌ BLOKUJE PRZESZŁE DATY
-                },
-                select: function (info) {
-                    document.getElementById('start_date').value = info.startStr;
-                    document.getElementById('end_date').value = info.endStr;
-                    alert('Wybrano daty: ' + info.startStr + ' - ' + info.endStr);
-                },
-                events: "{{ path('app_car_availability', {'id': car.id}) }}", // Pobiera zajęte terminy
-                eventColor: "red"
-            });
-
-            rentalCalendar.render();
-        });
-    </script>
 {% endblock %}

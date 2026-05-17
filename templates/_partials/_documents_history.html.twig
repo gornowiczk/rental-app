@@ -1,0 +1,23 @@
+{# Mini-panel do osadzenia w dowolnym miejscu #}
+<div class="card p-3">
+    <h6 class="mb-2">🧾 Historia dokumentów</h6>
+
+    {% if reservation is defined %}
+        <ul class="list-unstyled small mb-0">
+            <li class="mb-1">
+                <a class="text-decoration-none" href="{{ path('app_contract_generate', {'id': reservation.id}) }}">
+                    📄 Pobierz umowę (PDF)
+                </a>
+                <span class="text-muted">• wygeneruj dynamicznie</span>
+            </li>
+            <li>
+                <a class="text-decoration-none" href="{{ path('app_invoice_generate', {'id': reservation.id}) }}">
+                    💸 Pobierz fakturę (PDF)
+                </a>
+                <span class="text-muted">• wygeneruj dynamicznie</span>
+            </li>
+        </ul>
+    {% else %}
+        <div class="text-muted">Brak wybranej rezerwacji.</div>
+    {% endif %}
+</div>

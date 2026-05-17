@@ -1,126 +1,951 @@
 {% extends 'base.html.twig' %}
+{% block title %}{{ car.brand }} {{ car.model }}{% endblock %}
 
-{% block title %}Szczegóły samochodu{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .details-hero-card,
+        .details-side-card,
+        .details-review-card,
+        .details-service-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            background: #fff;
+        }
+
+        .details-main-image {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 1rem;
+            background: #f8fafc;
+        }
+
+        .details-empty-image {
+            height: 380px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+            border: 1px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .details-thumb {
+            width: 100%;
+            height: 92px;
+            object-fit: cover;
+            border-radius: .8rem;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .details-price-box {
+            background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+            color: #fff;
+            border-radius: 1rem;
+            padding: 1rem 1.1rem;
+        }
+
+        .details-price-main {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .details-soft-box {
+            background: #f8fafc;
+            border: 1px solid #e9eef5;
+            border-radius: .9rem;
+            padding: .9rem 1rem;
+        }
+
+        .details-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .8rem;
+        }
+
+        .details-meta-item {
+            background: #f8fafc;
+            border: 1px solid #e9eef5;
+            border-radius: .9rem;
+            padding: .85rem .95rem;
+        }
+
+        .details-meta-label {
+            font-size: .78rem;
+            color: #64748b;
+            margin-bottom: .15rem;
+        }
+
+        .details-meta-value {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .details-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+
+        .details-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .details-badge-success {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .details-badge-secondary {
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        .details-badge-warning {
+            background: #fff7ed;
+            color: #9a3412;
+            border-color: #fed7aa;
+        }
+
+        .details-badge-danger {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .details-note-box {
+            background: #f8fafc;
+            border: 1px solid #e9eef5;
+            border-radius: .9rem;
+            padding: .95rem 1rem;
+        }
+
+        .details-owner-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .details-owner-actions .btn {
+            border-radius: .85rem;
+            font-weight: 700;
+        }
+
+        .details-owner-panel {
+            background: #f8fafc;
+            border: 1px solid #e9eef5;
+            border-radius: .95rem;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .details-owner-panel-title {
+            font-size: .95rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: .65rem;
+        }
+
+        .details-owner-panel-text {
+            color: #64748b;
+            font-size: .88rem;
+            margin-bottom: 0;
+        }
+
+        .details-service-item + .details-service-item {
+            border-top: 1px solid #eef2f7;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        .details-service-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .details-service-title {
+            font-size: .98rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: .15rem;
+        }
+
+        .details-service-subtitle {
+            font-size: .85rem;
+            color: #64748b;
+        }
+
+        .details-service-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            border-radius: 999px;
+            padding: .42rem .7rem;
+            font-size: .75rem;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            white-space: nowrap;
+        }
+
+        .details-service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .8rem;
+            margin-top: .9rem;
+        }
+
+        .details-service-box {
+            background: #f8fafc;
+            border: 1px solid #e9eef5;
+            border-radius: .85rem;
+            padding: .8rem .9rem;
+        }
+
+        .details-service-box-label {
+            font-size: .74rem;
+            color: #64748b;
+            margin-bottom: .15rem;
+        }
+
+        .details-service-box-value {
+            font-weight: 700;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .details-service-description {
+            margin-top: .85rem;
+            font-size: .92rem;
+            color: #334155;
+        }
+
+        .reservation-summary-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: .9rem;
+            padding: .9rem 1rem;
+        }
+
+        .reservation-summary-title {
+            font-size: .85rem;
+            color: #1d4ed8;
+            font-weight: 700;
+            margin-bottom: .45rem;
+        }
+
+        .reservation-price-live {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: .9rem;
+        }
+
+        .review-item + .review-item {
+            border-top: 1px solid #eef2f7;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        .flatpickr-calendar.inline {
+            width: 100%;
+            box-shadow: none;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+        }
+
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        .flatpickr-day.inRange {
+            background: rgba(13, 110, 253, .14);
+            border-color: rgba(13, 110, 253, .14);
+        }
+
+        .flatpickr-day.busy-day {
+            background: #fee2e2 !important;
+            color: #991b1b !important;
+            border-color: #fecaca !important;
+        }
+
+        .flatpickr-day.busy-day:hover {
+            background: #fecaca !important;
+            color: #7f1d1d !important;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: .65rem;
+            height: .65rem;
+            border-radius: 50%;
+            margin-right: .35rem;
+            vertical-align: middle;
+        }
+
+        .legend-busy { background: #dc2626; }
+        .legend-own { background: #2563eb; }
+
+        @media (max-width: 991px) {
+            .details-main-image,
+            .details-empty-image {
+                height: 260px;
+            }
+
+            .details-meta-grid,
+            .details-service-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="mb-3">Szczegóły samochodu</h1>
+    {% set reviewCount = reviews is defined ? reviews|length : 0 %}
+    {% set avgSafe = avg is defined ? avg : 0 %}
+    {% set inspectionExpired = car.inspectionValidUntil and car.inspectionValidUntil|date('U') < "now"|date('U') %}
+    {% set insuranceExpired = car.insuranceValidUntil and car.insuranceValidUntil|date('U') < "now"|date('U') %}
+    {% set serviceLogs = serviceLogs|default([]) %}
 
-        <div class="row">
-            <div class="col-md-6">
-                <p><strong>Marka:</strong> {{ car.brand }}</p>
-                <p><strong>Model:</strong> {{ car.model }}</p>
-                <p><strong>Rok produkcji:</strong> {{ car.year }}</p>
-                <p><strong>Numer rejestracyjny:</strong> {{ car.registrationNumber }}</p>
-                <p><strong>Cena za dzień:</strong> {{ car.pricePerDay }} zł</p>
-                <p><strong>Lokalizacja:</strong> {{ car.location }}</p>
-                <p><strong>Dostępność:</strong>
-                    {% if car.isAvailable %}
-                        <span class="badge bg-success">Dostępny</span>
+    {% set mainSrc = null %}
+    {% if car.mainImage %}
+        {% set mainSrc = asset('uploads/cars/' ~ car.mainImage) %}
+    {% elseif car.images is defined and car.images|length > 0 %}
+        {% set mainSrc = asset('uploads/cars/' ~ ((car.images|first).path)) %}
+    {% elseif car.gallery is iterable and car.gallery|length > 0 %}
+        {% set mainSrc = asset('uploads/cars/' ~ (car.gallery|first)) %}
+    {% endif %}
+
+    {% set thumbs = [] %}
+    {% if car.images is defined and car.images|length > 0 %}
+        {% for ci in car.images %}
+            {% set thumbs = thumbs|merge([asset('uploads/cars/' ~ ci.path)]) %}
+        {% endfor %}
+    {% elseif car.gallery is iterable and car.gallery|length > 0 %}
+        {% for img in car.gallery %}
+            {% set thumbs = thumbs|merge([asset('uploads/cars/' ~ img)]) %}
+        {% endfor %}
+    {% elseif car.mainImage %}
+        {% set thumbs = [asset('uploads/cars/' ~ car.mainImage)] %}
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="details-hero-card p-3 p-md-4">
+                <div class="mb-3">
+                    {% if mainSrc %}
+                        <img class="details-main-image" src="{{ mainSrc }}" alt="Zdjęcie {{ car.brand }} {{ car.model }}">
                     {% else %}
-                        <span class="badge bg-danger">Niedostępny</span>
+                        <div class="details-empty-image">
+                            Brak zdjęcia samochodu
+                        </div>
                     {% endif %}
-                </p>
-            </div>
+                </div>
 
-            <div class="col-md-6">
-                {% if car.mainImage %}
-                    <p><strong>Zdjęcie główne:</strong></p>
-                    <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" alt="Zdjęcie samochodu" class="img-fluid rounded shadow">
+                {% if thumbs|length > 1 %}
+                    <div class="row g-2 mb-4">
+                        {% for src in thumbs|slice(0, 8) %}
+                            <div class="col-3">
+                                <img class="details-thumb" src="{{ src }}" alt="Galeria zdjęć">
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
 
-                {% if car.gallery %}
-                    <p><strong>Galeria zdjęć:</strong></p>
-                    <div class="gallery d-flex flex-wrap">
-                        {% for image in car.gallery %}
-                            <img src="{{ asset('uploads/cars/' ~ image) }}" alt="Zdjęcie samochodu" class="img-thumbnail me-2">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                    <div>
+                        <h1 class="h3 mb-1">{{ car.brand }} {{ car.model }}</h1>
+                        <div class="text-muted">
+                            {{ car.year }}
+                            {% if car.location %} • {{ car.location }}{% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        {% if car.isRentable() %}
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Dostępny</span>
+                        {% elseif car.isTemporarilyPaused() %}
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Wstrzymany</span>
+                        {% else %}
+                            <span class="badge bg-secondary px-3 py-2 rounded-pill">Niedostępny</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if isOwner %}
+                    <div class="details-owner-panel">
+                        <div class="details-owner-panel-title">Panel właściciela pojazdu</div>
+                        <p class="details-owner-panel-text">
+                            Jesteś właścicielem tego auta. Możesz zarządzać wpisami serwisowymi i kontrolować stan pojazdu.
+                        </p>
+                    </div>
+
+                    <div class="details-owner-actions">
+                        <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="btn btn-outline-primary">
+                            ✏️ Edytuj auto
+                        </a>
+
+                        <a href="{{ path('app_car_service_log_add', {'id': car.id}) }}" class="btn btn-outline-dark">
+                            🧰 Dodaj wpis serwisowy
+                        </a>
+
+                        <a href="{{ path('app_my_cars') }}" class="btn btn-outline-secondary">
+                            ← Wróć do moich aut
+                        </a>
+                    </div>
+                {% endif %}
+
+                <div class="details-badges">
+                    {% if car.isTemporarilyPaused() %}
+                        <span class="details-badge details-badge-warning">
+                            ⏸ Wstrzymane do {{ car.pausedUntil|date('Y-m-d H:i') }}
+                        </span>
+                    {% endif %}
+
+                    {% if car.inspectionValidUntil %}
+                        {% if inspectionExpired %}
+                            <span class="details-badge details-badge-danger">⚠ Nieważny przegląd</span>
+                        {% else %}
+                            <span class="details-badge details-badge-secondary">🔧 Przegląd do {{ car.inspectionValidUntil|date('Y-m-d') }}</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if car.insuranceValidUntil %}
+                        {% if insuranceExpired %}
+                            <span class="details-badge details-badge-danger">⚠ Nieważne ubezpieczenie</span>
+                        {% else %}
+                            <span class="details-badge details-badge-success">🛡 Ubezpieczenie do {{ car.insuranceValidUntil|date('Y-m-d') }}</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="details-price-box mb-4">
+                    <div class="small opacity-75 mb-1">Cena wynajmu</div>
+                    <div class="details-price-main">{{ car.pricePerDay }} zł</div>
+                    <div class="small opacity-75 mt-1">za dobę</div>
+                </div>
+
+                <div class="details-meta-grid mb-4">
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Marka i model</div>
+                        <div class="details-meta-value">{{ car.brand }} {{ car.model }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Rok produkcji</div>
+                        <div class="details-meta-value">{{ car.year }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Numer rejestracyjny</div>
+                        <div class="details-meta-value">{{ car.registrationNumber }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Lokalizacja</div>
+                        <div class="details-meta-value">{{ car.location ?: 'Nie podano' }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">VIN</div>
+                        <div class="details-meta-value">{{ car.vin ?: 'Brak danych' }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Przebieg</div>
+                        <div class="details-meta-value">{{ car.mileage ? car.mileage ~ ' km' : 'Brak danych' }}</div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Paliwo</div>
+                        <div class="details-meta-value">
+                            {% if car.fuelType == 'benzyna' %}
+                                Benzyna
+                            {% elseif car.fuelType == 'diesel' %}
+                                Diesel
+                            {% elseif car.fuelType == 'hybryda' %}
+                                Hybryda
+                            {% elseif car.fuelType == 'elektryczny' %}
+                                Elektryczny
+                            {% elseif car.fuelType == 'lpg' %}
+                                LPG
+                            {% else %}
+                                Brak danych
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Skrzynia biegów</div>
+                        <div class="details-meta-value">
+                            {{ car.transmission == 'automatic' ? 'Automatyczna' : (car.transmission == 'manual' ? 'Manualna' : 'Brak danych') }}
+                        </div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Ostatni serwis</div>
+                        <div class="details-meta-value">
+                            {{ car.lastServiceDate ? car.lastServiceDate|date('Y-m-d') : 'Brak danych' }}
+                        </div>
+                    </div>
+
+                    <div class="details-meta-item">
+                        <div class="details-meta-label">Możliwość wynajmu</div>
+                        <div class="details-meta-value">
+                            {% if not car.isAvailable %}
+                                Nie
+                            {% elseif car.isTemporarilyPaused() %}
+                                Tak, po {{ car.pausedUntil|date('Y-m-d') }}
+                            {% else %}
+                                Tak
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if car.notes %}
+                    <div class="details-note-box mb-4">
+                        <div class="fw-semibold mb-1">Uwagi do pojazdu</div>
+                        <div class="text-muted small">{{ car.notes|nl2br }}</div>
+                    </div>
+                {% endif %}
+
+                <div class="details-soft-box">
+                    <div class="fw-semibold mb-1">Informacja</div>
+                    <div class="text-muted small">
+                        System automatycznie blokuje terminy, które nachodzą na istniejące rezerwacje,
+                        a właściciel może dodatkowo czasowo wstrzymać możliwość wynajmu.
+                    </div>
+                </div>
+            </div>
+
+            {% if isOwner %}
+                <div class="details-service-card p-3 p-md-4 mt-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <div class="section-title mb-1">Historia serwisowa</div>
+                            <div class="text-muted small">
+                                Wpisy dotyczące serwisu, napraw, przeglądów, ubezpieczenia i eksploatacji auta.
+                            </div>
+                        </div>
+
+                        <a href="{{ path('app_car_service_log_add', {'id': car.id}) }}" class="btn btn-outline-dark btn-sm">
+                            + Dodaj wpis
+                        </a>
+                    </div>
+
+                    {% if serviceLogs is not empty %}
+                        {% for log in serviceLogs %}
+                            <div class="details-service-item">
+                                <div class="details-service-top">
+                                    <div>
+                                        <div class="details-service-title">{{ log.title }}</div>
+                                        <div class="details-service-subtitle">
+                                            {{ log.serviceDate ? log.serviceDate|date('Y-m-d') : 'Brak daty' }}
+                                            {% if log.createdAt %} • dodano {{ log.createdAt|date('Y-m-d H:i') }}{% endif %}
+                                        </div>
+                                    </div>
+
+                                    <span class="details-service-badge">
+                                        🧾 {{ log.typeLabel }}
+                                    </span>
+                                </div>
+
+                                <div class="details-service-grid">
+                                    <div class="details-service-box">
+                                        <div class="details-service-box-label">Typ wpisu</div>
+                                        <div class="details-service-box-value">{{ log.typeLabel }}</div>
+                                    </div>
+
+                                    <div class="details-service-box">
+                                        <div class="details-service-box-label">Przebieg</div>
+                                        <div class="details-service-box-value">
+                                            {{ log.mileage ? log.mileage ~ ' km' : 'Brak danych' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="details-service-box">
+                                        <div class="details-service-box-label">Koszt</div>
+                                        <div class="details-service-box-value">
+                                            {{ log.cost ? log.cost ~ ' zł' : 'Brak danych' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if log.description %}
+                                    <div class="details-service-description">
+                                        {{ log.description|nl2br }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         {% endfor %}
+                    {% else %}
+                        <div class="details-soft-box">
+                            <div class="fw-semibold mb-1">Brak wpisów serwisowych</div>
+                            <div class="text-muted small">
+                                Dodaj pierwszy wpis, aby zacząć prowadzić historię serwisową tego pojazdu.
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div id="reviews" class="details-review-card p-3 p-md-4 mt-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div class="section-title mb-0">Opinie</div>
+                    <div class="text-muted">
+                        <strong>{{ '%.1f'|format(avgSafe) }}/5</strong>
+                        <span class="ms-1">
+                            {% set full = avgSafe|round(0, 'floor') %}
+                            {% for i in 1..5 %}
+                                {% if i <= full %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="ms-2">
+                            ({{ reviewCount }}
+                            {{ reviewCount == 1 ? 'opinia' : (reviewCount in [2,3,4] ? 'opinie' : 'opinii') }})
+                        </span>
+                    </div>
+                </div>
+
+                {% if reviews is defined and reviews is not empty %}
+                    {% for r in reviews %}
+                        <div class="review-item">
+                            <div class="small text-muted mb-1">
+                                {% for i in 1..5 %}
+                                    {% if i <= r.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                                • {{ r.createdAt|date('Y-m-d H:i') }}
+                                • {{ r.user.firstName }} {{ r.user.lastName }}
+                            </div>
+                            <div>{{ r.content }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-muted">Brak opinii dla tego auta.</div>
+                {% endif %}
+
+                {% if app.user and reviewForm and not isOwner %}
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="section-title">Dodaj opinię</div>
+                        {{ form_start(reviewForm, { action: path('app_review_add', {'id': car.id}) }) }}
+                            <div class="row g-3">
+                                <div class="col-md-3">{{ form_row(reviewForm.rating) }}</div>
+                                <div class="col-md-9">{{ form_row(reviewForm.content) }}</div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-primary px-4">Wyślij opinię</button>
+                            </div>
+                        {{ form_end(reviewForm) }}
+                    </div>
+                {% elseif not app.user %}
+                    <div class="alert alert-warning mt-4 mb-0">
+                        Zaloguj się, aby dodać opinię.
                     </div>
                 {% endif %}
             </div>
         </div>
 
-        <hr>
+        <div class="col-lg-5">
+            <div class="details-side-card p-3 p-md-4 mb-4 sticky-top" style="top: 90px;">
+                <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                    <div>
+                        <div class="section-title mb-1">Rezerwacja</div>
+                        <div class="text-muted small">
+                            {% if isOwner %}
+                                Podgląd kalendarza zajętości Twojego pojazdu.
+                            {% else %}
+                                Wybierz zakres dat z kalendarza.
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-end small text-muted">
+                        <span class="legend-dot legend-busy"></span> zajęte
+                        {% if isOwner %}<br><span class="legend-dot legend-own"></span> właściciel{% endif %}
+                    </div>
+                </div>
 
-        {% if car.owner == app.user %}
-            <h2 class="mt-4">Kalendarz rezerwacji</h2>
-            <div id="owner-calendar" class="calendar-container"></div>
-        {% else %}
-            <button id="showCalendarBtn" class="btn btn-success mt-3">Zarezerwuj</button>
-            <div id="calendar-section" class="mt-3" style="display: none;">
-                <h2>Wybierz daty rezerwacji</h2>
-                <div id="rental-calendar" class="calendar-container"></div>
-                <button id="confirmReservationBtn" class="btn btn-primary mt-2">Potwierdź rezerwację</button>
+                <div id="rangePicker"></div>
+
+                <div class="reservation-summary-box mt-3">
+                    <div class="reservation-summary-title">Podsumowanie wyboru</div>
+                    <div id="rangeSummary" class="text-muted small">
+                        {% if isOwner %}
+                            Jako właściciel możesz sprawdzić zajętość terminów dla tego auta.
+                        {% else %}
+                            Kliknij i zaznacz zakres (tylko wolne dni)
+                        {% endif %}
+                    </div>
+                    <div id="priceSummary" class="reservation-price-live mt-2 d-none"></div>
+                </div>
+
+                <div id="rangeError" class="alert alert-danger mt-3 py-2 px-3 d-none"></div>
+
+                <hr class="my-4">
+
+                {% if isOwner %}
+                    <div class="alert alert-info mb-0">
+                        Jesteś właścicielem tego auta. Nie możesz utworzyć rezerwacji na własny pojazd, ale możesz zarządzać nim z poziomu tego widoku.
+                    </div>
+                {% elseif not car.isAvailable %}
+                    <div class="alert alert-secondary mb-0">
+                        To auto jest obecnie wyłączone z wynajmu.
+                    </div>
+                {% elseif not app.user %}
+                    <div class="alert alert-warning mb-0">
+                        Zaloguj się, aby zarezerwować samochód.
+                    </div>
+                {% else %}
+                    {% if car.isTemporarilyPaused() %}
+                        <div class="alert alert-warning mb-3">
+                            To auto jest czasowo wstrzymane do
+                            <strong>{{ car.pausedUntil|date('Y-m-d H:i') }}</strong>.
+                            Możesz wybrać termin po tej dacie.
+                        </div>
+                    {% endif %}
+
+                    <form id="reserveForm" method="post" action="{{ path('app_confirm_reservation', {'id': car.id}) }}">
+                        <input type="hidden" name="reserve_token" value="{{ csrf_token('reserve_confirm_' ~ car.id) }}">
+                        <input type="hidden" name="start" id="start_date">
+                        <input type="hidden" name="end" id="end_date">
+
+                        <div class="d-grid gap-2">
+                            <button id="reserveBtn" type="submit" class="btn btn-primary btn-lg" disabled>
+                                Przejdź do potwierdzenia
+                            </button>
+                            <div class="text-muted small text-center">
+                                W następnym kroku uzupełnisz telefon, miejsce odbioru i dane do faktury.
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
             </div>
-        {% endif %}
-
-        <a href="{{ path('app_list_cars', {'filter': 'all'}) }}" class="btn btn-secondary">Powrót</a>
-
+        </div>
     </div>
 
+    {% include '_partials/notifications.html.twig' with { notifications: notifications|default([]) } %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pl.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var showCalendarBtn = document.getElementById('showCalendarBtn');
-            var calendarSection = document.getElementById('calendar-section');
-            var confirmReservationBtn = document.getElementById('confirmReservationBtn');
-            var selectedStartDate = null;
-            var selectedEndDate = null;
+        document.addEventListener('DOMContentLoaded', async () => {
+            const pickerEl = document.getElementById('rangePicker');
+            const summaryEl = document.getElementById('rangeSummary');
+            const priceEl = document.getElementById('priceSummary');
+            const errorEl = document.getElementById('rangeError');
+            const startInput = document.getElementById('start_date');
+            const endInput = document.getElementById('end_date');
+            const reserveBtn = document.getElementById('reserveBtn');
+            const reserveForm = document.getElementById('reserveForm');
+            const isOwner = {{ isOwner ? 'true' : 'false' }};
+            const pricePerDay = parseFloat('{{ car.pricePerDay }}');
 
-            if (showCalendarBtn) {
-                showCalendarBtn.addEventListener('click', function() {
-                    calendarSection.style.display = 'block';
-                });
-            }
+            const dms = 24 * 60 * 60 * 1000;
 
-            function renderCalendar(calendarId, eventsUrl, selectable = false) {
-                return new FullCalendar.Calendar(document.getElementById(calendarId), {
-                    initialView: 'dayGridMonth',
-                    selectable: selectable,
-                    height: 400,
-                    locale: 'pl',
-                    select: function(info) {
-                        if (selectable) {
-                            selectedStartDate = info.startStr;
-                            selectedEndDate = info.endStr;
-                            alert('Wybrano daty: ' + selectedStartDate + ' - ' + selectedEndDate);
-                        }
-                    },
-                    events: eventsUrl,
-                    eventColor: "red"
-                });
-            }
+            const toLocalNoon = (y, m, d) => new Date(y, m - 1, d, 12, 0, 0, 0);
 
-            if (document.getElementById('rental-calendar')) {
-                var rentalCalendar = renderCalendar('rental-calendar', "{{ path('app_car_availability', {'id': car.id}) }}", true);
-                rentalCalendar.render();
-            }
+            const fromYMD = (s) => {
+                const [Y, M, D] = s.split('-').map(Number);
+                return toLocalNoon(Y, M, D);
+            };
 
-            if (document.getElementById('owner-calendar')) {
-                var ownerCalendar = renderCalendar('owner-calendar', "{{ path('app_car_availability', {'id': car.id}) }}");
-                ownerCalendar.render();
-            }
+            const fmtYMD = (date) => {
+                const Y = date.getFullYear();
+                const M = String(date.getMonth() + 1).padStart(2, '0');
+                const D = String(date.getDate()).padStart(2, '0');
+                return `${Y}-${M}-${D}`;
+            };
 
-            if (confirmReservationBtn) {
-                confirmReservationBtn.addEventListener('click', function() {
-                    if (!selectedStartDate || !selectedEndDate) {
-                        alert('Proszę wybrać zakres dat.');
-                        return;
+            const showError = (msg) => {
+                if (!errorEl) return;
+                errorEl.textContent = msg;
+                errorEl.classList.remove('d-none');
+            };
+
+            const hideError = () => {
+                if (!errorEl) return;
+                errorEl.classList.add('d-none');
+                errorEl.textContent = '';
+            };
+
+            if (reserveForm) {
+                reserveForm.addEventListener('submit', (e) => {
+                    if (!startInput.value || !endInput.value) {
+                        e.preventDefault();
+                        showError('Najpierw wybierz zakres dat w kalendarzu.');
+                        if (reserveBtn) reserveBtn.disabled = true;
                     }
-                    window.location.href = "{{ path('app_confirm_reservation', {'id': car.id}) }}?start_date=" + selectedStartDate + "&end_date=" + selectedEndDate;
                 });
             }
+
+            let disabledRanges = [];
+
+            try {
+                const events = await fetch('{{ path('app_car_availability', {'id': car.id}) }}').then(r => r.json());
+
+                disabledRanges = events.map(e => {
+                    const from = fromYMD(e.start);
+                    const to = new Date(fromYMD(e.end).getTime() - dms);
+                    return { from, to };
+                });
+            } catch (e) {
+                console.warn('Nie udało się pobrać dostępności');
+            }
+
+            const isBusy = d => disabledRanges.some(r => d >= r.from && d <= r.to);
+
+            if (!pickerEl) return;
+
+            flatpickr(pickerEl, {
+                locale: 'pl',
+                inline: true,
+                mode: 'range',
+                weekNumbers: true,
+                minDate: 'today',
+                disable: disabledRanges.map(r => ({ from: r.from, to: r.to })),
+
+                onDayCreate: (_, __, ___, day) => {
+                    const d = toLocalNoon(
+                        day.dateObj.getFullYear(),
+                        day.dateObj.getMonth() + 1,
+                        day.dateObj.getDate()
+                    );
+
+                    if (isBusy(d)) {
+                        day.classList.add('busy-day');
+                    }
+                },
+
+                onChange: (selected) => {
+                    if (isOwner) return;
+
+                    hideError();
+
+                    if (selected.length === 2) {
+                        const s = toLocalNoon(
+                            selected[0].getFullYear(),
+                            selected[0].getMonth() + 1,
+                            selected[0].getDate()
+                        );
+
+                        const e = toLocalNoon(
+                            selected[1].getFullYear(),
+                            selected[1].getMonth() + 1,
+                            selected[1].getDate()
+                        );
+
+                        let ok = true;
+                        let it = new Date(s.getTime());
+
+                        while (it <= e) {
+                            if (isBusy(it)) {
+                                ok = false;
+                                break;
+                            }
+                            it = new Date(it.getTime() + dms);
+                        }
+
+                        if (!ok) {
+                            showError('Wybrany zakres zawiera niedostępne dni. Wybierz inny termin.');
+                            summaryEl.innerHTML = '<span class="text-danger">Zakres niepoprawny.</span>';
+
+                            if (priceEl) {
+                                priceEl.classList.add('d-none');
+                                priceEl.textContent = '';
+                            }
+
+                            startInput.value = '';
+                            endInput.value = '';
+                            if (reserveBtn) reserveBtn.disabled = true;
+                            return;
+                        }
+
+                        startInput.value = fmtYMD(s);
+                        endInput.value = fmtYMD(e);
+
+                        summaryEl.innerHTML = `
+                            Wybrany termin:
+                            <strong>${fmtYMD(s)}</strong> → <strong>${fmtYMD(e)}</strong>
+                        `;
+
+                        const days = Math.floor((e - s) / dms);
+
+                        if (days < 1) {
+                            showError('Data zakończenia musi być późniejsza niż data rozpoczęcia.');
+                            summaryEl.innerHTML = '<span class="text-danger">Wybierz co najmniej 1 dobę.</span>';
+
+                            if (priceEl) {
+                                priceEl.classList.add('d-none');
+                                priceEl.textContent = '';
+                            }
+
+                            startInput.value = '';
+                            endInput.value = '';
+
+                            if (reserveBtn) {
+                                reserveBtn.disabled = true;
+                            }
+
+                            return;
+                        }
+
+                        const total = days * pricePerDay;
+
+                        if (priceEl) {
+                            priceEl.classList.remove('d-none');
+                            priceEl.textContent = `${days} doby • ${total.toFixed(2)} zł`;
+                        }
+
+                        if (reserveBtn) reserveBtn.disabled = false;
+                    } else {
+                        startInput.value = '';
+                        endInput.value = '';
+                        summaryEl.textContent = 'Kliknij i zaznacz zakres (tylko wolne dni)';
+
+                        if (priceEl) {
+                            priceEl.classList.add('d-none');
+                            priceEl.textContent = '';
+                        }
+
+                        if (reserveBtn) reserveBtn.disabled = true;
+                    }
+                }
+            });
         });
     </script>
-
-    <style>
-        .calendar-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .img-thumbnail {
-            max-width: 100px;
-            margin-bottom: 5px;
-        }
-    </style>
 {% endblock %}

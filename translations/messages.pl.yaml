@@ -1,0 +1,17 @@
+reservation:
+  phone: "📞 Numer telefonu"
+  pickup_location: "📍 Preferowana lokalizacja odbioru"
+  comment: "✍ Dodatkowe uwagi (opcjonalnie)"
+
+  invoice:
+    want: "🧾 Czy chcesz fakturę?"
+    yes: "Tak"
+    no: "Nie"
+    name: "Nazwa / Imię i nazwisko (do faktury)"
+    address: "Adres (do faktury)"
+    nip: "NIP (lub PESEL)"
+
+  errors:
+    phone_required: "Podaj numer telefonu."
+    pickup_required: "Podaj lokalizację odbioru."
+    invoice_missing: "Uzupełnij dane do faktury."
