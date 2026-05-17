@@ -65,7 +65,7 @@ final class CarController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_car_details', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_car_details', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function details(
         int $id,
         CarRepository $carRepository,
@@ -75,7 +75,7 @@ final class CarController extends AbstractController
         $car = $carRepository->find($id);
 
         if (!$car) {
-            throw $this->createNotFoundException('Samochód nie został znaleziony.');
+            throw $this->createNotFoundException('Samochod nie zostal znaleziony.');
         }
 
         $isOwner = $this->getUser()
@@ -135,7 +135,7 @@ final class CarController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/availability', name: 'app_car_availability', methods: ['GET'])]
+    #[Route('/{id}/availability', name: 'app_car_availability', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function availability(Car $car, EntityManagerInterface $em): JsonResponse
     {
         $reservations = $em->getRepository(Reservation::class)->findBy([
@@ -147,7 +147,7 @@ final class CarController extends AbstractController
 
         foreach ($reservations as $reservation) {
             $events[] = [
-                'title' => 'Zajęte',
+                'title' => 'Zajete',
                 'start' => $reservation->getStartDate()->format('Y-m-d'),
                 'end' => (clone $reservation->getEndDate())->modify('+1 day')->format('Y-m-d'),
                 'color' => '#dc3545',
@@ -209,11 +209,11 @@ final class CarController extends AbstractController
                 $em->persist($car);
                 $em->flush();
 
-                $this->addFlash('success', 'Samochód został dodany.');
+                $this->addFlash('success', 'Samochod zostal dodany.');
                 return $this->redirectToRoute('app_my_cars');
             }
 
-            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw je poniżej.');
+            $this->addFlash('danger', 'Formularz zawiera bledy. Popraw je ponizej.');
         }
 
         return $this->render('cars/add.html.twig', [
@@ -222,7 +222,7 @@ final class CarController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/{id}/edit', name: 'app_car_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_car_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, Car $car, EntityManagerInterface $em): Response
     {
         if ($car->getOwner() !== $this->getUser()) {
@@ -299,7 +299,7 @@ final class CarController extends AbstractController
                 return $this->redirectToRoute('app_my_cars');
             }
 
-            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw je poniżej.');
+            $this->addFlash('danger', 'Formularz zawiera bledy. Popraw je ponizej.');
         }
 
         return $this->render('cars/edit.html.twig', [
@@ -320,7 +320,7 @@ final class CarController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/{id}/service-log/add', name: 'app_car_service_log_add', methods: ['GET', 'POST'])]
+    #[Route('/{id}/service-log/add', name: 'app_car_service_log_add', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function addServiceLog(Request $request, Car $car, EntityManagerInterface $em): Response
     {
         if ($car->getOwner() !== $this->getUser()) {
@@ -357,11 +357,11 @@ final class CarController extends AbstractController
 
                 $em->flush();
 
-                $this->addFlash('success', 'Wpis serwisowy został dodany.');
+                $this->addFlash('success', 'Wpis serwisowy zostal dodany.');
                 return $this->redirectToRoute('app_car_details', ['id' => $car->getId()]);
             }
 
-            $this->addFlash('danger', 'Formularz zawiera błędy. Popraw dane.');
+            $this->addFlash('danger', 'Formularz zawiera bledy. Popraw dane.');
         }
 
         return $this->render('cars/service_log_add.html.twig', [
@@ -371,7 +371,7 @@ final class CarController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/delete/{id}', name: 'app_delete_car', methods: ['POST'])]
+    #[Route('/delete/{id}', name: 'app_delete_car', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, Car $car, EntityManagerInterface $em): Response
     {
         if ($car->getOwner() !== $this->getUser()) {
@@ -379,7 +379,7 @@ final class CarController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('delete_car_' . $car->getId(), $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Błędny token.');
+            throw $this->createAccessDeniedException('Bledny token.');
         }
 
         if ($car->getMainImage()) {
@@ -399,12 +399,12 @@ final class CarController extends AbstractController
         $em->remove($car);
         $em->flush();
 
-        $this->addFlash('success', 'Samochód usunięty.');
+        $this->addFlash('success', 'Samochod usuniety.');
         return $this->redirectToRoute('app_my_cars');
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/{id}/toggle', name: 'app_car_toggle', methods: ['POST'])]
+    #[Route('/{id}/toggle', name: 'app_car_toggle', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function toggleAvailability(Request $request, Car $car, EntityManagerInterface $em): Response
     {
         if ($car->getOwner() !== $this->getUser()) {
@@ -412,7 +412,7 @@ final class CarController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('toggle_car_' . $car->getId(), $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Błędny token.');
+            throw $this->createAccessDeniedException('Bledny token.');
         }
 
         $car->setIsAvailable(!$car->isAvailable());
@@ -420,7 +420,7 @@ final class CarController extends AbstractController
 
         $this->addFlash(
             'success',
-            $car->isAvailable() ? 'Ogłoszenie ponownie dostępne.' : 'Ogłoszenie wstrzymane.'
+            $car->isAvailable() ? 'Ogloszenie ponownie dostepne.' : 'Ogloszenie wstrzymane.'
         );
 
         return $this->redirectToRoute('app_car_details', [
