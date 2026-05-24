@@ -281,7 +281,14 @@
 {% else %}
     <div class="row g-3">
         {% for car in cars %}
-            {% set img = car.mainImage ? asset('uploads/' ~ car.mainImage) : null %}
+            {% set img = null %}
+            {% if car.mainImage %}
+                {% set img = asset('uploads/cars/' ~ car.mainImage) %}
+            {% elseif car.images is defined and car.images|length > 0 %}
+                {% set img = asset('uploads/cars/' ~ ((car.images|first).path)) %}
+            {% elseif car.gallery is iterable and car.gallery|length > 0 %}
+                {% set img = asset('uploads/cars/' ~ (car.gallery|first)) %}
+            {% endif %}
             {% set inspectionExpired = car.inspectionValidUntil and car.inspectionValidUntil|date('U') < "now"|date('U') %}
             {% set insuranceExpired = car.insuranceValidUntil and car.insuranceValidUntil|date('U') < "now"|date('U') %}
 
