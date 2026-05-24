@@ -311,10 +311,28 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const mainImage = document.querySelector('.details-main-image');
-    const thumbnails = document.querySelectorAll('.details-thumb');
+    let thumbnails = Array.from(document.querySelectorAll('.details-thumb'));
 
     if (!mainImage || thumbnails.length === 0) {
         return;
+    }
+
+    const firstThumbColumn = thumbnails[0].closest('[class*="col-"]');
+    const thumbRow = firstThumbColumn ? firstThumbColumn.parentElement : null;
+    const hasMainThumbnail = thumbnails.some((thumb) => thumb.src === mainImage.src);
+
+    if (thumbRow && !hasMainThumbnail) {
+        const mainColumn = document.createElement('div');
+        mainColumn.className = firstThumbColumn.className;
+
+        const mainThumb = document.createElement('img');
+        mainThumb.className = 'details-thumb';
+        mainThumb.src = mainImage.src;
+        mainThumb.alt = 'Zdjęcie główne';
+
+        mainColumn.appendChild(mainThumb);
+        thumbRow.insertBefore(mainColumn, firstThumbColumn);
+        thumbnails = Array.from(document.querySelectorAll('.details-thumb'));
     }
 
     thumbnails.forEach((thumb) => {
