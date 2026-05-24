@@ -7,8 +7,8 @@
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         color: #fff;
         border-radius: 1rem;
-        padding: 1.4rem;
-        margin-bottom: 1.5rem;
+        padding: 1.15rem 1.25rem;
+        margin-bottom: 1.25rem;
     }
 
     .mycars-hero-title {
@@ -39,7 +39,7 @@
 
     .mycars-media {
         position: relative;
-        height: 220px;
+        height: 150px;
         background: #f8fafc;
     }
 
@@ -64,34 +64,34 @@
 
     .mycars-price {
         position: absolute;
-        right: 12px;
-        bottom: 12px;
+        right: 10px;
+        bottom: 10px;
         background: rgba(15, 23, 42, 0.82);
         color: #fff;
-        padding: .5rem .8rem;
+        padding: .38rem .65rem;
         border-radius: 999px;
         font-weight: 700;
-        font-size: .8rem;
+        font-size: .76rem;
     }
 
     .mycars-body {
-        padding: 1rem;
+        padding: .8rem;
         display: flex;
         flex-direction: column;
-        height: calc(100% - 220px);
+        height: calc(100% - 150px);
     }
 
     .mycars-title {
-        font-size: 1.05rem;
+        font-size: .98rem;
         font-weight: 800;
         color: #0f172a;
-        margin-bottom: .2rem;
+        margin-bottom: .12rem;
     }
 
     .mycars-subtitle {
         color: #64748b;
-        font-size: .87rem;
-        margin-bottom: .8rem;
+        font-size: .8rem;
+        margin-bottom: .55rem;
     }
 
     .mycars-status {
@@ -99,10 +99,10 @@
         align-items: center;
         gap: .35rem;
         border-radius: 999px;
-        padding: .45rem .75rem;
-        font-size: .78rem;
+        padding: .32rem .62rem;
+        font-size: .72rem;
         font-weight: 700;
-        margin-bottom: .6rem;
+        margin-bottom: .45rem;
         width: fit-content;
     }
 
@@ -119,17 +119,17 @@
     .mycars-badges {
         display: flex;
         flex-wrap: wrap;
-        gap: .45rem;
-        margin-bottom: 1rem;
+        gap: .35rem;
+        margin-bottom: .65rem;
     }
 
     .mycars-badge {
         display: inline-flex;
         align-items: center;
         gap: .3rem;
-        padding: .4rem .7rem;
+        padding: .3rem .55rem;
         border-radius: 999px;
-        font-size: .75rem;
+        font-size: .7rem;
         font-weight: 700;
         border: 1px solid transparent;
     }
@@ -161,19 +161,19 @@
     .mycars-meta {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: .7rem;
-        margin-bottom: 1rem;
+        gap: .45rem;
+        margin-bottom: .75rem;
     }
 
     .mycars-meta-box {
         background: #f8fafc;
         border: 1px solid #e9eef5;
-        border-radius: .8rem;
-        padding: .7rem .8rem;
+        border-radius: .65rem;
+        padding: .48rem .58rem;
     }
 
     .mycars-meta-label {
-        font-size: .74rem;
+        font-size: .68rem;
         color: #64748b;
         margin-bottom: .12rem;
     }
@@ -181,33 +181,46 @@
     .mycars-meta-value {
         font-weight: 700;
         color: #0f172a;
-        font-size: .9rem;
+        font-size: .82rem;
         word-break: break-word;
     }
 
     .mycars-note-box {
         background: #f8fafc;
         border: 1px solid #e9eef5;
-        border-radius: .8rem;
-        padding: .8rem .9rem;
-        margin-bottom: 1rem;
+        border-radius: .65rem;
+        padding: .6rem .7rem;
+        margin-bottom: .75rem;
     }
 
     .mycars-note-label {
-        font-size: .74rem;
+        font-size: .68rem;
         color: #64748b;
         margin-bottom: .2rem;
     }
 
     .mycars-note-value {
         color: #0f172a;
-        font-size: .9rem;
-        line-height: 1.45;
+        font-size: .82rem;
+        line-height: 1.35;
+    }
+
+    .mycars-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .45rem;
     }
 
     .mycars-actions .btn {
-        border-radius: .8rem;
+        border-radius: .65rem;
         font-weight: 600;
+        font-size: .82rem;
+        padding: .4rem .55rem;
+        width: 100%;
+    }
+
+    .mycars-actions form {
+        margin: 0;
     }
 
     .mycars-empty {
@@ -224,16 +237,19 @@
     }
 
     @media (max-width: 991px) {
-        .mycars-meta {
-            grid-template-columns: 1fr;
-        }
-
         .mycars-media {
-            height: 200px;
+            height: 170px;
         }
 
         .mycars-body {
             height: auto;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .mycars-meta,
+        .mycars-actions {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -263,7 +279,7 @@
         <a href="{{ path('app_add_car') }}" class="btn btn-primary">Dodaj samochód</a>
     </div>
 {% else %}
-    <div class="row g-4">
+    <div class="row g-3">
         {% for car in cars %}
             {% set img = car.mainImage ? asset('uploads/' ~ car.mainImage) : null %}
             {% set inspectionExpired = car.inspectionValidUntil and car.inspectionValidUntil|date('U') < "now"|date('U') %}
@@ -347,63 +363,23 @@
                                     {{ car.vin ?: 'Brak danych' }}
                                 </div>
                             </div>
-
-                            <div class="mycars-meta-box">
-                                <div class="mycars-meta-label">Paliwo</div>
-                                <div class="mycars-meta-value">
-                                    {% if car.fuelType == 'benzyna' %}
-                                        Benzyna
-                                    {% elseif car.fuelType == 'diesel' %}
-                                        Diesel
-                                    {% elseif car.fuelType == 'hybryda' %}
-                                        Hybryda
-                                    {% elseif car.fuelType == 'elektryczny' %}
-                                        Elektryczny
-                                    {% elseif car.fuelType == 'lpg' %}
-                                        LPG
-                                    {% else %}
-                                        Brak danych
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="mycars-meta-box">
-                                <div class="mycars-meta-label">Skrzynia</div>
-                                <div class="mycars-meta-value">
-                                    {{ car.transmission == 'automatic' ? 'Automatyczna' : (car.transmission == 'manual' ? 'Manualna' : 'Brak danych') }}
-                                </div>
-                            </div>
-
-                            <div class="mycars-meta-box">
-                                <div class="mycars-meta-label">Ostatni serwis</div>
-                                <div class="mycars-meta-value">
-                                    {{ car.lastServiceDate ? car.lastServiceDate|date('Y-m-d') : 'Brak danych' }}
-                                </div>
-                            </div>
-
-                            <div class="mycars-meta-box">
-                                <div class="mycars-meta-label">Możliwość wynajmu</div>
-                                <div class="mycars-meta-value">
-                                    {{ car.isRentable() ? 'Tak' : 'Nie' }}
-                                </div>
-                            </div>
                         </div>
 
                         {% if car.notes %}
                             <div class="mycars-note-box">
                                 <div class="mycars-note-label">Uwagi do pojazdu</div>
                                 <div class="mycars-note-value">
-                                    {{ car.notes|length > 140 ? car.notes|slice(0, 140) ~ '…' : car.notes }}
+                                    {{ car.notes|length > 90 ? car.notes|slice(0, 90) ~ '…' : car.notes }}
                                 </div>
                             </div>
                         {% endif %}
 
-                        <div class="mycars-actions d-grid gap-2 mt-auto">
-                            <a class="btn btn-outline-primary" href="{{ path('app_car_details', {'id': car.id}) }}">
+                        <div class="mycars-actions mt-auto">
+                            <a class="btn btn-outline-primary btn-sm" href="{{ path('app_car_details', {'id': car.id}) }}">
                                 Szczegóły
                             </a>
 
-                            <a class="btn btn-outline-secondary" href="{{ path('app_car_edit', {'id': car.id}) }}">
+                            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_car_edit', {'id': car.id}) }}">
                                 Edytuj
                             </a>
 
@@ -411,7 +387,7 @@
                                   action="{{ path('app_delete_car', {'id': car.id}) }}"
                                   onsubmit="return confirm('Usunąć samochód?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_car_' ~ car.id) }}">
-                                <button class="btn btn-outline-danger w-100">Usuń</button>
+                                <button class="btn btn-outline-danger btn-sm">Usuń</button>
                             </form>
                         </div>
                     </div>
