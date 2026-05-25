@@ -54,7 +54,7 @@ class AutoCompleteReservationsCommand extends Command
                 Reservation::STATUS_COMPLETED,
                 null,
                 'cron',
-                'Auto completed by cron after end date'
+                'Automatycznie zakończono po dacie zwrotu'
             );
 
             $count++;

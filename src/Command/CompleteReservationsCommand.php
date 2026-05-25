@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'app:reservations:complete',
-    description: 'Marks accepted reservations as completed when endDate is in the past.'
+    description: 'Oznacza zakończone rezerwacje jako zrealizowane.'
 )]
 final class CompleteReservationsCommand extends Command
 {
@@ -29,8 +29,8 @@ final class CompleteReservationsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Do not write changes to DB')
-            ->addOption('notify', null, InputOption::VALUE_NONE, 'Send notifications (if implemented)');
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Uruchamia komendę bez zapisu zmian w bazie')
+            ->addOption('notify', null, InputOption::VALUE_NONE, 'Wysyła powiadomienia, jeśli są dostępne');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,13 +51,14 @@ final class CompleteReservationsCommand extends Command
         $count = 0;
 
         foreach ($reservations as $r) {
-            if (!$r instanceof Reservation) continue;
+            if (!$r instanceof Reservation) {
+                continue;
+            }
 
             $old = $r->getStatus();
             $r->setStatus('completed');
             $count++;
 
-            // ✅ AUDYT (cron)
             $this->statusLog->log(
                 $r,
                 null,
@@ -65,7 +66,7 @@ final class CompleteReservationsCommand extends Command
                 'completed',
                 null,
                 'cron',
-                'Auto-completed by scheduler'
+                'Automatycznie zakończono przez harmonogram'
             );
 
             if ($notify && method_exists($this->notifier, 'reservationCompleted')) {
@@ -74,19 +75,19 @@ final class CompleteReservationsCommand extends Command
         }
 
         if ($count === 0) {
-            $output->writeln('<info>No reservations to complete.</info>');
+            $output->writeln('<info>Brak rezerwacji do zakończenia.</info>');
             return Command::SUCCESS;
         }
 
         if ($dryRun) {
-            $output->writeln(sprintf('<comment>[DRY RUN]</comment> Would complete %d reservation(s).', $count));
+            $output->writeln(sprintf('<comment>[TRYB TESTOWY]</comment> Liczba rezerwacji do zakończenia: %d.', $count));
             $this->em->clear();
             return Command::SUCCESS;
         }
 
         $this->em->flush();
 
-        $output->writeln(sprintf('<info>Completed %d reservation(s).</info>', $count));
+        $output->writeln(sprintf('<info>Zakończono rezerwacji: %d.</info>', $count));
         return Command::SUCCESS;
     }
 }
