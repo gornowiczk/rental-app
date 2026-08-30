@@ -14,7 +14,10 @@ class Notification
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(
+    	targetEntity: User::class,
+    	inversedBy: 'notifications'
+    )]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
