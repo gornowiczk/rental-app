@@ -18,7 +18,7 @@ class DocumentController extends AbstractController
         return $this->render('documents/index.html.twig', ['items' => $items]);
     }
 
-    // mały widżet (ostatnie 5) – użyjesz w dashboardzie lub gdzie chcesz
+    // Lista ostatnio wygenerowanych dokumentów wyświetlana w panelu użytkownika.
     #[Route('/documents/widget', name: 'app_documents_widget', methods: ['GET'])]
     public function widget(DocumentRepository $repo): Response
     {
