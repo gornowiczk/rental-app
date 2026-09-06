@@ -50,7 +50,7 @@ $user->setRoles($roles);
 
 $user->setPassword($hasher->hashPassword($user, $plainPassword));
 
-// Jeśli masz pola typu verified/active — ustawiamy je automatycznie
+// Pola statusu konta są ustawiane automatycznie, jeśli występują w encji.
 $boolSetters = [
     'setIsVerified' => true,
     'setVerified' => true,
