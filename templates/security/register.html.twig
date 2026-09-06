@@ -60,13 +60,6 @@
         box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .15);
     }
 
-    .auth-section-title {
-        margin: .25rem 0 .85rem;
-        font-size: .95rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
     .auth-error,
     .auth-field .invalid-feedback,
     .auth-field .form-error-message {
@@ -123,8 +116,6 @@
 
         {% if registrationForm is defined %}
             {{ form_start(registrationForm) }}
-                <div class="auth-section-title">Dane konta</div>
-
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="auth-field">
@@ -175,8 +166,6 @@
                     {{ form_errors(registrationForm.address) }}
                 </div>
 
-                <div class="auth-section-title">Bezpieczeństwo</div>
-
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="auth-field">
@@ -217,8 +206,6 @@
             {{ form_end(registrationForm, {'render_rest': false}) }}
         {% else %}
             <form method="post">
-                <div class="auth-section-title">Dane konta</div>
-
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="auth-field">
@@ -244,8 +231,6 @@
                     <label for="address" class="form-label">Adres</label>
                     <input type="text" name="address" id="address" class="form-control auth-input" placeholder="np. Warszawa, ul. Przykładowa 1">
                 </div>
-
-                <div class="auth-section-title">Bezpieczeństwo</div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
