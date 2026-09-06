@@ -32,7 +32,6 @@ class LoginBlockListener
             return;
         }
 
-        // dopasuj jeśli masz inną ścieżkę logowania
         if ($req->attributes->get('_route') !== 'app_login') {
             return;
         }
@@ -81,7 +80,6 @@ class LoginBlockListener
         if ($count >= 8) {
             $this->blocker->block($ip, 900);
 
-            // opcjonalnie: log do AdminLog (jako event bezpieczeństwa)
             $log = new AdminLog();
             $log->setAdmin(null);
             $log->setAction('security.ip_blocked');
