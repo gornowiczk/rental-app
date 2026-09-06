@@ -23,7 +23,7 @@ class CarImage
     #[Assert\NotBlank]
     private string $path;
 
-    // czy to zdjęcie główne (opcjonalnie)
+    // informacja, czy zdjęcie jest zdjęciem głównym pojazdu
     #[ORM\Column(type:'boolean')]
     private bool $isPrimary = false;
 
