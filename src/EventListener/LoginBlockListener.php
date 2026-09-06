@@ -76,7 +76,7 @@ class LoginBlockListener
             return $count;
         });
 
-        // jeśli >=8 to blokada 15 min
+        // Blokada IP po 8 nieudanych próbach logowania.
         if ($count >= 8) {
             $this->blocker->block($ip, 900);
 
