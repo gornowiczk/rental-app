@@ -90,9 +90,6 @@ final class ContractAvailableEmailOnAcceptSubscriber implements EventSubscriber
                     'seller_name' => $fromName,
                 ]);
 
-            // Uwaga: jesteśmy w onFlush, ale wysłanie maila jest OK;
-            // w razie wyjątków mailera – flush mógłby się wywalić.
-            // Jeśli chcesz 100% bezpieczeństwa, przeniesiemy to na Messenger.
             $this->mailer->send($email);
         }
     }
