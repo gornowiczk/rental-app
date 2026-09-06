@@ -15,7 +15,7 @@ final class InvoiceNumberGenerator
      */
     public function generateForReservation(Reservation $reservation): string
     {
-        // Numerujemy wg miesiąca daty startu rezerwacji (możesz zmienić na "now")
+        // Numer faktury jest tworzony na podstawie miesiąca rozpoczęcia rezerwacji.
         $baseDate = $reservation->getStartDate() ?? new \DateTimeImmutable();
 
         $year  = $baseDate->format('Y');
