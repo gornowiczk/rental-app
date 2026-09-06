@@ -438,7 +438,7 @@
 
                                     {% if car.mainImage %}
                                         <div class="thumb-card main-thumb mb-3">
-                                            <img src="{{ asset('uploads/' ~ car.mainImage) }}" alt="Zdjęcie główne">
+                                            <img src="{{ asset('uploads/cars/' ~ car.mainImage) }}" alt="Zdjęcie główne">
                                             <span class="thumb-badge">Główne</span>
                                         </div>
 
@@ -465,7 +465,7 @@
                                         <div class="thumb-grid">
                                             {% for img in gal %}
                                                 <label class="thumb-card">
-                                                    <img src="{{ asset('uploads/' ~ img) }}" alt="Zdjęcie galerii">
+                                                    <img src="{{ asset('uploads/cars/' ~ img) }}" alt="Zdjęcie galerii">
                                                     <span class="thumb-check">
                                                         <input type="checkbox" name="remove_gallery[]" value="{{ img }}" class="form-check-input m-0">
                                                         Usuń
