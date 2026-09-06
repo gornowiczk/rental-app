@@ -22,7 +22,7 @@ final class InvoiceAccessSubscriber
         /** @var Reservation|null $reservation */
         $reservation = $request->attributes->get('reservation');
 
-        // jeśli ParamConverter nie zadziałał (np. brak rezerwacji) – nie blokujemy tutaj
+        // Brak obiektu rezerwacji jest obsługiwany poza tym subskrybentem.
         if (!$reservation instanceof Reservation) {
             return;
         }
