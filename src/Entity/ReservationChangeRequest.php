@@ -29,7 +29,7 @@ class ReservationChangeRequest
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $requester = null;
 
-    // Kto podjął decyzję (np. owner auta albo admin) — opcjonalnie
+    // Użytkownik, który rozpatrzył wniosek o zmianę terminu.
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $decidedBy = null;
