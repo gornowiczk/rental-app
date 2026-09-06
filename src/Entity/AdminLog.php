@@ -14,7 +14,7 @@ class AdminLog
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    // ✅ NULLABLE: bo przy login failure nie mamy usera
+    // Pole może być puste przy nieudanej próbie logowania.
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'admin_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $admin = null;
