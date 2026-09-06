@@ -29,7 +29,7 @@ class Document
     #[ORM\Column(type: 'string', length: 20)]
     private string $type;
 
-    // NIE zapisujemy plików – generujesz on-the-fly.
+    // Dokumenty są generowane dynamicznie na podstawie danych rezerwacji.
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
