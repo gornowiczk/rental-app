@@ -40,13 +40,13 @@ final class ContractController extends AbstractController
 
         $status = (string) $reservation->getStatus();
 
-        // ✅ twardy zakaz dla odrzuconych/anulowanych
+        // Dokument nie jest dostępny dla rezerwacji odrzuconych lub anulowanych.
         if (in_array($status, ['rejected', 'cancelled'], true)) {
             $this->addFlash('warning', 'Dokumenty nie są dostępne dla odrzuconej/anulowanej rezerwacji.');
             return $this->redirectToRoute('app_reservations_show', ['id' => $reservation->getId(), 'from' => 'reservations']);
         }
 
-        // ✅ umowa dopiero po accepted/completed
+        // Umowa jest dostępna po zaakceptowaniu albo zakończeniu rezerwacji.
         if (!in_array($status, ['accepted', 'completed'], true)) {
             $this->addFlash('warning', 'Umowa będzie dostępna po akceptacji rezerwacji.');
             return $this->redirectToRoute('app_reservations_show', ['id' => $reservation->getId(), 'from' => 'reservations']);
