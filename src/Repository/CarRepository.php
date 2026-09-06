@@ -16,7 +16,6 @@ class CarRepository extends ServiceEntityRepository
         parent::__construct($registry, Car::class);
     }
 
-    // Jeśli chcesz tylko znaleźć wszystkie samochody
     public function findAllCars()
     {
         return $this->findAll();
