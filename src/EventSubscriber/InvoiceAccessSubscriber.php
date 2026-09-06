@@ -27,7 +27,7 @@ final class InvoiceAccessSubscriber
             return;
         }
 
-        // ✅ faktura dopiero po completed
+        // Faktura jest dostępna dopiero po zakończeniu rezerwacji.
         if ((string) $reservation->getStatus() !== 'completed') {
             throw new AccessDeniedHttpException('Faktura dostępna dopiero po zakończeniu rezerwacji.');
         }
