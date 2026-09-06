@@ -47,7 +47,7 @@ class UserEditType extends AbstractType
                 'label' => 'Nowe hasło (opcjonalnie)',
                 'required' => false,
                 'mapped' => false,
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Wpisz nowe hasło jeśli chcesz zmienić']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Wpisz nowe hasło, aby je zmienić']
             ]);
     }
 
