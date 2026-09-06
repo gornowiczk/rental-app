@@ -18,7 +18,7 @@ final class ReservationType extends AbstractType
                 'label'  => 'Data rozpoczęcia',
                 'widget' => 'single_text',              // <input type="date">
                 'html5'  => true,
-                'input'  => 'datetime_immutable',       // KLUCZOWE: dopasowanie do encji
+                'input'  => 'datetime_immutable',       // Dopasowanie typu danych do encji
                 'constraints' => [
                     new Assert\NotBlank(message: 'Podaj datę rozpoczęcia.'),
                 ],
